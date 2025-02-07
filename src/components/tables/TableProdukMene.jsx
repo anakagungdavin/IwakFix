@@ -1,23 +1,84 @@
 import React, { useState } from "react";
-
-const packageData = [
+import { useNavigate } from 'react-router';
+import { getStatus } from "../../pages/productmanage/AddProduct";
+import DeleteModal from "../modal/modalDelete";
+// const packageData = [
+//     {
+//       name: 'Iwak Bandeng',
+//       price: 0.0,
+//       id: 1234,
+//       stok: '10',
+//       status: 'Published',
+//     },
+//     {
+//       name: 'Iwak Gurame',
+//       price: 59.0,
+//       id: 54312,
+//       stok: '90',
+//       status: 'Low Stock',
+//     },
+//   ];
+  const packageData = [
     {
       name: 'Iwak Bandeng',
       price: 0.0,
       id: 1234,
       stok: '10',
-      status: 'Published',
+      isPublished: true,
     },
     {
       name: 'Iwak Gurame',
       price: 59.0,
       id: 54312,
       stok: '90',
-      status: 'Low Stock',
+      isPublished: true,
+    },
+    {
+      name: 'Iwak Nila',
+      price: 25.0,
+      id: 6789,
+      stok: 5,
+      isPublished: true,
+    },
+    {
+      name: 'Iwak Lele',
+      price: 12.0,
+      id: 1111,
+      stok: 0,
+      isPublished: true,
+    },
+    {
+      name: 'Iwak Mujair',
+      price: 8.0,
+      id: 2222,
+      stok: 15,
+      isPublished: false,
     },
   ];
+
+  // const formattedPackageData = packageData.map((item) => ({
+  //   ...item,
+  //   status: getStatus(item.stok, item.isPublished),
+  // }));
+  const formattedPackageData = packageData.map((item) => {
+    const statusData = getStatus(item.stok, item.isPublished);
+    return { ...item, status: statusData.label, statusColor: statusData.color };
+  });
   
   const TableMeneProduk = () => {
+    const navigate = useNavigate();
+    const [data, setData] = useState(formattedPackageData);
+    const [isModalOpen, setIsModalOpen] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const handleDeleteClick = (item) => {
+      setSelectedItem(item);
+      setIsModalOpen(true);
+    }
+    const confirmDelete = () => {
+      setData(data.filter(item => item.id !== selectedItem.id));
+      setIsModalOpen(false);
+    }
+
     return (
       <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
         <div className="max-w-full overflow-x-auto">
@@ -42,7 +103,9 @@ const packageData = [
               </tr>
             </thead>
             <tbody>
-              {packageData.map((packageItem, key) => (
+              {/* {packageData.map((packageItem, key) => ( */}
+              {/* {formattedPackageData.map((packageItem, key) => ( */}
+              {data.map((packageItem, key) => (
                   <tr key={key}>
                   {/* Kolom Nama & Harga */}
                   <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
@@ -67,24 +130,26 @@ const packageData = [
                     <p
                       className={`inline-flex rounded-full py-1 px-3 text-sm font-medium ${
                         packageItem.status === 'Published'
-                          ? 'bg-[#E9FAF7] text-[#1A9882]' // Published
-                          : packageItem.status === 'Low Stock'
-                          ? 'bg-[#FFF0EA] text-[#F86624]' // Low Stock
-                          : packageItem.status === 'Out of Stock'
-                          ? 'bg-[#FEECEE] text-[#EB3D4D]' // Out of Stock
-                          : packageItem.status === 'Draft'
-                          ? 'bg-[#F0F1F3] text-[#667085]' // Draft
-                          : ''
+                        ? 'bg-[#E9FAF7] text-[#1A9882]' // Published
+                        : packageItem.status === 'Low Stock'
+                        ? 'bg-[#FFF0EA] text-[#F86624]' // Low Stock
+                        : packageItem.status === 'Out of Stock'
+                        ? 'bg-[#FEECEE] text-[#EB3D4D]' // Out of Stock
+                        : packageItem.status === 'Draft'
+                        ? 'bg-[#F0F1F3] text-[#667085]' // Draft
+                        : ''
                       }`}
                     >
                       {packageItem.status}
                     </p>
                   </td>
   
-                  {/* Kolom Actions */}
+                 
                   <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                     <div className="flex items-center space-x-3.5">
-                      <button className="hover:text-primary">
+                      <button 
+                      onClick={() => navigate("view")}
+                      className="hover:text-primary">
                         <svg
                           className="fill-current"
                           width="18"
@@ -103,7 +168,8 @@ const packageData = [
                           />
                         </svg>
                       </button>
-                      <button className="hover:text-primary">
+                      <button onClick={() => handleDeleteClick(packageItem)}
+                      className="hover:text-primary">
                         <svg
                           className="fill-current"
                           width="18"
@@ -130,7 +196,9 @@ const packageData = [
                         />
                         </svg>
                       </button>
-                      <button className="hover:text-primary">
+                      <button 
+                      onClick={() => navigate("edit")}
+                      className="hover:text-primary">
                         <svg
                           className="fill-current"
                           width="18"
@@ -150,9 +218,16 @@ const packageData = [
                   </tr>
               ))}
             </tbody>
-  
           </table>
         </div>
+        {isModalOpen && (
+          <DeleteModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={confirmDelete}
+          item={selectedItem}
+          />
+        )}
       </div>
     );
   };

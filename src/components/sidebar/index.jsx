@@ -5,7 +5,7 @@ import { FaHome, FaShoppingCart, FaUsers, FaClipboardList, FaUser, FaSignOutAlt,
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
     const location = useLocation();
-
+    
     const menuItems = [
         { name: "Dashboard", path: "/dashboard", icon: <FaHome /> },
         { name: "Manajemen Produk", path: "/product-management", icon: <FaShoppingCart /> },
@@ -41,16 +41,16 @@ const Sidebar = () => {
                 </div>
 
                 <div>
-                    <p className={`text-gray-400 uppercase text-sm mb-2 ${!isOpen && "hidden"}`}>Profile</p>
+                    <p className={`text-gray-400 uppercase text-sm mb-2 ${!isOpen && "hidden"}`}></p>
                     <ul>
-                        <li className="mb-2">
+                        {/* <li className="mb-2">
                             <Link to="/profile"
                                 className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-all 
                                     ${location.pathname === "/profile" ? "bg-gray-100 font-semibold text-[#003D47]" : "text-[#8B909A]"}`}>
                                 <span className="text-lg mr-3"><FaUser /></span>
                                 {isOpen && <span>Profile</span>}
                             </Link>
-                        </li>
+                        </li> */}
                         <li>
                             <button 
                                 onClick={() => alert("Logging out...")} 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const BeratProduk = () => {
+const BeratProduk = ({isReadOnly = false}) => {
     const [berat,setBerat] = useState(0);
     const handleBerat = (e) =>{
         const value = parseFloat(e.target.value);
@@ -25,7 +25,7 @@ const BeratProduk = () => {
         <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
             <div className="max-w-full overflow-x-auto">
                 <h3 className="font-medium text-black dark:text-white">
-                    Inventaris Produk
+                    Berat Produk
                 </h3>
                 <form action="#">
                     <div className="p-6.5">
@@ -38,6 +38,7 @@ const BeratProduk = () => {
                                     type="number"
                                     placeholder="Masukan berat Produk"
                                     value={berat}
+                                    disabled={isReadOnly}
                                     onChange={handleBerat}
                                     className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 />
@@ -50,6 +51,7 @@ const BeratProduk = () => {
                                     type="number"
                                     placeholder="Masukan tinggi produk"
                                     value={tinggi}
+                                    disabled={isReadOnly}
                                     onChange={handleTinggi}
                                     className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 />
@@ -62,6 +64,7 @@ const BeratProduk = () => {
                                     type="number"
                                     placeholder="Masukan panjang produk"
                                     value={panjang}
+                                    disabled={isReadOnly}
                                     onChange={handlePanjang}
                                     className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 />
@@ -74,6 +77,7 @@ const BeratProduk = () => {
                                     type="number"
                                     placeholder="Masukan lebar produk"
                                     value={lebar}
+                                    disabled={isReadOnly}
                                     onChange={handleLebar}
                                     className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 />

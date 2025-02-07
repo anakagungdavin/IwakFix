@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const HargaProduk = () => {
+const HargaProduk = ({isReadOnly = false}) => {
     const [harga, setHarga] = useState(0);
     const [diskon, setDiskon] = useState(0);
 
@@ -22,7 +22,6 @@ const HargaProduk = () => {
                 <h3 className="font-medium text-black">Harga Produk</h3>
                 <form>
                     <div className="p-6.5">
-                        {/* Input Harga Produk */}
                         <div className="mb-4.5">
                             <label className="mb-2.5 block text-black">
                                 Harga Produk <span className="text-red-500">*</span>
@@ -31,12 +30,12 @@ const HargaProduk = () => {
                                 type="number"
                                 placeholder="Masukkan harga produk"
                                 value={harga}
+                                disabled={isReadOnly}
                                 onChange={handleHargaChange}
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                             />
                         </div>
 
-                        {/* Input Diskon Produk */}
                         <div className="mb-4.5">
                             <label className="mb-2.5 block text-black">
                                 Diskon Produk (%) <span className="text-red-500">*</span>
@@ -45,6 +44,7 @@ const HargaProduk = () => {
                                 type="number"
                                 placeholder="Masukkan persen diskon"
                                 value={diskon}
+                                disabled={isReadOnly}
                                 onChange={handleDiskonChange}
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                             />
@@ -53,7 +53,6 @@ const HargaProduk = () => {
                             </p>
                         </div>
 
-                        {/* Output Total Harga */}
                         <div className="mb-4.5">
                             <label className="mb-2.5 block text-black">
                                 Total Harga Setelah Diskon

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const InventarisProduk = () => {
+const InventarisProduk = ({isReadOnly = false}) => {
     const [sku,setSKU] = useState(0);
     const handleSKU = (e) =>{
         const value = parseFloat(e.target.value);
@@ -22,6 +22,7 @@ const InventarisProduk = () => {
                                 </label>
                                 <input
                                     type="text"
+                                    disabled={isReadOnly}
                                     placeholder="Masukan ID atau SKU Produk"
                                     className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 />
@@ -34,6 +35,7 @@ const InventarisProduk = () => {
                                     type="number"
                                     placeholder="Masukan jumlah stok produk"
                                     value={sku}
+                                    disabled={isReadOnly}
                                     onChange={handleSKU}
                                     className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 />

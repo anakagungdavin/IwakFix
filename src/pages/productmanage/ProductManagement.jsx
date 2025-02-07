@@ -1,8 +1,8 @@
 import Breadcrumb from '../../breadcrumb/breadcrumb';
 import TableMeneProduk from '../../components/tables/TableProdukMene';
-import AddProduct from './AddProduct';
 import { useNavigate } from 'react-router';
 const ProductManagement = () => {
+  const navigate = useNavigate();
   return (
     <>
       <div className="bg-gray-200 min-h-screen py-6">
@@ -12,7 +12,7 @@ const ProductManagement = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="col-span-4">
             <div className="flex justify-between items-center">
-              <button className="flex items-center px-4 py-2 bg-[#003D47] bg-opacity-20 text-[#003D47] rounded-md hover:bg-opacity-30">
+              {/* <button className="flex items-center px-4 py-2 bg-[#003D47] bg-opacity-20 text-[#003D47] rounded-md hover:bg-opacity-30">
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="currentColor"
@@ -27,8 +27,10 @@ const ProductManagement = () => {
                   />
                 </svg>
                 Export
-              </button>
-              <button className="flex items-center px-4 py-2 bg-[#E9FAF7] text-[#1A9882] rounded-md">
+              </button> */}
+              <button
+               onClick={() => navigate("add")}
+               className="flex items-center px-4 py-2 bg-[#003D47] rounded-md">
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="currentColor"

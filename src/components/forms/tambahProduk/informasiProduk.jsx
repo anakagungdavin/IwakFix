@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const InformasiProduk = () => {
+const InformasiProduk = ({isReadOnly = false}) => {
     return (
         <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
             <div className="max-w-full overflow-x-auto">
@@ -15,6 +15,7 @@ const InformasiProduk = () => {
                             </label>
                             <input
                                 type="text"
+                                disabled={isReadOnly}
                                 placeholder="Masukan nama produk"
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                             />
@@ -25,6 +26,7 @@ const InformasiProduk = () => {
                             </label>
                             <textarea 
                             rows={6}
+                            disabled={isReadOnly}
                             placeholder="Masukan deskripsi produk"
                             className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                             ></textarea>
