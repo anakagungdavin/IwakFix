@@ -6,6 +6,7 @@ import AddProduct from "../pages/productmanage/AddProduct";
 import ErrorPage from "../components/errorPage";
 import EditProduct from "../pages/productmanage/EditProduct";
 import ViewProduct from "../pages/productmanage/viewProduct";
+import HistoryPage from "../pages/transaksi/historyPage";
 const router = createBrowserRouter([
     {
       path: "/",
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
         {
           path: "product-management/view",
           element: <ViewProduct/>,
+        },
+        {
+          path: "riwayat-transaksi",
+          element: <HistoryPage/>,
         },
       ],
       errorElement: <ErrorPage />,
