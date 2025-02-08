@@ -36,10 +36,12 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
           &times;
         </button>
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Order Details</h2>
+        <span className="text-sm text-gray-500">{orderDate}</span>
+          {/* <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Order Details</h2>
             <span className="text-sm text-gray-500">{orderDate}</span>
-          </div>
+          </div> */}
           <div className="border rounded-lg p-4 space-y-2">
             <div className="flex items-center space-x-4">
               {productImage ? (
@@ -93,7 +95,7 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
             </div>
           </div>
           <button
-            className="bg-yellow-500 text-white rounded-md px-4 py-2 w-full hover:bg-yellow-600"
+            className="bg-[#f3f3c9] text-[#EB3D4D] rounded-md px-4 py-2 w-full hover:bg-yellow-600"
             onClick={onClose}
           >
             Close

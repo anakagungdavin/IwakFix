@@ -10,9 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-pdf/pdfkit": "^4.0.1",
+    "@react-pdf/renderer": "^4.2.1",
     "@tailwindcss/vite": "^4.0.2",
     "apexcharts": "^4.4.0",
     "emailjs-com": "^3.2.0",
+    "fontkit": "^2.0.4",
+    "html2canvas": "^1.4.1",
+    "hyphen": "^1.10.6",
+    "jspdf": "^2.5.2",
     "react": "^18.3.1",
     "react-apexcharts": "^1.7.0",
     "react-dom": "^18.3.1",
