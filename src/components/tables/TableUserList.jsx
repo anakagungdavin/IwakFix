@@ -1,9 +1,13 @@
 import React, { useState } from "react";
-import { PencilIcon, TrashIcon,EyeIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, TrashIcon, EyeIcon } from "@heroicons/react/24/solid";
+import { useNavigate } from "react-router-dom";
+import DeleteModal from "../modal/modalDelete";
 
-
-const TableUserList = ({ data, rowsPerPage, onView, onEdit, onDelete }) => {
+const TableUserList = ({ data, rowsPerPage, onEdit, onDelete }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const navigate = useNavigate();
 
   // Calculate total pages
   const totalPages = Math.ceil(data.length / rowsPerPage);
@@ -12,10 +16,29 @@ const TableUserList = ({ data, rowsPerPage, onView, onEdit, onDelete }) => {
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentData = data.slice(startIndex, startIndex + rowsPerPage);
 
+  const handleDeleteClick = (item) => {
+      setSelectedItem(item);
+      setIsModalOpen(true);
+    }
+    
+    const confirmDelete = () => {
+      onDelete(selectedItem);
+      setIsModalOpen(false);
+    }
+
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  const handleView = (item) => {
+    // Navigate to the ViewPage with the selected user's details
+    navigate("/view", { state: { user: item } });
+  };
+
+  const handleEdit = (item) => {
+    onEdit(item);
   };
 
   return (
@@ -28,7 +51,7 @@ const TableUserList = ({ data, rowsPerPage, onView, onEdit, onDelete }) => {
               <th className="px-6 py-3 text-sm font-medium text-gray-700">NAMA</th>
               <th className="px-6 py-3 text-sm font-medium text-gray-700">NO HP</th>
               <th className="px-6 py-3 text-sm font-medium text-gray-700">
-                TANGGAL MASUK
+                TANGGAL REGISTRASI
               </th>
               <th className="px-6 py-3 text-sm font-medium text-gray-700">ACTION</th>
             </tr>
@@ -55,23 +78,23 @@ const TableUserList = ({ data, rowsPerPage, onView, onEdit, onDelete }) => {
                   </div>
                 </td>
                 <td className="px-6 py-4">{item.phone}</td>
-                <td className="px-6 py-4">{item.date}</td>
+                <td className="px-6 py-4">{item.registeredDate}</td>
                 <td className="px-6 py-4">
                   <div className="flex space-x-3">
                     <button
-                      onClick={() => onView(item)}
-                      className="text-blue-500 hover:text-blue-700 "
+                      onClick={() => handleView(item)}
+                      className="text-blue-500 hover:text-blue-700"
                     >
                       <EyeIcon className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => onEdit(item)}
+                      onClick={() => handleEdit(item)}
                       className="text-blue-500 hover:text-blue-700"
                     >
                       <PencilIcon className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => onDelete(item)}
+                      onClick={() => handleDeleteClick(item)}
                       className="text-red-500 hover:text-red-700"
                     >
                       <TrashIcon className="w-5 h-5" />
@@ -83,6 +106,15 @@ const TableUserList = ({ data, rowsPerPage, onView, onEdit, onDelete }) => {
           </tbody>
         </table>
       </div>
+
+      {isModalOpen && (
+        <DeleteModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={confirmDelete}
+          itemName={selectedItem?.name}
+        />
+      )}
 
       {/* Pagination */}
       <div className="flex items-center justify-center space-x-2">

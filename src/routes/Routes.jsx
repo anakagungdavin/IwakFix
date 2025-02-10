@@ -8,6 +8,9 @@ import EditProduct from "../pages/productmanage/EditProduct";
 import ViewProduct from "../pages/productmanage/viewProduct";
 import UserList from "../pages/usermanagement/UserList";
 import HistoryPage from "../pages/transaksi/historyPage";
+import UserProfile from "../pages/usermanagement/UserProfile";
+import EditUserProfile from "../pages/usermanagement/EditUserProfile";
+
 const router = createBrowserRouter([
     {
       path: "/",
@@ -40,6 +43,14 @@ const router = createBrowserRouter([
         {
           path: "customers",
           element: <UserList />,
+        },
+        {
+          path: "view",
+          element: <UserProfile />
+        },
+        {
+          path: "view/edit",
+          element: <EditUserProfile />
         },
         {
           path: "riwayat-transaksi",
