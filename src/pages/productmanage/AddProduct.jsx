@@ -8,7 +8,9 @@ import JenisProduk from '../../components/forms/tambahProduk/jenisProduk';
 import BeratProduk from '../../components/forms/tambahProduk/beratProduk';
 import UploadGambar from '../../components/forms/tambahProduk/mediaProduk';
 import CancelModal from '../../components/modal/modalCancel';
-
+import UploadSuccessModal from '../../components/modal/modalBerhasilUpload';
+import SimpanModal from '../../components/modal/modalBerhasilSimpan';
+import { getProducts, getProductById, addProduct, updateProduct, deleteProduct } from '../../services/api';
 
 // export function getStatus (stok, isPublished) {
 //     if (!isPublished) return "Draft"; 
@@ -25,13 +27,123 @@ export function getStatus(stok, isPublished) {
 const AddProduct = () => {
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isUploadSuccess, setUploadSuccess] = useState (false)
+    const [isSimpanSuccess, setSimpanSuccess] = useState(false);
+    const [productData, setProductData] = useState({
+        name: "",
+        description: "",
+        price: "",
+        discount: "",
+        stock: "",
+        image: null,
+        weight: "",
+        dimensions: {
+            height: "",
+            length: "",
+            width: ""
+        },
+        type: {
+            color: [],
+            size: []
+        }
+    });
 
-    const handleSaveDraft = () => {
-        alert("Produk disimpan sebagai draft!");
+    // Fungsi update state saat input berubah
+    // const handleInputChange = (e) => {
+    //     const {name, value} = e.target;
+    //     setProductData((prev) => ({
+    //         ...prev,
+    //         [name]: value
+    //     }));
+    // };
+    const handleInputChange = (e) => {
+        // if (!e || !e.target) {
+        //     console.error("handleInputChange dipanggil tanpa event yang valid", e);
+        //     return;
+        // }
+    
+        // const { name, value } = e.target;
+        // setProductData((prev) => ({
+        //     ...prev,
+        //     [name]: value
+        // }));
+        if (e && e.target) {
+            // Jika dipanggil dengan event valid
+            const { name, value } = e.target;
+            setProductData((prev) => ({
+                ...prev,
+                [name]: value
+            }));
+        } else if (typeof e === "object") {
+            // Jika dipanggil dengan objek langsung (dari JenisProduk, HargaProduk, dll.)
+            setProductData(e);
+        } else {
+            console.error("handleInputChange dipanggil dengan format yang tidak dikenali", e);
+        }
     };
 
-    const handleUpload = () => {
-        alert("Produk berhasil diunggah!");
+    // Fungsi untuk upload gambar
+    const handleImageUpload = (imageFile) => {
+        setProductData((prev) => ({
+            ...prev,
+            image: imageFile
+        }));
+    };
+
+    const handleSaveDraft = () => {
+        setSimpanSuccess(true);
+    };
+
+    const handleUpload = async () => {
+        // setUploadSuccess(true);
+        // try{
+        //     const formData = new FormData();
+        //     Object.keys(productData).forEach((key) => {
+        //         formData.append(key, productData[key]);
+        //     });
+        //     console.log("FormData sebelum dikirim:", [...formData.entries()]); // Debug
+        //     await addProduct(formData);
+        //     setUploadSuccess(true);
+        // }catch(error){
+        //     console.error("Error Menambahkan Product:", error);
+        // }
+        try {
+            const formData = new FormData();
+
+            // Append non-nested fields
+            formData.append("name", productData.name);
+            formData.append("description", productData.description);
+            formData.append("price", productData.price);
+            formData.append("discount", productData.discount);
+            formData.append("stock", productData.stock);
+            formData.append("weight", productData.weight);
+
+            // Append nested fields (dimensions)
+            formData.append("dimensions[height]", productData.dimensions.height);
+            formData.append("dimensions[length]", productData.dimensions.length);
+            formData.append("dimensions[width]", productData.dimensions.width);
+
+            // Append arrays (type.color and type.size)
+            productData.type.color.forEach((color, index) => {
+                formData.append(`type[color][${index}]`, color);
+            });
+            productData.type.size.forEach((size, index) => {
+                formData.append(`type[size][${index}]`, size);
+            });
+
+            // Append image file
+            if (productData.image) {
+                formData.append("image", productData.image);
+            }
+
+            console.log("FormData sebelum dikirim:", [...formData.entries()]); // Debug
+
+            // Call API to add product
+            await addProduct(formData);
+            setUploadSuccess(true);
+        } catch (error) {
+            console.error("Error Menambahkan Product:", error);
+        }
     };
 
     const handleCancel = () => { 
@@ -52,16 +164,24 @@ const AddProduct = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={confirmCancel}
         />
+        <UploadSuccessModal
+        isOpen={isUploadSuccess}
+        onClose={() => setUploadSuccess(false)}
+        />
+        <SimpanModal
+        isOpen={isSimpanSuccess}
+        onClose={() => setSimpanSuccess(false)}
+        />
             <div className="bg-gray-200 min-h-screen py-6">
                 <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
                     <Breadcrumb pageName="Tambah Produk"/>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><InformasiProduk/></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><UploadGambar/></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><HargaProduk/></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><InventarisProduk/></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><JenisProduk/></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><BeratProduk/></div></div>
+                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><InformasiProduk data={productData} onChange={handleInputChange}/></div></div>
+                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><UploadGambar onUpload={handleImageUpload}/></div></div>
+                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><HargaProduk data={productData} onChange={handleInputChange}/></div></div>
+                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><InventarisProduk data={productData} onChange={handleInputChange}/></div></div>
+                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><JenisProduk data={productData} onChange={handleInputChange}/></div></div>
+                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><BeratProduk data={productData} onChange={handleInputChange}/></div></div>
                     </div>
 
                     <div className="flex justify-end gap-4 mt-6">

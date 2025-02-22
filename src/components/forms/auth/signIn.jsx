@@ -1,7 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { signIn } from "../../../services/authApi"
 
 const SignIn = () => {
+    const [email, setEmail] = useState("");
+    const [password,setPassword] = useState ("");
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            await signIn({email, password});
+            navigate("/dashboard");
+        } catch (error){
+            setError("Login gagal! Periksa email atau passowrd")
+        }
+    };
+
+
     return (
         <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
             <div className="max-w-full overflow-x-auto">
@@ -10,7 +28,8 @@ const SignIn = () => {
                     <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
                         Sign In to Iwak.
                     </h2>
-                    <form>
+                    <form onSubmit={handleLogin}>
+                        {error && <p className="text-red-500">{error}</p>}
                         <div className="mb-4">
                             <label className="mb-2.5 block font-medium text-black dark:text-white">
                                 Email
@@ -19,7 +38,10 @@ const SignIn = () => {
                                 <input 
                                 type="email"
                                 placeholder="Masukan email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
+                                required
                                 />
                                 <span className="absolute right-4 top-4">
                                     <svg
@@ -47,7 +69,10 @@ const SignIn = () => {
                                 <input
                                 type="password"
                                 placeholder="Masukan Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
+                                required
                                 />
                                 <span className="absolute right-4 top-4">
                                     <svg
@@ -82,7 +107,7 @@ const SignIn = () => {
                         <div className="mt-6 text-center">
                             <p>
                                 Belum punya akun?{' '}
-                                <Link to="" className=" cursor-pointer text-[#003D47]">
+                                <Link to="/register" className=" cursor-pointer text-[#003D47]">
                                     Sign Up
                                 </Link>
                             </p>

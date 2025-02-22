@@ -1,17 +1,23 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaHome, FaShoppingCart, FaUsers, FaClipboardList, FaUser, FaSignOutAlt, FaBars } from "react-icons/fa";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
     const location = useLocation();
-    
+    const navigate = useNavigate();
+
     const menuItems = [
         { name: "Dashboard", path: "/dashboard", icon: <FaHome /> },
         { name: "Manajemen Produk", path: "/product-management", icon: <FaShoppingCart /> },
         { name: "Customers", path: "/customers", icon: <FaUsers /> },
         { name: "Riwayat Bukti Transaksi", path: "/riwayat-transaksi", icon: <FaClipboardList /> }
     ];
+
+    const handleLogOut = () => {
+        localStorage.removeItem("token");
+        navigate("/login", {replace: true});
+    };
 
     return (
         <div className="flex">
@@ -53,7 +59,7 @@ const Sidebar = () => {
                         </li> */}
                         <li>
                             <button 
-                                onClick={() => alert("Logging out...")} 
+                                onClick={(handleLogOut)} 
                                 className="flex items-center w-full p-3 rounded-lg hover:bg-red-200 text-red-500 transition-all">
                                 <span className="text-lg mr-3"><FaSignOutAlt /></span>
                                 {isOpen && <span>Log Out</span>}

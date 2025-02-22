@@ -46,7 +46,7 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
             <div className="flex items-center space-x-4">
               {productImage ? (
                 <img
-                  src={productImage} // Local image or database source
+                  src={productImage}
                   alt={productName}
                   className="w-16 h-16 object-cover rounded-md"
                 />

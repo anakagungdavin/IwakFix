@@ -1,11 +1,20 @@
 import React, { useState } from "react";
 
-const InventarisProduk = ({isReadOnly = false}) => {
-    const [sku,setSKU] = useState(0);
-    const handleSKU = (e) =>{
-        const value = parseFloat(e.target.value);
-        setSKU(value < 0 ? 0 : value);
+const InventarisProduk = ({data = {}, onChange = () => {}}) => {
+    const [sku,setSKU] = useState(data.sku || "");
+    const [stock, setStock] = useState(data.stock || 0);
+    const handleSKUChange = (e) =>{
+        const value = e.target.value;
+        // setSKU(value < 0 ? 0 : value);
+        setSKU(value);
+        onChange({ target: {name: "sku", value }});
     };
+
+    const handleStockChange = (e) => {
+        const value = parseFloat(e.target.value) || 0;
+        setStock(value);
+        onChange({target: {name: "stock", value}});
+    }
 
     return (
         <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
@@ -22,7 +31,9 @@ const InventarisProduk = ({isReadOnly = false}) => {
                                 </label>
                                 <input
                                     type="text"
-                                    disabled={isReadOnly}
+                                    name="sku"
+                                    value={sku}
+                                    onChange={handleSKUChange}
                                     placeholder="Masukan ID atau SKU Produk"
                                     className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 />
@@ -33,10 +44,10 @@ const InventarisProduk = ({isReadOnly = false}) => {
                                 </label>
                                 <input
                                     type="number"
+                                    name="stock"
                                     placeholder="Masukan jumlah stok produk"
-                                    value={sku}
-                                    disabled={isReadOnly}
-                                    onChange={handleSKU}
+                                    value={stock}
+                                    onChange={handleStockChange}
                                     className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 />
                             </div>

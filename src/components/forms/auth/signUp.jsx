@@ -1,7 +1,27 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { signUp } from "../../../services/authApi"
 
 const SignUp = () => {
+    const [name, setName] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        try {
+            await signUp({ name, email, phoneNumber, password });
+            navigate("/login");
+        } catch (error) {
+            setError("Registrasi gagal! Coba lagi.");
+        }
+    };
+
     return (
         <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
             <div className="max-w-full overflow-x-auto">
@@ -10,7 +30,8 @@ const SignUp = () => {
                     <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
                         Buat akun baru
                     </h2>
-                    <form>
+                    <form onSubmit={handleRegister}>
+                        {error && <p className="text-red-500">{error}</p>}
                         <div className="mb-4">
                             <label className="mb-2.5 block font-medium text-black dark:text-white">
                                 Nama
@@ -19,7 +40,10 @@ const SignUp = () => {
                                 <input 
                                 type="text"
                                 placeholder="Masukan nama anda"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
+                                required
                                 />
                                 <span className="absolute right-4 top-4">
                                     <svg
@@ -51,7 +75,10 @@ const SignUp = () => {
                                 <input 
                                 type="email"
                                 placeholder="Masukan email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
+                                required
                                 />
                                 <span className="absolute right-4 top-4">
                                     <svg
@@ -81,6 +108,9 @@ const SignUp = () => {
                                 pattern="^(\+62|62|0)8[1-9][0-9]{6,9}$"
                                 inputMode="numeric"
                                 placeholder="Masukan telephone"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                required
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 />
                                 <span className="absolute right-4 top-4">
@@ -109,7 +139,11 @@ const SignUp = () => {
                                 <input
                                 type="password"
                                 placeholder="Masukan Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
+                                
                                 />
                                 <span className="absolute right-4 top-4">
                                     <svg
@@ -134,7 +168,7 @@ const SignUp = () => {
                                 </span>
                             </div>
                         </div>
-                        <div className="mb-6">
+                        {/* <div className="mb-6">
                             <label className="mb-2.5 block font-medium text-black dark:text-white">
                                 Konfirmasi Password
                             </label>
@@ -166,7 +200,7 @@ const SignUp = () => {
                                     </svg>
                                 </span>
                             </div>
-                        </div>
+                        </div> */}
                         <div className="mb-5">
                             <input
                             type="submit"
@@ -177,7 +211,7 @@ const SignUp = () => {
                         <div className="mt-6 text-center">
                             <p>
                                 Sudah punya akun?{' '}
-                                <Link to="" className=" cursor-pointer text-[#003D47]">
+                                <Link to="/login" className=" cursor-pointer text-[#003D47]">
                                     Sign In
                                 </Link>
                             </p>

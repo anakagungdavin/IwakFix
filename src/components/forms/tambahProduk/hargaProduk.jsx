@@ -1,20 +1,25 @@
 import React, { useState } from "react";
 
-const HargaProduk = ({isReadOnly = false}) => {
-    const [harga, setHarga] = useState(0);
-    const [diskon, setDiskon] = useState(0);
+const HargaProduk = ({data = {price:0, discount: 0}, onChange = () => {}}) => {
+    const [price, setPrice] = useState(data.price);
+    const [discount, setDiscount] = useState(data.discount);
 
     const handleHargaChange = (e) => {
-        const value = parseFloat(e.target.value);
-        setHarga(value < 0 ? 0 : value);
+        const value = parseFloat(e.target.value) || 0;
+        setPrice(value)
+        onChange ({target: {name: "price", value}});
+        // setPrice(value < 0 ? 0 : value);
     };
 
     const handleDiskonChange = (e) => {
-        const value = parseFloat(e.target.value);
-        setDiskon(value < 0 ? 0 : value);
+        const value = parseFloat(e.target.value) || 0;
+        // setDiscount(value < 0 ? 0 : value);
+        setDiscount(value)
+        onChange ({target: {name: "discount", value}});
+
     };
 
-    const totalHarga = harga - (harga * diskon / 100);
+    const totalHarga = price - (price * discount / 100);
 
     return (
         <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
@@ -29,8 +34,7 @@ const HargaProduk = ({isReadOnly = false}) => {
                             <input
                                 type="number"
                                 placeholder="Masukkan harga produk"
-                                value={harga}
-                                disabled={isReadOnly}
+                                value={price}
                                 onChange={handleHargaChange}
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                             />
@@ -43,8 +47,7 @@ const HargaProduk = ({isReadOnly = false}) => {
                             <input
                                 type="number"
                                 placeholder="Masukkan persen diskon"
-                                value={diskon}
-                                disabled={isReadOnly}
+                                value={discount}
                                 onChange={handleDiskonChange}
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                             />

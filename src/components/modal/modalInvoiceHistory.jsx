@@ -83,7 +83,7 @@ const MyDocument = ({ startDate, endDate }) => (
                     ))}
             </View>
             <View style={styles.totalSection}>
-                <Text>Invoice Total: $ {historyPembelian.reduce((sum, item) => sum + item.orderDetails.quantity * item.orderDetails.pricePerUnit, 0).toFixed(3)}</Text>
+                <Text>Invoice Total: Rp {historyPembelian.reduce((sum, item) => sum + item.orderDetails.quantity * item.orderDetails.pricePerUnit, 0).toFixed(3)}</Text>
             </View>  
         </Page>
     </Document>

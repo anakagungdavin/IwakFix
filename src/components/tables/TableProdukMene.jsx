@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router';
 import { getStatus } from "../../pages/productmanage/AddProduct";
 import DeleteModal from "../modal/modalDelete";
+import Products from "../../dummyData/daftarProduk";
+import ModalView from "../modal/modalViewProduk";
+import { getProducts, getProductById, addProduct, updateProduct, deleteProduct } from '../../services/api';
+
 // const packageData = [
 //     {
 //       name: 'Iwak Bandeng',
@@ -18,66 +22,104 @@ import DeleteModal from "../modal/modalDelete";
 //       status: 'Low Stock',
 //     },
 //   ];
-  const packageData = [
-    {
-      name: 'Iwak Bandeng',
-      price: 0.0,
-      id: 1234,
-      stok: '10',
-      isPublished: true,
-    },
-    {
-      name: 'Iwak Gurame',
-      price: 59.0,
-      id: 54312,
-      stok: '90',
-      isPublished: true,
-    },
-    {
-      name: 'Iwak Nila',
-      price: 25.0,
-      id: 6789,
-      stok: 5,
-      isPublished: true,
-    },
-    {
-      name: 'Iwak Lele',
-      price: 12.0,
-      id: 1111,
-      stok: 0,
-      isPublished: true,
-    },
-    {
-      name: 'Iwak Mujair',
-      price: 8.0,
-      id: 2222,
-      stok: 15,
-      isPublished: false,
-    },
-  ];
+  // const packageData = [
+  //   {
+  //     name: 'Iwak Bandeng',
+  //     price: 0.0,
+  //     id: 1234,
+  //     stok: '10',
+  //     isPublished: true,
+  //   },
+  //   {
+  //     name: 'Iwak Gurame',
+  //     price: 59.0,
+  //     id: 54312,
+  //     stok: '90',
+  //     isPublished: true,
+  //   },
+  //   {
+  //     name: 'Iwak Nila',
+  //     price: 25.0,
+  //     id: 6789,
+  //     stok: 5,
+  //     isPublished: true,
+  //   },
+  //   {
+  //     name: 'Iwak Lele',
+  //     price: 12.0,
+  //     id: 1111,
+  //     stok: 0,
+  //     isPublished: true,
+  //   },
+  //   {
+  //     name: 'Iwak Mujair',
+  //     price: 8.0,
+  //     id: 2222,
+  //     stok: 15,
+  //     isPublished: false,
+  //   },
+  // ];
 
   // const formattedPackageData = packageData.map((item) => ({
   //   ...item,
   //   status: getStatus(item.stok, item.isPublished),
   // }));
-  const formattedPackageData = packageData.map((item) => {
+  const formattedPackageData = Products.map((item) => {
     const statusData = getStatus(item.stok, item.isPublished);
     return { ...item, status: statusData.label, statusColor: statusData.color };
   });
+
   
   const TableMeneProduk = () => {
     const navigate = useNavigate();
-    const [data, setData] = useState(formattedPackageData);
+    const [data, setData] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(null);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [isViewOpen, setIsViewOpen] = useState(null);
+
+    useEffect(() => {
+      const fetchProducts = async () => {
+        try {
+          const products = await getProducts();
+          const formattedProducts = products.map((item) => {
+            const statusData = getStatus(item.stock, item.isPublished);
+            return { ...item, status: statusData.label, statusColor: statusData.color };
+          });
+          setData(formattedProducts);
+        }catch(error){
+          console.error("error fetching product:", error);
+        }
+      };
+      fetchProducts();
+    }, []);
+
     const handleDeleteClick = (item) => {
       setSelectedItem(item);
       setIsModalOpen(true);
     }
-    const confirmDelete = () => {
-      setData(data.filter(item => item.id !== selectedItem.id));
-      setIsModalOpen(false);
+    // const confirmDelete = () => {
+    //   setData(data.filter(item => item.id !== selectedItem.id));
+    //   setIsModalOpen(false);
+    // }
+    const confirmDelete = async () => {
+      try {
+        await deleteProduct(selectedItem.id);
+        setData(data.filter(item => item.id !== selectedItem.id));
+        setIsModalOpen(false);
+      } catch (error) {
+        console.error("error deleting product:", error);
+      }
     }
+    const handleViewDetails = (item) => {
+      console.log("Item yang dipilih:", item);
+      setSelectedItem(item);
+      setIsViewOpen(true);
+    }
+
+    const handleEditClick = (id) => {
+      navigate(`/product-management/edit/${id}`);
+    };
+    
 
     return (
       <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
@@ -117,12 +159,12 @@ import DeleteModal from "../modal/modalDelete";
   
                   {/* Kolom ID */}
                   <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                      {packageItem.id}
+                      {packageItem._id}
                   </td>
   
                   {/* Kolom Stok */}
                   <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                      {packageItem.stok}
+                      {packageItem.stock}
                   </td>
   
                   {/* Kolom Status */}
@@ -148,7 +190,7 @@ import DeleteModal from "../modal/modalDelete";
                   <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                     <div className="flex items-center space-x-3.5">
                       <button 
-                      onClick={() => navigate("view")}
+                      onClick={() => handleViewDetails(packageItem)}
                       className="hover:text-primary">
                         <svg
                           className="fill-current"
@@ -197,7 +239,7 @@ import DeleteModal from "../modal/modalDelete";
                         </svg>
                       </button>
                       <button 
-                      onClick={() => navigate("edit")}
+                      onClick={() => handleEditClick(packageItem._id)}
                       className="hover:text-primary">
                         <svg
                           className="fill-current"
@@ -228,6 +270,15 @@ import DeleteModal from "../modal/modalDelete";
           item={selectedItem}
           />
         )}
+        {
+          isViewOpen && selectedItem &&(
+            <ModalView
+            isOpen={isViewOpen}
+            onClose={() => setIsViewOpen(false)}
+            item = {selectedItem}
+            />
+          )
+        }
       </div>
     );
   };
