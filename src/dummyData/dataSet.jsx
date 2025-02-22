@@ -1,6 +1,7 @@
 const historyPembelian = [
     {
         id: 55171,
+        customerId: 1, // Reference to Jimin
         custName: 'Jimin',
         date: '13 Oktober 2024',
         total: '200.000',
@@ -25,6 +26,7 @@ const historyPembelian = [
     },
     {
         id: 55172,
+        customerId: 2, // Reference to Jungkook
         custName: 'Jungkook',
         date: '1 September 2024',
         total: '300.000',
@@ -49,6 +51,7 @@ const historyPembelian = [
     },
     {
         id: 55173,
+        customerId: 3, // Reference to Uarmyhope
         custName: 'Uarmyhope',
         date: '18 Februari 2024',
         total: '400.000',
@@ -63,7 +66,7 @@ const historyPembelian = [
             pricePerUnit: '400.000',
             recipient: 'Uarmyhope',
             phone: '08137775555',
-            address: 'Gadjah Mada University, Perpustakaan UGM, Jl Tri Darma No.2, Karang Malang, Caturtunggal, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55281 ',
+            address: 'Yogyakarta, Indonesia',
             paymentMethod: 'Bank Transfer',
             itemsTotal: '400.000',
             shippingCost: '30.000',
@@ -72,4 +75,4 @@ const historyPembelian = [
         },
     },
 ];
-export default historyPembelian
+export default historyPembelian;
