@@ -77,16 +77,32 @@ import { getProducts, getProductById, addProduct, updateProduct, deleteProduct }
     const [selectedItem, setSelectedItem] = useState(null);
     const [isViewOpen, setIsViewOpen] = useState(null);
 
+    // useEffect(() => {
+    //   const fetchProducts = async () => {
+    //     try {
+    //       const products = await getProducts();
+    //       const formattedProducts = products.map((item) => {
+    //         const statusData = getStatus(item.stock, item.isPublished);
+    //         return { ...item, status: statusData.label, statusColor: statusData.color };
+    //       });
+    //       setData(formattedProducts);
+    //     }catch(error){
+    //       console.error("error fetching product:", error);
+    //     }
+    //   };
+    //   fetchProducts();
+    // }, []);
     useEffect(() => {
       const fetchProducts = async () => {
         try {
-          const products = await getProducts();
+          // Destructure respons agar mendapatkan properti products
+          const { products } = await getProducts();
           const formattedProducts = products.map((item) => {
             const statusData = getStatus(item.stock, item.isPublished);
             return { ...item, status: statusData.label, statusColor: statusData.color };
           });
           setData(formattedProducts);
-        }catch(error){
+        } catch (error) {
           console.error("error fetching product:", error);
         }
       };

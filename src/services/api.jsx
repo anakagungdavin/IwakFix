@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_URL = "http://iwak-seven.vercel.app/api";
+// const API_URL = "https://iwak.onrender.com/api";
+const API_URL = "https://iwak-seven.vercel.app/api";
+
 // Fungsi untuk mendapatkan daftar produk
 export const getProducts = async () => {
     try {
@@ -28,7 +30,6 @@ export const addProduct = async (productData) => {
     try {
         // Ambil token dari localStorage atau dari state auth (sesuaikan dengan implementasi auth-mu)
         const token = localStorage.getItem("token"); // Pastikan token disimpan sebelumnya
-
         if (!token) {
             throw new Error("Token tidak ditemukan. Silakan login kembali.");
         }

@@ -125,11 +125,11 @@ import React, { useState, useEffect } from "react";
 
 const BeratProduk = ({ data = {}, onChange = () => {} }) => {
     const [formData, setFormData] = useState({
-        weight: data.weight || 0,
+        weight: data?.weight || 0,
         dimensions: {
-            height: data.dimensions?.height || 0,
-            length: data.dimensions?.length || 0,
-            width: data.dimensions?.width || 0,
+            height: data?.dimensions?.height || 0,
+            length: data?.dimensions?.length || 0,
+            width: data?.dimensions?.width || 0,
         }
     });
 

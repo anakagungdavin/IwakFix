@@ -202,9 +202,7 @@ const JenisProduk = ({ data = {type: {color: [], size: []}}, onChange = () => {}
                     <label className="block text-gray-600 mb-1">{type === "color" ? "Warna" : "Ukuran"}</label>
                     {jenisProduk[type].map((variasi, index) => (
                         <div key={index} className="flex items-center mb-2">
-                            {isReadOnly ? (
-                                <p className="text-black py-2">{variasi}</p>
-                            ) : (
+                            {  (
                                 <input
                                     type="text"
                                     className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
@@ -213,7 +211,7 @@ const JenisProduk = ({ data = {type: {color: [], size: []}}, onChange = () => {}
                                     onChange={(e) => handleChangeVariasi(type, index, e.target.value)}
                                 />
                             )}
-                            {!isReadOnly && jenisProduk[type].length > 0 && (
+                            {jenisProduk[type].length > 0 && (
                                 <button
                                     type="button"
                                     className="ml-2 text-red-500"
@@ -224,7 +222,7 @@ const JenisProduk = ({ data = {type: {color: [], size: []}}, onChange = () => {}
                             )}
                         </div>
                     ))}
-                    {!isReadOnly && (
+                    {(
                         <button
                             type="button"
                             className="mt-2 px-4 py-1 bg-[#E9FAF7] text-[#1A9882]"

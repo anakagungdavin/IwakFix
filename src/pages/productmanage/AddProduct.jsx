@@ -143,6 +143,7 @@ const AddProduct = () => {
             setUploadSuccess(true);
         } catch (error) {
             console.error("Error Menambahkan Product:", error);
+
         }
     };
 
@@ -177,7 +178,15 @@ const AddProduct = () => {
                     <Breadcrumb pageName="Tambah Produk"/>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><InformasiProduk data={productData} onChange={handleInputChange}/></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><UploadGambar onUpload={handleImageUpload}/></div></div>
+                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><UploadGambar
+                            onUpload={(file) => {
+                                setProduct(prevState => ({
+                                    ...prevState,
+                                    image: file ? URL.createObjectURL(file) : null,
+                                }));
+                            }}
+                            mode="add"
+                        /></div></div>
                         <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><HargaProduk data={productData} onChange={handleInputChange}/></div></div>
                         <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><InventarisProduk data={productData} onChange={handleInputChange}/></div></div>
                         <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><JenisProduk data={productData} onChange={handleInputChange}/></div></div>
