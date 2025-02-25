@@ -39,6 +39,7 @@ const EditProduct = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadSuccess, setUploadSuccess] = useState(false);
   const [isSimpanSuccess, setSimpanSuccess] = useState(false);
+  const [removedImages, setRemovedImages] = useState([]); // State untuk melacak gambar yang dihapus
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -46,21 +47,19 @@ const EditProduct = () => {
         const data = await getProductById(id);
         if (!data) throw new Error("Produk tidak ditemukan");
 
-        // Pastikan dimensions ada, gunakan default jika tidak ada
         const dimensions = data.dimensions || {
           height: 0,
           length: 0,
           width: 0,
         };
-
-        // Pastikan images ada, gunakan array kosong jika tidak ada
         const imageUrls = data.images || [];
         setProduct({
           ...data,
           images: imageUrls,
           imageFiles: [],
-          dimensions, // Gunakan dimensions yang sudah dicek
+          dimensions,
         });
+        setRemovedImages([]); // Reset gambar yang dihapus saat fetch
         console.log("Product data fetched:", data); // Debugging
       } catch (error) {
         console.error("Gagal to fetch product:", error);
@@ -110,13 +109,21 @@ const EditProduct = () => {
         console.log("Tidak ada file gambar baru, menggunakan gambar lama.");
       }
 
-      // Tambahkan URL gambar lama ke FormData (jika ada dan bukan blob URL)
+      // Tambahkan URL gambar lama yang belum dihapus ke FormData
       const existingImageUrls = product.images
-        .filter((url) => !url.startsWith("blob:"))
+        .filter(
+          (url) => !url.startsWith("blob:") && !removedImages.includes(url)
+        )
         .map((url) => url);
       if (existingImageUrls.length > 0) {
-        formData.append("existingImages", JSON.stringify(existingImageUrls)); // Kirim URL gambar lama
+        formData.append("existingImages", JSON.stringify(existingImageUrls));
         console.log("URL gambar lama yang dikirim:", existingImageUrls);
+      }
+
+      // Tambahkan daftar gambar yang dihapus ke FormData
+      if (removedImages.length > 0) {
+        formData.append("removedImages", JSON.stringify(removedImages));
+        console.log("Gambar yang dihapus:", removedImages);
       }
 
       const response = await updateProduct(product._id, formData);
@@ -127,11 +134,12 @@ const EditProduct = () => {
       // Perbarui state dengan images baru dari respons server
       setProduct((prevState) => ({
         ...prevState,
-        images: response.images || prevState.images, // Gunakan images baru dari server
-        imageFiles: [], // Reset file setelah upload berhasil
-        dimensions: response.dimensions || prevState.dimensions, // Perbarui dimensions dari server
-        type: response.type || prevState.type, // Perbarui type dari server
+        images: response.images || prevState.images,
+        imageFiles: [],
+        dimensions: response.dimensions || prevState.dimensions,
+        type: response.type || prevState.type,
       }));
+      setRemovedImages([]); // Reset gambar yang dihapus setelah update berhasil
       setUploadSuccess(true);
     } catch (error) {
       console.error("Error saat update produk:", error);
@@ -149,18 +157,28 @@ const EditProduct = () => {
   };
 
   // Fungsi untuk menghapus gambar dari preview
-  const handleRemoveImage = (index) => {
+  const handleRemoveImage = (removedImageUrl) => {
     setProduct((prevState) => {
-      const newImages = [...prevState.images];
-      const newImageFiles = [...prevState.imageFiles];
+      const newImages = prevState.images.filter(
+        (url) => url !== removedImageUrl
+      );
+      const newImageFiles = prevState.imageFiles.filter(
+        (_, index) => prevState.images[index] !== removedImageUrl
+      );
 
       // Hapus URL preview lama untuk mencegah memory leak
-      if (newImages[index] && newImages[index].startsWith("blob:")) {
-        URL.revokeObjectURL(newImages[index]);
+      if (removedImageUrl && removedImageUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(removedImageUrl);
       }
 
-      newImages.splice(index, 1);
-      newImageFiles.splice(index, 1);
+      // Tambahkan URL gambar yang dihapus ke state removedImages (hanya URL permanen dari server)
+      if (removedImageUrl && !removedImageUrl.startsWith("blob:")) {
+        setRemovedImages((prev) => [...prev, removedImageUrl]);
+        console.log(
+          "Menambahkan URL gambar yang dihapus ke removedImages:",
+          removedImageUrl
+        );
+      }
 
       return {
         ...prevState,
@@ -290,7 +308,7 @@ const EditProduct = () => {
                         height: 0,
                         length: 0,
                         width: 0,
-                      }, // Default value jika undefined
+                      },
                     }));
                   }}
                 />

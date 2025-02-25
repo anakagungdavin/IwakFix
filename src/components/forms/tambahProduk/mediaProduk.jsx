@@ -75,17 +75,31 @@ const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
 
   const handleRemove = (id) => {
     const filteredList = gambarList.filter((item) => item.id !== id);
+    const removedImage = gambarList.find((item) => item.id === id);
 
     // Hapus URL preview yang dihapus untuk mencegah memory leak
-    const removedImage = gambarList.find((item) => item.id === id);
     if (removedImage && removedImage.url.startsWith("blob:")) {
       URL.revokeObjectURL(removedImage.url);
     }
 
     setGambarList(filteredList);
 
+    if (onRemove) {
+      // Kirim URL permanen yang dihapus ke parent (hanya untuk gambar dari server)
+      if (removedImage && !removedImage.url.startsWith("blob:")) {
+        console.log(
+          "Mengirim URL gambar yang dihapus ke parent:",
+          removedImage.url
+        );
+        onRemove(removedImage.url); // Kirim URL permanen yang dihapus
+      }
+    }
+
     if (onUpload) {
-      console.log("Menghapus gambar, reset ke file yang tersisa"); // Debugging
+      console.log(
+        "Menghapus gambar, reset ke file yang tersisa:",
+        filteredList.map((item) => item.file).filter(Boolean)
+      );
       onUpload(filteredList.map((item) => item.file).filter(Boolean)); // Kirim file yang tersisa
     }
   };
