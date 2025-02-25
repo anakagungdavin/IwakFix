@@ -44,6 +44,8 @@ const EditProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
+        const token = localStorage.getItem("token");
+        console.log("Token saat fetch product:", token); // Debugging
         const data = await getProductById(id);
         if (!data) throw new Error("Produk tidak ditemukan");
 
@@ -99,11 +101,17 @@ const EditProduct = () => {
       const type = product.type || { color: [], size: [] };
       formData.append("type", JSON.stringify(type));
 
-      // Tambahkan semua file gambar baru ke FormData
-      if (product.imageFiles && product.imageFiles.length > 0) {
-        product.imageFiles.forEach((file) => {
-          formData.append("images", file); // Kirim file baru
-          console.log("File gambar baru yang dikirim:", file.name);
+      // Tambahkan semua file gambar baru ke FormData (hanya yang masih ada di images dan mulai dengan blob:)
+      const remainingImageFiles = product.imageFiles.filter((file) =>
+        product.images.some((url) => url.startsWith("blob:"))
+      );
+      if (remainingImageFiles.length > 0) {
+        remainingImageFiles.forEach((file) => {
+          formData.append("images", file); // Kirim file baru yang belum dihapus
+          console.log(
+            "File gambar baru yang dikirim (setelah filter):",
+            file.name
+          );
         });
       } else {
         console.log("Tidak ada file gambar baru, menggunakan gambar lama.");
@@ -120,10 +128,16 @@ const EditProduct = () => {
         console.log("URL gambar lama yang dikirim:", existingImageUrls);
       }
 
-      // Tambahkan daftar gambar yang dihapus ke FormData
-      if (removedImages.length > 0) {
-        formData.append("removedImages", JSON.stringify(removedImages));
-        console.log("Gambar yang dihapus:", removedImages);
+      // Tambahkan daftar gambar yang dihapus ke FormData (termasuk blob URL jika dihapus)
+      const allRemovedImages = [
+        ...new Set([
+          ...removedImages,
+          ...product.images.filter((url) => url.startsWith("blob:")),
+        ]),
+      ];
+      if (allRemovedImages.length > 0) {
+        formData.append("removedImages", JSON.stringify(allRemovedImages));
+        console.log("Gambar yang dihapus (termasuk blob):", allRemovedImages);
       }
 
       const response = await updateProduct(product._id, formData);
@@ -156,26 +170,47 @@ const EditProduct = () => {
     navigate(-1);
   };
 
+  // Fungsi untuk menambahkan gambar dari preview
+  const handleAddImage = (files) => {
+    if (files && files.length > 0) {
+      const imagePreviews = files.map((file) => URL.createObjectURL(file));
+      setProduct((prevState) => {
+        // Jangan hapus URL preview lama sampai update selesai
+        return {
+          ...prevState,
+          images: [...prevState.images, ...imagePreviews],
+          imageFiles: [...prevState.imageFiles, ...files],
+        };
+      });
+      console.log(
+        "Gambar baru ditambahkan ke state:",
+        imagePreviews,
+        files.map((f) => f.name)
+      );
+    }
+  };
+
   // Fungsi untuk menghapus gambar dari preview
   const handleRemoveImage = (removedImageUrl) => {
     setProduct((prevState) => {
       const newImages = prevState.images.filter(
         (url) => url !== removedImageUrl
       );
-      const newImageFiles = prevState.imageFiles.filter(
-        (_, index) => prevState.images[index] !== removedImageUrl
-      );
+      const newImageFiles = prevState.imageFiles.filter((file) => {
+        const fileUrl = URL.createObjectURL(file);
+        return fileUrl !== removedImageUrl;
+      });
 
-      // Hapus URL preview lama untuk mencegah memory leak
+      // Hapus URL preview lama untuk mencegah memory leak hanya jika blob
       if (removedImageUrl && removedImageUrl.startsWith("blob:")) {
         URL.revokeObjectURL(removedImageUrl);
       }
 
-      // Tambahkan URL gambar yang dihapus ke state removedImages (hanya URL permanen dari server)
-      if (removedImageUrl && !removedImageUrl.startsWith("blob:")) {
-        setRemovedImages((prev) => [...prev, removedImageUrl]);
+      // Tambahkan URL gambar yang dihapus ke state removedImages (termasuk blob URL)
+      if (removedImageUrl) {
+        setRemovedImages((prev) => [...new Set([...prev, removedImageUrl])]);
         console.log(
-          "Menambahkan URL gambar yang dihapus ke removedImages:",
+          "Menambahkan URL gambar yang dihapus ke removedImages (termasuk blob):",
           removedImageUrl
         );
       }
@@ -229,27 +264,7 @@ const EditProduct = () => {
               <div className="bg-white shadow-md rounded-lg p-4">
                 <UploadGambar
                   data={product}
-                  onUpload={(files) => {
-                    if (files && files.length > 0) {
-                      const imagePreviews = files.map((file) =>
-                        URL.createObjectURL(file)
-                      );
-                      setProduct((prevState) => {
-                        // Hapus URL preview lama untuk mencegah memory leak
-                        prevState.images.forEach((url) => {
-                          if (url.startsWith("blob:")) {
-                            URL.revokeObjectURL(url);
-                          }
-                        });
-
-                        return {
-                          ...prevState,
-                          images: [...prevState.images, ...imagePreviews],
-                          imageFiles: [...prevState.imageFiles, ...files],
-                        };
-                      });
-                    }
-                  }}
+                  onUpload={(files) => handleAddImage(files)}
                   onRemove={handleRemoveImage}
                   mode="edit"
                 />

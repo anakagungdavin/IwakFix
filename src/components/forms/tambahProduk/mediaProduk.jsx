@@ -39,7 +39,10 @@ const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
         ...newImages, // Tambahkan gambar baru
       ]);
       if (onUpload) {
-        console.log("Mengirim file baru ke parent:", files); // Debugging
+        console.log(
+          "Mengirim file baru ke parent (handleChange):",
+          files.map((f) => ({ name: f.name, type: f.type, size: f.size }))
+        ); // Debugging rinci
         onUpload(files); // Kirim semua file baru ke parent
       }
     }
@@ -67,7 +70,10 @@ const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
         ...newImages, // Tambahkan gambar baru
       ]);
       if (onUpload) {
-        console.log("Mengirim file baru via drop:", files); // Debugging
+        console.log(
+          "Mengirim file baru via drop ke parent:",
+          files.map((f) => ({ name: f.name, type: f.type, size: f.size }))
+        ); // Debugging rinci
         onUpload(files); // Kirim semua file baru ke parent
       }
     }
@@ -85,13 +91,13 @@ const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
     setGambarList(filteredList);
 
     if (onRemove) {
-      // Kirim URL permanen yang dihapus ke parent (hanya untuk gambar dari server)
-      if (removedImage && !removedImage.url.startsWith("blob:")) {
+      // Kirim URL yang dihapus ke parent (termasuk blob URL untuk penghapusan sementara)
+      if (removedImage) {
         console.log(
           "Mengirim URL gambar yang dihapus ke parent:",
           removedImage.url
         );
-        onRemove(removedImage.url); // Kirim URL permanen yang dihapus
+        onRemove(removedImage.url); // Kirim URL yang dihapus (blob atau permanen)
       }
     }
 

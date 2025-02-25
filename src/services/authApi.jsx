@@ -1,7 +1,8 @@
 import axios from "axios";
 
-const API_URL = "https://iwak.onrender.com/api/users";
+// const API_URL = "https://iwak.onrender.com/api/users";
 // const API_URL = "https://iwak-seven.vercel.app/api/users";
+const API_URL = "http://localhost:5000/api";
 
 // Sign Up
 export const signUp = async (userData) => {
@@ -17,7 +18,7 @@ export const signUp = async (userData) => {
 // Login
 export const signIn = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/login`, userData);
+    const response = await axios.post(`${API_URL}/users/login`, userData);
     localStorage.setItem("token", response.data.token); // Simpan token
     console.log(response.data.token);
     return response.data;
