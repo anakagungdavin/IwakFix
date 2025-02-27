@@ -46,32 +46,60 @@ export const getProductById = async (id) => {
 };
 
 // Fungsi untuk menambahkan produk baru dengan gambar
-export const addProduct = async (productData, imageFiles) => {
+// export const addProduct = async (productData, imageFiles) => {
+//   try {
+//     const formData = new FormData();
+
+//     // Tambahkan data produk ke FormData
+//     Object.keys(productData).forEach((key) => {
+//       formData.append(key, productData[key]);
+//     });
+
+//     // Tambahkan semua file gambar ke FormData
+//     imageFiles.forEach((file, index) => {
+//       formData.append(`images`, file);
+//     });
+
+//     const headers = getHeaders(formData);
+
+//     const response = await axios.post(`${API_URL}/products`, formData, {
+//       headers,
+//     });
+//     return response.data;
+//   } catch (error) {
+//     handleError(error, "adding product with images");
+//     throw error;
+//   }
+// };
+export const addProduct = async (formData) => {
   try {
-    const formData = new FormData();
+      // Ensure formData is properly constructed
+      console.log("FormData entries:", [...formData.entries()]); // Debugging
 
-    // Tambahkan data produk ke FormData
-    Object.keys(productData).forEach((key) => {
-      formData.append(key, productData[key]);
-    });
+      // Example: Check if type.color and type.size exist
+      const colors = formData.getAll("type[color]");
+      const sizes = formData.getAll("type[size]");
 
-    // Tambahkan semua file gambar ke FormData
-    imageFiles.forEach((file, index) => {
-      formData.append(`images`, file);
-    });
+      if (!colors || !Array.isArray(colors)) {
+          console.error("Field 'type[color]' is missing or not an array");
+      }
+      if (!sizes || !Array.isArray(sizes)) {
+          console.error("Field 'type[size]' is missing or not an array");
+      }
 
-    const headers = getHeaders(formData);
-
-    const response = await axios.post(`${API_URL}/products`, formData, {
-      headers,
-    });
-    return response.data;
+      // Make the API call
+      const response = await axios.post(`${API_URL}/products`, formData, {
+          headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+      });
+      return response.data;
   } catch (error) {
-    handleError(error, "adding product with images");
-    throw error;
+      console.error("Error adding product:", error);
+      throw error;
   }
 };
-
 // Fungsi untuk mengupdate produk dan mengganti gambar
 export const updateProduct = async (id, formData) => {
   try {

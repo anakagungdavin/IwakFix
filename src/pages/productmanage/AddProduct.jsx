@@ -32,15 +32,17 @@ const AddProduct = () => {
     const [productData, setProductData] = useState({
         name: "",
         description: "",
+        sku: "",
         price: "",
         discount: "",
         stock: "",
-        image: null,
+        image: [],
+        // imageFiles: [],
         weight: "",
         dimensions: {
-            height: "",
-            length: "",
-            width: ""
+            height: 0,
+            length: 0,
+            width: 0,
         },
         type: {
             color: [],
@@ -56,23 +58,45 @@ const AddProduct = () => {
     //         [name]: value
     //     }));
     // };
-    const handleInputChange = (e) => {
-        // if (!e || !e.target) {
-        //     console.error("handleInputChange dipanggil tanpa event yang valid", e);
-        //     return;
-        // }
+    // const handleInputChange = (e) => {
+    //     // if (!e || !e.target) {
+    //     //     console.error("handleInputChange dipanggil tanpa event yang valid", e);
+    //     //     return;
+    //     // }
     
-        // const { name, value } = e.target;
-        // setProductData((prev) => ({
-        //     ...prev,
-        //     [name]: value
-        // }));
+    //     // const { name, value } = e.target;
+    //     // setProductData((prev) => ({
+    //     //     ...prev,
+    //     //     [name]: value
+    //     // }));
+    //     if (e && e.target) {
+    //         // Jika dipanggil dengan event valid
+    //         const { name, value } = e.target;
+    //         setProductData((prev) => ({
+    //             ...prev,
+    //             [name]: value
+    //         }));
+    //     } else if (typeof e === "object") {
+    //         // Jika dipanggil dengan objek langsung (dari JenisProduk, HargaProduk, dll.)
+    //         setProductData(e);
+    //     } else {
+    //         console.error("handleInputChange dipanggil dengan format yang tidak dikenali", e);
+    //     }
+    // };
+    const handleInputChange = (e) => {
         if (e && e.target) {
             // Jika dipanggil dengan event valid
             const { name, value } = e.target;
             setProductData((prev) => ({
                 ...prev,
                 [name]: value
+            }));
+        } else if (typeof e === "object" && e.weight !== undefined && e.dimensions !== undefined) {
+            // Jika dipanggil dari BeratProduk (hanya update weight dan dimensions)
+            setProductData((prev) => ({
+                ...prev,
+                weight: e.weight,
+                dimensions: e.dimensions
             }));
         } else if (typeof e === "object") {
             // Jika dipanggil dengan objek langsung (dari JenisProduk, HargaProduk, dll.)
@@ -81,72 +105,148 @@ const AddProduct = () => {
             console.error("handleInputChange dipanggil dengan format yang tidak dikenali", e);
         }
     };
+    // console.log("productData:", productData);
+
 
     // Fungsi untuk upload gambar
-    const handleImageUpload = (imageFile) => {
-        setProductData((prev) => ({
-            ...prev,
-            image: imageFile
-        }));
+    // const handleImageUpload = (imageFile) => {
+    //     setProductData((prev) => ({
+    //         ...prev,
+    //         image: imageFile
+    //     }));
+    // };
+    const handleImageUpload = (files) => {
+        if (files && files.length > 0) {
+            setProductData((prev) => ({
+                ...prev,
+                image: files[0], // Use the first file for now
+                imageFiles: files, // Store all files if needed
+            }));
+        } else {
+            console.warn("No valid files uploaded.");
+            setProductData((prev) => ({
+                ...prev,
+                image: null,
+                imageFiles: [],
+            }));
+        }
     };
 
     const handleSaveDraft = () => {
         setSimpanSuccess(true);
     };
 
-    const handleUpload = async () => {
-        // setUploadSuccess(true);
-        // try{
-        //     const formData = new FormData();
-        //     Object.keys(productData).forEach((key) => {
-        //         formData.append(key, productData[key]);
-        //     });
-        //     console.log("FormData sebelum dikirim:", [...formData.entries()]); // Debug
-        //     await addProduct(formData);
-        //     setUploadSuccess(true);
-        // }catch(error){
-        //     console.error("Error Menambahkan Product:", error);
-        // }
-        try {
-            const formData = new FormData();
+    // const handleUpload = async () => {
+    //     // setUploadSuccess(true);
+    //     // try{
+    //     //     const formData = new FormData();
+    //     //     Object.keys(productData).forEach((key) => {
+    //     //         formData.append(key, productData[key]);
+    //     //     });
+    //     //     console.log("FormData sebelum dikirim:", [...formData.entries()]); // Debug
+    //     //     await addProduct(formData);
+    //     //     setUploadSuccess(true);
+    //     // }catch(error){
+    //     //     console.error("Error Menambahkan Product:", error);
+    //     // }
+    //     try {
+    //         const formData = new FormData();
 
+    //         // Append non-nested fields
+    //         formData.append("name", productData.name);
+    //         formData.append("description", productData.description);
+    //         formData.append("price", productData.price);
+    //         formData.append("discount", productData.discount);
+    //         formData.append("stock", productData.stock);
+    //         formData.append("weight", productData.weight);
+
+    //         // Append nested fields (dimensions)
+    //         formData.append("dimensions[height]", productData.dimensions.height);
+    //         formData.append("dimensions[length]", productData.dimensions.length);
+    //         formData.append("dimensions[width]", productData.dimensions.width);
+
+    //         // // Append arrays (type.color and type.size)
+    //         // productData.type.color.forEach((color, index) => {
+    //         //     formData.append(`type[color][${index}]`, color);
+    //         // });
+    //         // productData.type.size.forEach((size, index) => {
+    //         //     formData.append(`type[size][${index}]`, size);
+    //         // });
+    //         (productData.type?.color ?? []).forEach((color, index) => {
+    //             formData.append(`type[color][${index}]`, color);
+    //         });
+    //         (productData.type?.size ?? []).forEach((size, index) => {
+    //             formData.append(`type[size][${index}]`, size);
+    //         });
+
+            
+
+    //         // // Append image file
+    //         // if (productData.image) {
+    //         //     formData.append("image", productData.image);
+    //         // }
+    //         if (productData.image) {
+    //             formData.append("image", productData.image);
+    //         } else {
+    //             console.warn("Tidak ada gambar yang diunggah!");
+    //         }
+            
+
+    //         console.log("FormData sebelum dikirim:", [...formData.entries()]); // Debug
+
+    //         // Call API to add product
+    //         await addProduct(formData);
+    //         setUploadSuccess(true);
+    //     } catch (error) {
+    //         console.error("Error Menambahkan Product:", error);
+
+    //     }
+    // };
+
+    const handleUpload = async () => {
+        try {
+            console.log("productData before upload:", productData); // Debugging
+    
+            const formData = new FormData();
+    
             // Append non-nested fields
             formData.append("name", productData.name);
             formData.append("description", productData.description);
             formData.append("price", productData.price);
+            formData.append("sku", productData.sku);
             formData.append("discount", productData.discount);
             formData.append("stock", productData.stock);
             formData.append("weight", productData.weight);
-
+    
             // Append nested fields (dimensions)
             formData.append("dimensions[height]", productData.dimensions.height);
             formData.append("dimensions[length]", productData.dimensions.length);
             formData.append("dimensions[width]", productData.dimensions.width);
-
+    
             // Append arrays (type.color and type.size)
-            productData.type.color.forEach((color, index) => {
+            (productData.type?.color ?? []).forEach((color, index) => {
                 formData.append(`type[color][${index}]`, color);
             });
-            productData.type.size.forEach((size, index) => {
+            (productData.type?.size ?? []).forEach((size, index) => {
                 formData.append(`type[size][${index}]`, size);
             });
-
-            // Append image file
-            if (productData.image) {
+    
+            // Append image file if it exists
+            if (productData.image instanceof File) {
                 formData.append("image", productData.image);
+            } else {
+                console.warn("No valid image file to upload.");
             }
-
+    
             console.log("FormData sebelum dikirim:", [...formData.entries()]); // Debug
-
+    
             // Call API to add product
             await addProduct(formData);
             setUploadSuccess(true);
         } catch (error) {
             console.error("Error Menambahkan Product:", error);
-
         }
     };
-
     const handleCancel = () => { 
         setIsModalOpen(true);
     };
@@ -179,14 +279,24 @@ const AddProduct = () => {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><InformasiProduk data={productData} onChange={handleInputChange}/></div></div>
                         <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><UploadGambar
-                            onUpload={(file) => {
-                                setProduct(prevState => ({
-                                    ...prevState,
-                                    image: file ? URL.createObjectURL(file) : null,
-                                }));
-                            }}
-                            mode="add"
-                        /></div></div>
+    onUpload={(files) => {
+        if (files && files.length > 0) {
+            setProductData((prevState) => ({
+                ...prevState,
+                image: files[0], // Use the first file
+                imageFiles: files, // Store all files
+            }));
+        } else {
+            console.warn("No file selected or invalid file object.");
+            setProductData((prevState) => ({
+                ...prevState,
+                image: null,
+                imageFiles: [],
+            }));
+        }
+    }}
+    mode="add"
+/></div></div>
                         <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><HargaProduk data={productData} onChange={handleInputChange}/></div></div>
                         <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><InventarisProduk data={productData} onChange={handleInputChange}/></div></div>
                         <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><JenisProduk data={productData} onChange={handleInputChange}/></div></div>

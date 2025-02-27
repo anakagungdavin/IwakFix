@@ -150,7 +150,11 @@ const BeratProduk = ({ data = {}, onChange = () => {} }) => {
             [field]: value
         };
         setFormData(updatedData);
-        onChange(updatedData);
+        // onChange(updatedData);
+        onChange({
+            weight: updatedData.weight,
+            dimensions: updatedData.dimensions
+        });
     };
 
     const handleDimensionChange = (dimension, value) => {
@@ -162,7 +166,11 @@ const BeratProduk = ({ data = {}, onChange = () => {} }) => {
             }
         };
         setFormData(updatedData);
-        onChange(updatedData);
+        // onChange(updatedData);
+        onChange({
+            weight: updatedData.weight,
+            dimensions: updatedData.dimensions
+        });
     };
 
     return (
