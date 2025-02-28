@@ -22,22 +22,21 @@ const TableMeneProduk = () => {
     const fetchProducts = async () => {
       try {
         const response = await getProducts();
-        console.log("API response:", response); // Cek respons API
+        console.log("API response:", response);
 
-        if (!response || !Array.isArray(response)) {
+        // Check if response.products exists and is an array
+        if (!response?.products || !Array.isArray(response.products)) {
           throw new Error(
             "Data produk tidak ditemukan atau respons tidak valid"
           );
         }
 
-        // Format data dari respons API
-        const formattedProducts = response.map((item) => {
-          const statusData = getStatus(item.stock, item.isPublished); // Pastikan menggunakan 'stock', bukan 'stok'
+        const formattedProducts = response.products.map((item) => {
+          const statusData = getStatus(item.stock, item.isPublished);
           return {
             ...item,
             status: statusData.label,
             statusColor: statusData.color,
-            // Gunakan images pertama untuk preview, atau array images jika tabel mendukung multiple images
             image:
               item.images && item.images.length > 0 ? item.images[0] : null,
           };
@@ -46,13 +45,12 @@ const TableMeneProduk = () => {
         setData(formattedProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
-        setData([]); // Set data kosong jika ada error, atau tampilkan pesan error
+        setData([]);
       }
     };
 
     fetchProducts();
   }, []);
-
   const handleDeleteClick = (item) => {
     setSelectedItem(item);
     setIsModalOpen(true);
