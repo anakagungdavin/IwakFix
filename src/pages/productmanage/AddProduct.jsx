@@ -24,29 +24,6 @@ export function getStatus(stok, isPublished) {
 }
 
 const AddProduct = () => {
-<<<<<<< Updated upstream
-    const navigate = useNavigate();
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isUploadSuccess, setUploadSuccess] = useState (false)
-    const [isSimpanSuccess, setSimpanSuccess] = useState(false);
-    const [productData, setProductData] = useState({
-        name: "",
-        description: "",
-        price: "",
-        discount: "",
-        stock: "",
-        image: null,
-        weight: "",
-        dimensions: {
-            height: "",
-            length: "",
-            width: ""
-        },
-        type: {
-            color: [],
-            size: []
-        }
-=======
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadSuccess, setUploadSuccess] = useState(false);
@@ -95,11 +72,6 @@ const AddProduct = () => {
     } else if (typeof e === "object") {
       // Update from JenisProduk, HargaProduk, etc.
       setProduct(e);
-    } else {
-      console.error(
-        "handleInputChange dipanggil dengan format yang tidak dikenali",
-        e
-      );
     }
   };
 
@@ -136,53 +108,9 @@ const AddProduct = () => {
         images: newImages,
         imageFiles: newImageFiles,
       };
->>>>>>> Stashed changes
     });
   };
 
-<<<<<<< Updated upstream
-    // Fungsi update state saat input berubah
-    // const handleInputChange = (e) => {
-    //     const {name, value} = e.target;
-    //     setProductData((prev) => ({
-    //         ...prev,
-    //         [name]: value
-    //     }));
-    // };
-    const handleInputChange = (e) => {
-        // if (!e || !e.target) {
-        //     console.error("handleInputChange dipanggil tanpa event yang valid", e);
-        //     return;
-        // }
-    
-        // const { name, value } = e.target;
-        // setProductData((prev) => ({
-        //     ...prev,
-        //     [name]: value
-        // }));
-        if (e && e.target) {
-            // Jika dipanggil dengan event valid
-            const { name, value } = e.target;
-            setProductData((prev) => ({
-                ...prev,
-                [name]: value
-            }));
-        } else if (typeof e === "object") {
-            // Jika dipanggil dengan objek langsung (dari JenisProduk, HargaProduk, dll.)
-            setProductData(e);
-        } else {
-            console.error("handleInputChange dipanggil dengan format yang tidak dikenali", e);
-        }
-    };
-
-    // Fungsi untuk upload gambar
-    const handleImageUpload = (imageFile) => {
-        setProductData((prev) => ({
-            ...prev,
-            image: imageFile
-        }));
-    };
-=======
   const handleSaveDraft = () => {
     setSimpanSuccess(true);
   };
@@ -200,7 +128,6 @@ const AddProduct = () => {
       formData.append("stock", Number(product.stock) || 0);
       formData.append("weight", Number(product.weight) || 0);
       formData.append("seller", product.seller); // Ensure seller is included
->>>>>>> Stashed changes
 
       // Append nested fields (dimensions and type) as JSON strings
       formData.append(
@@ -212,85 +139,13 @@ const AddProduct = () => {
         JSON.stringify(product.type || { color: [], size: [] })
       );
 
-<<<<<<< Updated upstream
-    const handleUpload = async () => {
-        // setUploadSuccess(true);
-        // try{
-        //     const formData = new FormData();
-        //     Object.keys(productData).forEach((key) => {
-        //         formData.append(key, productData[key]);
-        //     });
-        //     console.log("FormData sebelum dikirim:", [...formData.entries()]); // Debug
-        //     await addProduct(formData);
-        //     setUploadSuccess(true);
-        // }catch(error){
-        //     console.error("Error Menambahkan Product:", error);
-        // }
-        try {
-            const formData = new FormData();
-
-            // Append non-nested fields
-            formData.append("name", productData.name);
-            formData.append("description", productData.description);
-            formData.append("price", productData.price);
-            formData.append("discount", productData.discount);
-            formData.append("stock", productData.stock);
-            formData.append("weight", productData.weight);
-
-            // Append nested fields (dimensions)
-            formData.append("dimensions[height]", productData.dimensions.height);
-            formData.append("dimensions[length]", productData.dimensions.length);
-            formData.append("dimensions[width]", productData.dimensions.width);
-
-            // Append arrays (type.color and type.size)
-            productData.type.color.forEach((color, index) => {
-                formData.append(`type[color][${index}]`, color);
-            });
-            productData.type.size.forEach((size, index) => {
-                formData.append(`type[size][${index}]`, size);
-            });
-
-            // Append image file
-            if (productData.image) {
-                formData.append("image", productData.image);
-            }
-
-            console.log("FormData sebelum dikirim:", [...formData.entries()]); // Debug
-
-            // Call API to add product
-            await addProduct(formData);
-            setUploadSuccess(true);
-        } catch (error) {
-            console.error("Error Menambahkan Product:", error);
-
-        }
-    };
-
-    const handleCancel = () => { 
-        setIsModalOpen(true);
-    };
-
-
-    const confirmCancel = () => {
-        setIsModalOpen(false);
-        navigate(-1);
-    };
-
-
-    return (
-        <>
-        <CancelModal
-=======
       // Append new image files
       product.imageFiles.forEach((file) => {
         formData.append("images", file); // Send files for upload
       });
 
-      //   console.log("FormData sebelum dikirim:", [...formData.entries()]);
-
       // Call API to add product
       const response = await addProduct(formData);
-      //   console.log("Response dari addProduct:", response);
 
       if (!response) throw new Error("Gagal menambahkan produk");
 
@@ -302,11 +157,8 @@ const AddProduct = () => {
       }));
       setUploadSuccess(true);
     } catch (error) {
-      console.error(
-        "Error Menambahkan Product:",
-        error.response?.data || error.message
-      );
       alert("Gagal menambahkan produk. Periksa koneksi atau coba lagi.");
+      throw error;
     }
   };
 
@@ -322,7 +174,6 @@ const AddProduct = () => {
   return (
     <>
       <CancelModal
->>>>>>> Stashed changes
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={confirmCancel}
@@ -334,30 +185,7 @@ const AddProduct = () => {
       <SimpanModal
         isOpen={isSimpanSuccess}
         onClose={() => setSimpanSuccess(false)}
-<<<<<<< Updated upstream
-        />
-            <div className="bg-gray-200 min-h-screen py-6">
-                <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
-                    <Breadcrumb pageName="Tambah Produk"/>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><InformasiProduk data={productData} onChange={handleInputChange}/></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><UploadGambar
-                            onUpload={(file) => {
-                                setProduct(prevState => ({
-                                    ...prevState,
-                                    image: file ? URL.createObjectURL(file) : null,
-                                }));
-                            }}
-                            mode="add"
-                        /></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><HargaProduk data={productData} onChange={handleInputChange}/></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><InventarisProduk data={productData} onChange={handleInputChange}/></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><JenisProduk data={productData} onChange={handleInputChange}/></div></div>
-                        <div className="col-span-4"><div className="bg-white shadow-md rounded-lg p-4"><BeratProduk data={productData} onChange={handleInputChange}/></div></div>
-                    </div>
-=======
       />
->>>>>>> Stashed changes
 
       <div className="bg-gray-200 min-h-screen py-6">
         <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">

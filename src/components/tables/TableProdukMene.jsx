@@ -22,7 +22,6 @@ const TableMeneProduk = () => {
     const fetchProducts = async () => {
       try {
         const response = await getProducts();
-        console.log("API response:", response);
 
         // Check if response.products exists and is an array
         if (!response?.products || !Array.isArray(response.products)) {
@@ -44,13 +43,13 @@ const TableMeneProduk = () => {
 
         setData(formattedProducts);
       } catch (error) {
-        console.error("Error fetching products:", error);
         setData([]);
       }
     };
 
     fetchProducts();
   }, []);
+
   const handleDeleteClick = (item) => {
     setSelectedItem(item);
     setIsModalOpen(true);
@@ -62,12 +61,11 @@ const TableMeneProduk = () => {
       setData(data.filter((item) => item._id !== selectedItem._id));
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Error deleting product:", error);
+      // No error logging, just continue
     }
   };
 
   const handleViewDetails = (item) => {
-    console.log("Item yang dipilih:", item);
     setSelectedItem(item);
     setIsViewOpen(true);
   };
