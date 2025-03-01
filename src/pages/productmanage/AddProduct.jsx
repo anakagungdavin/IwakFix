@@ -69,9 +69,13 @@ const AddProduct = () => {
         weight: e.weight,
         dimensions: e.dimensions || { height: 0, length: 0, width: 0 },
       }));
-    } else if (typeof e === "object") {
+    } else if (typeof e === "object" && e.type !== undefined) {
       // Update from JenisProduk, HargaProduk, etc.
-      setProduct(e);
+      // setProduct(e);
+      setProduct((prevState) => ({
+        ...prevState,
+        type: e.type || { color: [], size: [] },
+      }));
     }
   };
 
@@ -79,6 +83,8 @@ const AddProduct = () => {
   const handleAddImage = (files) => {
     if (files && files.length > 0) {
       const imagePreviews = files.map((file) => URL.createObjectURL(file));
+      console.log("Files:", files);
+      console.log("Previews:", imagePreviews);
       setProduct((prevState) => ({
         ...prevState,
         images: [...prevState.images, ...imagePreviews],
@@ -86,23 +92,44 @@ const AddProduct = () => {
       }));
     }
   };
-
+  
   // Handle image removal (similar to EditProduct.jsx)
+  // const handleRemoveImage = (removedImageUrl) => {
+  //   setProduct((prevState) => {
+  //     const newImages = prevState.images.filter(
+  //       (url) => url !== removedImageUrl
+  //     );
+  //     const newImageFiles = prevState.imageFiles.filter((file) => {
+  //       const fileUrl = URL.createObjectURL(file);
+  //       return fileUrl !== removedImageUrl;
+  //     });
+
+  //     // Revoke blob URL to prevent memory leaks
+  //     if (removedImageUrl && removedImageUrl.startsWith("blob:")) {
+  //       URL.revokeObjectURL(removedImageUrl);
+  //     }
+
+  //     return {
+  //       ...prevState,
+  //       images: newImages,
+  //       imageFiles: newImageFiles,
+  //     };
+  //   });
+  // };
+
   const handleRemoveImage = (removedImageUrl) => {
     setProduct((prevState) => {
-      const newImages = prevState.images.filter(
-        (url) => url !== removedImageUrl
-      );
+      const newImages = prevState.images.filter((url) => url !== removedImageUrl);
       const newImageFiles = prevState.imageFiles.filter((file) => {
         const fileUrl = URL.createObjectURL(file);
         return fileUrl !== removedImageUrl;
       });
-
-      // Revoke blob URL to prevent memory leaks
+  
+      // Hapus URL sementara untuk mencegah memory leak
       if (removedImageUrl && removedImageUrl.startsWith("blob:")) {
         URL.revokeObjectURL(removedImageUrl);
       }
-
+  
       return {
         ...prevState,
         images: newImages,
@@ -115,53 +142,122 @@ const AddProduct = () => {
     setSimpanSuccess(true);
   };
 
+  // const handleUpload = async () => {
+  //   try {
+  //     const formData = new FormData();
+
+  //     // Append non-nested fields
+  //     formData.append("name", product.name);
+  //     formData.append("description", product.description);
+  //     formData.append("sku", product.sku);
+  //     formData.append("price", Number(product.price) || 0);
+  //     formData.append("discount", Number(product.discount) || 0);
+  //     formData.append("stock", Number(product.stock) || 0);
+  //     formData.append("weight", Number(product.weight) || 0);
+  //     formData.append("seller", product.seller); 
+
+  //     // Append nested fields (dimensions and type) as JSON strings
+  //     formData.append(
+  //       "dimensions",
+  //       JSON.stringify(product.dimensions || { height: 0, length: 0, width: 0 })
+  //     );
+  //     formData.append(
+  //       "type",
+  //       JSON.stringify(product.type || { color: [], size: [] })
+  //     );
+
+  //     // Append new image files
+  //     product.imageFiles.forEach((file) => {
+  //       formData.append("images", file); // Send files for upload
+  //     });
+
+  //     // Call API to add product
+  //     const response = await addProduct(formData);
+
+  //     if (!response) throw new Error("Gagal menambahkan produk");
+
+  //     // Update state with new images from server response
+  //     setProduct((prevState) => ({
+  //       ...prevState,
+  //       images: response.images || prevState.images,
+  //       imageFiles: [],
+  //     }));
+  //     setUploadSuccess(true);
+  //   } catch (error) {
+  //     alert("Gagal menambahkan produk. Periksa koneksi atau coba lagi.");
+  //     throw error;
+  //   }
+  // };
+
+  //ver 2
   const handleUpload = async () => {
-    try {
-      const formData = new FormData();
+  try {
+    const formData = new FormData();
 
-      // Append non-nested fields
-      formData.append("name", product.name);
-      formData.append("description", product.description);
-      formData.append("sku", product.sku);
-      formData.append("price", Number(product.price) || 0);
-      formData.append("discount", Number(product.discount) || 0);
-      formData.append("stock", Number(product.stock) || 0);
-      formData.append("weight", Number(product.weight) || 0);
-      formData.append("seller", product.seller); // Ensure seller is included
+    // Append non-nested fields
+    formData.append("name", product.name);
+    formData.append("description", product.description);
+    formData.append("sku", product.sku);
+    formData.append("price", Number(product.price) || 0);
+    formData.append("discount", Number(product.discount) || 0);
+    formData.append("stock", Number(product.stock) || 0);
+    formData.append("weight", Number(product.weight) || 0);
+    formData.append("seller", product.seller);
 
-      // Append nested fields (dimensions and type) as JSON strings
-      formData.append(
-        "dimensions",
-        JSON.stringify(product.dimensions || { height: 0, length: 0, width: 0 })
-      );
-      formData.append(
-        "type",
-        JSON.stringify(product.type || { color: [], size: [] })
-      );
+    // Append nested fields (dimensions and type) as JSON strings
+    formData.append(
+      "dimensions",
+      JSON.stringify(product.dimensions || { height: 0, length: 0, width: 0 })
+    );
+        // Pastikan type.color dan type.size adalah array
+        const type = {
+          color: Array.isArray(product.type?.color) ? product.type.color : [],
+          size: Array.isArray(product.type?.size) ? product.type.size : [],
+        };
+        formData.append("type", JSON.stringify(type));
+    // formData.append(
+    //   "type",
+    //   JSON.stringify(product.type || { color: [], size: [] })
+    // );
 
-      // Append new image files
-      product.imageFiles.forEach((file) => {
-        formData.append("images", file); // Send files for upload
-      });
+    // Append new image files
+    product.imageFiles.forEach((file) => {
+      formData.append("images", file);
+    });
 
-      // Call API to add product
-      const response = await addProduct(formData);
+    // Debugging: Log data yang akan dikirim
+    console.log("Data yang dikirim ke API:", {
+      name: product.name,
+      description: product.description,
+      sku: product.sku,
+      price: product.price,
+      discount: product.discount,
+      stock: product.stock,
+      weight: product.weight,
+      dimensions: product.dimensions,
+      // type: product.type,
+      type: type,
+      seller: product.seller,
+      images: product.imageFiles,
+    });
 
-      if (!response) throw new Error("Gagal menambahkan produk");
+    // Call API to add product
+    const response = await addProduct(formData);
 
-      // Update state with new images from server response
-      setProduct((prevState) => ({
-        ...prevState,
-        images: response.images || prevState.images,
-        imageFiles: [],
-      }));
-      setUploadSuccess(true);
-    } catch (error) {
-      alert("Gagal menambahkan produk. Periksa koneksi atau coba lagi.");
-      throw error;
-    }
-  };
+    if (!response) throw new Error("Gagal menambahkan produk");
 
+    // Update state with new images from server response
+    setProduct((prevState) => ({
+      ...prevState,
+      images: response.images || prevState.images,
+      imageFiles: [],
+    }));
+    setUploadSuccess(true);
+  } catch (error) {
+    alert("Gagal menambahkan produk. Periksa koneksi atau coba lagi.");
+    throw error;
+  }
+};
   const handleCancel = () => {
     setIsModalOpen(true);
   };
@@ -203,7 +299,8 @@ const AddProduct = () => {
             <div className="col-span-4">
               <div className="bg-white shadow-md rounded-lg p-4">
                 <UploadGambar
-                  data={product}
+                  // data={product}
+                  data={{ images: product.images }} 
                   onUpload={(files) => handleAddImage(files)}
                   onRemove={handleRemoveImage}
                   mode="add"
@@ -235,7 +332,7 @@ const AddProduct = () => {
                   onChange={(updatedData) => {
                     setProduct((prevState) => ({
                       ...prevState,
-                      type: updatedData.type,
+                      type: updatedData.type || { color: [], size: [] },
                     }));
                   }}
                 />

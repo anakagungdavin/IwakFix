@@ -55,13 +55,34 @@ const TableMeneProduk = () => {
     setIsModalOpen(true);
   };
 
+  // const confirmDelete = async () => {
+  //   try {
+  //     await deleteProduct(selectedItem._id); // Pastikan menggunakan '_id', bukan 'id'
+  //     setData(data.filter((item) => item._id !== selectedItem._id));
+  //     setIsModalOpen(false);
+  //   } catch (error) {
+  //     // No error logging, just continue
+  //   }
+  // };
   const confirmDelete = async () => {
     try {
-      await deleteProduct(selectedItem._id); // Pastikan menggunakan '_id', bukan 'id'
-      setData(data.filter((item) => item._id !== selectedItem._id));
+      if (!selectedItem) return;
+  
+      // Optional: Fetch the product to confirm it exists
+      const product = await getProductById(selectedItem._id);
+      if (!product) {
+        throw new Error("Product not found");
+      }
+  
+      console.log("Deleting product with ID:", selectedItem._id); // Log the ID
+      await deleteProduct(selectedItem._id);
+  
+      // Update the UI by removing the deleted product
+      setData((prevData) => prevData.filter((item) => item._id !== selectedItem._id));
       setIsModalOpen(false);
     } catch (error) {
-      // No error logging, just continue
+      console.error("Gagal menghapus produk:", error);
+      alert("Gagal menghapus produk: " + error.message); // Show a user-friendly error message
     }
   };
 

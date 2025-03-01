@@ -155,86 +155,172 @@
 
 // export default JenisProduk;
 
+
+//Ver 2
+// import React, { useEffect, useState } from "react";
+
+// const JenisProduk = ({ data = {type: {color: [], size: []}}, onChange = () => {}, }) => {
+//     const [jenisProduk, setJenisProduk] = useState({
+//         color: Array.isArray(data.type?.color) ? data.type.color : [],
+//         size: Array.isArray(data.type?.size) ? data.type.size : []
+//     });
+
+//     useEffect(() => {
+//         setJenisProduk({
+//             color: Array.isArray(data.type?.color) ? data.type.color : [],
+//             size: Array.isArray(data.type?.size) ? data.type.size : []
+//         });
+//     }, [data.type]);
+
+//     const handleAddVariasi = (type) => {
+//         const updatedJenis = { ...jenisProduk, [type]: [...jenisProduk[type], ""] };
+//         setJenisProduk(updatedJenis);
+//         // onChange({ ...data, type: updatedJenis });
+//         onChange({ type: updatedJenis });
+//     };
+
+//     const handleRemoveVariasi = (type, index) => {
+//         const updatedJenis = {
+//             ...jenisProduk,
+//             [type]: jenisProduk[type].filter((_, i) => i !== index),
+//         };
+//         setJenisProduk(updatedJenis);
+//         // onChange({ ...data, type: updatedJenis });
+//         onChange({ type: updatedJenis });
+//     };
+
+//     const handleChangeVariasi = (type, index, value) => {
+//         const updatedJenis = {
+//             ...jenisProduk,
+//             [type]: jenisProduk[type].map((item, i) => (i === index ? value : item))
+//         };
+//         setJenisProduk(updatedJenis);
+//         // onChange({ ...data, type: updatedJenis });
+//         onChange({ type: updatedJenis });
+//     };
+
+//     return (
+//         <div className="p-5">
+//             <h2 className="text-lg font-semibold text-gray-700 mb-4">Jenis Produk</h2>
+//             {Object.keys(jenisProduk).map((type) => (
+//                 <div key={type} className="mb-4 border-b pb-4">
+//                     <label className="block text-gray-600 mb-1">{type === "color" ? "Warna" : "Ukuran"}</label>
+//                     {jenisProduk[type].map((variasi, index) => (
+//                         <div key={index} className="flex items-center mb-2">
+//                             {  (
+//                                 <input
+//                                     type="text"
+//                                     className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
+//                                     placeholder={`Masukkan ${type === "color" ? "warna" : "ukuran"}`}
+//                                     value={variasi}
+//                                     onChange={(e) => handleChangeVariasi(type, index, e.target.value)}
+//                                 />
+//                             )}
+//                             {jenisProduk[type].length > 0 && (
+//                                 <button
+//                                     type="button"
+//                                     className="ml-2 text-red-500"
+//                                     onClick={() => handleRemoveVariasi(type, index)}
+//                                 >
+//                                     ✖
+//                                 </button>
+//                             )}
+//                         </div>
+//                     ))}
+//                     {(
+//                         <button
+//                             type="button"
+//                             className="mt-2 px-4 py-1 bg-[#E9FAF7] text-[#1A9882]"
+//                             onClick={() => handleAddVariasi(type)}
+//                         >
+//                             + Tambah {type === "color" ? "Warna Bibit Ikan" : "Ukuran Bibit Ikan"}
+//                         </button>
+//                     )}
+//                 </div>
+//             ))}
+//         </div>
+//     );
+// };
+
+// export default JenisProduk;
+
+
 import React, { useEffect, useState } from "react";
 
-const JenisProduk = ({ data = {type: {color: [], size: []}}, onChange = () => {}, isReadOnly = false }) => {
-    const [jenisProduk, setJenisProduk] = useState({
-        color: Array.isArray(data.type?.color) ? data.type.color : [],
-        size: Array.isArray(data.type?.size) ? data.type.size : []
+const JenisProduk = ({ data = { type: { color: [], size: [] } }, onChange = () => {} }) => {
+  const [jenisProduk, setJenisProduk] = useState({
+    color: Array.isArray(data.type?.color) ? data.type.color : [],
+    size: Array.isArray(data.type?.size) ? data.type.size : [],
+  });
+
+  useEffect(() => {
+    setJenisProduk({
+      color: Array.isArray(data.type?.color) ? data.type.color : [],
+      size: Array.isArray(data.type?.size) ? data.type.size : [],
     });
+  }, [data.type]);
 
-    useEffect(() => {
-        setJenisProduk({
-            color: Array.isArray(data.type?.color) ? data.type.color : [],
-            size: Array.isArray(data.type?.size) ? data.type.size : []
-        });
-    }, [data.type]);
+  const handleAddVariasi = (type) => {
+    const updatedJenis = { ...jenisProduk, [type]: [...jenisProduk[type], ""] };
+    setJenisProduk(updatedJenis);
+    onChange({ type: updatedJenis }); // Kirim data ke parent
+  };
 
-    const handleAddVariasi = (type) => {
-        const updatedJenis = { ...jenisProduk, [type]: [...jenisProduk[type], ""] };
-        setJenisProduk(updatedJenis);
-        onChange({ ...data, type: updatedJenis });
+  const handleRemoveVariasi = (type, index) => {
+    const updatedJenis = {
+      ...jenisProduk,
+      [type]: jenisProduk[type].filter((_, i) => i !== index),
     };
+    setJenisProduk(updatedJenis);
+    onChange({ type: updatedJenis }); // Kirim data ke parent
+  };
 
-    const handleRemoveVariasi = (type, index) => {
-        const updatedJenis = {
-            ...jenisProduk,
-            [type]: jenisProduk[type].filter((_, i) => i !== index)
-        };
-        setJenisProduk(updatedJenis);
-        onChange({ ...data, type: updatedJenis });
+  const handleChangeVariasi = (type, index, value) => {
+    const updatedJenis = {
+      ...jenisProduk,
+      [type]: jenisProduk[type].map((item, i) => (i === index ? value : item)),
     };
+    setJenisProduk(updatedJenis);
+    onChange({ type: updatedJenis }); // Kirim data ke parent
+  };
 
-    const handleChangeVariasi = (type, index, value) => {
-        const updatedJenis = {
-            ...jenisProduk,
-            [type]: jenisProduk[type].map((item, i) => (i === index ? value : item))
-        };
-        setJenisProduk(updatedJenis);
-        onChange({ ...data, type: updatedJenis });
-    };
-
-    return (
-        <div className="p-5">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">Jenis Produk</h2>
-            {Object.keys(jenisProduk).map((type) => (
-                <div key={type} className="mb-4 border-b pb-4">
-                    <label className="block text-gray-600 mb-1">{type === "color" ? "Warna" : "Ukuran"}</label>
-                    {jenisProduk[type].map((variasi, index) => (
-                        <div key={index} className="flex items-center mb-2">
-                            {  (
-                                <input
-                                    type="text"
-                                    className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
-                                    placeholder={`Masukkan ${type === "color" ? "warna" : "ukuran"}`}
-                                    value={variasi}
-                                    onChange={(e) => handleChangeVariasi(type, index, e.target.value)}
-                                />
-                            )}
-                            {jenisProduk[type].length > 0 && (
-                                <button
-                                    type="button"
-                                    className="ml-2 text-red-500"
-                                    onClick={() => handleRemoveVariasi(type, index)}
-                                >
-                                    ✖
-                                </button>
-                            )}
-                        </div>
-                    ))}
-                    {(
-                        <button
-                            type="button"
-                            className="mt-2 px-4 py-1 bg-[#E9FAF7] text-[#1A9882]"
-                            onClick={() => handleAddVariasi(type)}
-                        >
-                            + Tambah {type === "color" ? "Warna Bibit Ikan" : "Ukuran Bibit Ikan"}
-                        </button>
-                    )}
-                </div>
-            ))}
+  return (
+    <div className="p-5">
+      <h2 className="text-lg font-semibold text-gray-700 mb-4">Jenis Produk</h2>
+      {Object.keys(jenisProduk).map((type) => (
+        <div key={type} className="mb-4 border-b pb-4">
+          <label className="block text-gray-600 mb-1">
+            {type === "color" ? "Warna" : "Ukuran"}
+          </label>
+          {jenisProduk[type].map((variasi, index) => (
+            <div key={index} className="flex items-center mb-2">
+              <input
+                type="text"
+                className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
+                placeholder={`Masukkan ${type === "color" ? "warna" : "ukuran"}`}
+                value={variasi}
+                onChange={(e) => handleChangeVariasi(type, index, e.target.value)}
+              />
+              <button
+                type="button"
+                className="ml-2 text-red-500"
+                onClick={() => handleRemoveVariasi(type, index)}
+              >
+                ✖
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="mt-2 px-4 py-1 bg-[#E9FAF7] text-[#1A9882]"
+            onClick={() => handleAddVariasi(type)}
+          >
+            + Tambah {type === "color" ? "Warna" : "Ukuran"}
+          </button>
         </div>
-    );
+      ))}
+    </div>
+  );
 };
 
 export default JenisProduk;
