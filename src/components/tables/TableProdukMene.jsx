@@ -55,34 +55,13 @@ const TableMeneProduk = () => {
     setIsModalOpen(true);
   };
 
-  // const confirmDelete = async () => {
-  //   try {
-  //     await deleteProduct(selectedItem._id); // Pastikan menggunakan '_id', bukan 'id'
-  //     setData(data.filter((item) => item._id !== selectedItem._id));
-  //     setIsModalOpen(false);
-  //   } catch (error) {
-  //     // No error logging, just continue
-  //   }
-  // };
   const confirmDelete = async () => {
     try {
-      if (!selectedItem) return;
-  
-      // Optional: Fetch the product to confirm it exists
-      const product = await getProductById(selectedItem._id);
-      if (!product) {
-        throw new Error("Product not found");
-      }
-  
-      console.log("Deleting product with ID:", selectedItem._id); // Log the ID
-      await deleteProduct(selectedItem._id);
-  
-      // Update the UI by removing the deleted product
-      setData((prevData) => prevData.filter((item) => item._id !== selectedItem._id));
+      await deleteProduct(selectedItem._id); // Pastikan menggunakan '_id', bukan 'id'
+      setData(data.filter((item) => item._id !== selectedItem._id));
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Gagal menghapus produk:", error);
-      alert("Gagal menghapus produk: " + error.message); // Show a user-friendly error message
+      // No error logging, just continue
     }
   };
 
@@ -105,7 +84,7 @@ const TableMeneProduk = () => {
                 Produk
               </th>
               <th className="min-w-[120px] py-4 px-4 font-medium text-black">
-                ID
+                SKU
               </th>
               <th className="min-w-[120px] py-4 px-4 font-medium text-black">
                 Stok
@@ -134,7 +113,7 @@ const TableMeneProduk = () => {
 
                 {/* Kolom ID */}
                 <td className="border-b border-[#eee] py-5 px-4">
-                  {packageItem._id}
+                  {packageItem.sku}
                 </td>
 
                 {/* Kolom Stok */}

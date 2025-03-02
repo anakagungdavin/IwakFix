@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import ReactApexChart from "react-apexcharts";
 
-// Reusable CardDataStats Component
-const CardS = ({
+const ChartS = ({
   title,
   time,
   total,
@@ -12,8 +12,58 @@ const CardS = ({
   levelDown,
   showLegend = false,
   chartHeight = 60,
-  chartData = [10, 20, 15, 30, 40, 35, 50], // Default chart data
 }) => {
+  const [chartData, setChartData] = useState([10, 20, 15, 30, 40, 35, 50]); // Default sementara
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const token = localStorage.getItem("token");
+
+  // Fetch data pesanan dari API dan proses untuk chart
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get("https://iwak.onrender.com/api/orders", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const orders = response.data;
+
+        // Proses data untuk 7 hari terakhir
+        const today = new Date();
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - 6); // 7 hari terakhir
+
+        const days = Array.from({ length: 7 }, (_, i) => {
+          const date = new Date(weekStart);
+          date.setDate(weekStart.getDate() + i);
+          return date;
+        });
+
+        const dailyOrders = days.map((day) => {
+          const dayStart = new Date(day);
+          dayStart.setHours(0, 0, 0, 0);
+          const dayEnd = new Date(day);
+          dayEnd.setHours(23, 59, 59, 999);
+
+          return orders.filter((order) => {
+            const orderDate = new Date(order.createdAt);
+            return orderDate >= dayStart && orderDate <= dayEnd;
+          }).length;
+        });
+
+        setChartData(dailyOrders);
+        setLoading(false);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch orders");
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [token]);
+
   const chartOptions = {
     chart: {
       type: "line",
@@ -23,7 +73,7 @@ const CardS = ({
       curve: "smooth",
       width: 2,
       colors: ["#10B981"], // Green line for the chart
-    }
+    },
   };
 
   const chartSeries = [
@@ -33,8 +83,15 @@ const CardS = ({
     },
   ];
 
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+
   return (
-    <div className={`p-4 rounded-2xl shadow-md shadow-sky-50 bg-white ${ showLegend ? "md:col-span-3" : "md:col-span-1"}`}>
+    <div
+      className={`p-4 rounded-2xl shadow-md shadow-sky-50 bg-white ${
+        showLegend ? "md:col-span-3" : "md:col-span-1"
+      }`}
+    >
       {/* Title Section */}
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
@@ -42,49 +99,48 @@ const CardS = ({
       </div>
 
       {/* Stats and Chart */}
+      <div className="flex flex-col">
         {/* Stats */}
-        <div className="flex flex-col">
-                  {/* Chart */}
-          <div className="flex items-center justify-between">
-                        <p className="text-3xl font-bold text-gray-900">{total}</p>
-            <div className="w-1/2">
-              <ReactApexChart
-                options={chartOptions}
-                series={chartSeries}
-                type="line"
-                height={chartHeight}
-              />
-            </div>
-          </div>
-          <div className="flex items-center text-sm text-gray-500">
-            {levelUp && (
-              <svg
-                className="fill-green-500"
-                width="10"
-                height="11"
-                viewBox="0 0 10 11"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M4.35716 2.47737L0.908974 5.82987L5.0443e-07 4.94612L5 0.0848689L10 4.94612L9.09103 5.82987L5.64284 2.47737L5.64284 10.0849L4.35716 10.0849L4.35716 2.47737Z" />
-              </svg>
-            )}
-            {levelDown && (
-              <svg
-                className="fill-red-500"
-                width="10"
-                height="11"
-                viewBox="0 0 10 11"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M5.64284 7.69237L9.09102 4.33987L10 5.22362L5 10.0849L-8.98488e-07 5.22362L0.908973 4.33987L4.35716 7.69237L4.35716 0.0848701L5.64284 0.0848704L5.64284 7.69237Z" />
-              </svg>
-            )}
-            <span className="ml-1 text-green-500">{percent}%</span>
-            <span className="ml-1">{comparedTo}</span>
+        <div className="flex items-center justify-between">
+          <p className="text-3xl font-bold text-gray-900">{total}</p>
+          <div className="w-1/2">
+            <ReactApexChart
+              options={chartOptions}
+              series={chartSeries}
+              type="line"
+              height={chartHeight}
+            />
           </div>
         </div>
+        <div className="flex items-center text-sm text-gray-500">
+          {levelUp && (
+            <svg
+              className="fill-green-500"
+              width="10"
+              height="11"
+              viewBox="0 0 10 11"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M4.35716 2.47737L0.908974 5.82987L5.0443e-07 4.94612L5 0.0848689L10 4.94612L9.09103 5.82987L5.64284 2.47737L5.64284 10.0849L4.35716 10.0849L4.35716 2.47737Z" />
+            </svg>
+          )}
+          {levelDown && (
+            <svg
+              className="fill-red-500"
+              width="10"
+              height="11"
+              viewBox="0 0 10 11"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M5.64284 7.69237L9.09102 4.33987L10 5.22362L5 10.0849L-8.98488e-07 5.22362L0.908973 4.33987L4.35716 7.69237L4.35716 0.0848701L5.64284 0.0848704L5.64284 7.69237Z" />
+            </svg>
+          )}
+          <span className="ml-1 text-green-500">{percent}%</span>
+          <span className="ml-1">{comparedTo}</span>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default CardS;
+export default ChartS;

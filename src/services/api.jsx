@@ -7,7 +7,7 @@ const API_URL = "https://iwak.onrender.com/api";
 const getHeaders = (data) => {
   const token = localStorage.getItem("token");
   const headers = {
-    Authorization: `Bearer ${token}`, // Sertakan token JWT
+    Authorization: `Bearer ${token}`, 
   };
 
   if (data instanceof FormData) {
@@ -23,7 +23,7 @@ const getHeaders = (data) => {
 export const getProducts = async () => {
   try {
     const response = await axios.get(`${API_URL}/products`, {
-      headers: getHeaders(null), // Sertakan token
+      headers: getHeaders(null), 
     });
     return response.data;
   } catch (error) {
@@ -79,7 +79,7 @@ export const updateProduct = async (id, formData) => {
 // export const deleteProduct = async (id) => {
 //   try {
 //     const response = await axios.delete(`${API_URL}/products/${id}`, {
-//       headers: getHeaders(null), // Sertakan token
+//       headers: getHeaders(null),
 //     });
 //     return response.data;
 //   } catch (error) {
@@ -88,8 +88,8 @@ export const updateProduct = async (id, formData) => {
 // };
 export const deleteProduct = async (id) => {
   try {
-    const url = `https://iwak.onrender.com/api/products/${id}`; // Use the full backend URL
-    console.log("Deleting product with URL:", url); // Log the URL
+    const url = `https://iwak.onrender.com/api/products/${id}`; 
+    console.log("Deleting product with URL:", url); 
 
     const response = await fetch(url, {
       method: "DELETE",
@@ -99,9 +99,9 @@ export const deleteProduct = async (id) => {
       },
     });
 
-    console.log("Response status:", response.status); // Log the status
+    console.log("Response status:", response.status); 
     const responseText = await response.text();
-    console.log("Response text:", responseText); // Log the raw response text
+    console.log("Response text:", responseText); 
 
     if (!response.ok) {
       throw new Error(`Failed to delete product: ${response.statusText}`);

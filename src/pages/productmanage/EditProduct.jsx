@@ -338,12 +338,12 @@ const EditProduct = () => {
             >
               Batalkan
             </button>
-            <button
+            {/* <button
               onClick={handleSaveDraft}
               className="px-4 py-2 bg-[#F0F1F3] text-[#667085] rounded-md"
             >
               Simpan sebagai Draft
-            </button>
+            </button> */}
             <button
               onClick={handleUpdate}
               className="px-4 py-2 bg-[#E9FAF7] text-[#1A9882]"

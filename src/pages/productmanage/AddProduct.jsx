@@ -35,7 +35,7 @@ const AddProduct = () => {
     price: "",
     discount: "",
     stock: "",
-    images: [], // Array of image URLs (for preview or existing images)
+    images: [], //o Array of image URLs (for preview or existing images)
     imageFiles: [], // Array of file objects (for new uploads)
     weight: "",
     dimensions: {
@@ -47,7 +47,7 @@ const AddProduct = () => {
       color: [],
       size: [],
     },
-    seller: "YOUR_SELLER_OBJECTID_HERE", // Replace with actual seller ID from auth
+    seller: localStorage.getItem("sellerId") || "default-seller-id", // Ganti dengan ID penjual dari autentikasi
   });
 
   // Handle input changes (similar to EditProduct.jsx)
@@ -192,6 +192,9 @@ const AddProduct = () => {
   //ver 2
   const handleUpload = async () => {
   try {
+    if (!product.name) {
+      throw new Error("Nama produk harus diisi!");
+    }
     const formData = new FormData();
 
     // Append non-nested fields
@@ -205,16 +208,16 @@ const AddProduct = () => {
     formData.append("seller", product.seller);
 
     // Append nested fields (dimensions and type) as JSON strings
-    formData.append(
-      "dimensions",
-      JSON.stringify(product.dimensions || { height: 0, length: 0, width: 0 })
-    );
-        // Pastikan type.color dan type.size adalah array
-        const type = {
-          color: Array.isArray(product.type?.color) ? product.type.color : [],
-          size: Array.isArray(product.type?.size) ? product.type.size : [],
-        };
-        formData.append("type", JSON.stringify(type));
+    // Append nested fields (dimensions and type) as JSON strings
+    const dimensions = product.dimensions || {
+      height: 0,
+      length: 0,
+      width: 0,
+    };
+    formData.append("dimensions", JSON.stringify(dimensions));
+
+    const type = product.type || { color: [], size: [] };
+    formData.append("type", JSON.stringify(type));
     // formData.append(
     //   "type",
     //   JSON.stringify(product.type || { color: [], size: [] })
@@ -332,7 +335,7 @@ const AddProduct = () => {
                   onChange={(updatedData) => {
                     setProduct((prevState) => ({
                       ...prevState,
-                      type: updatedData.type || { color: [], size: [] },
+                      type: updatedData.type,
                     }));
                   }}
                 />
@@ -365,12 +368,12 @@ const AddProduct = () => {
             >
               Batalkan
             </button>
-            <button
+            {/* <button
               onClick={handleSaveDraft}
               className="px-4 py-2 bg-[#F0F1F3] text-[#667085] rounded-md"
             >
               Simpan sebagai Draft
-            </button>
+            </button> */}
             <button
               onClick={handleUpload}
               className="px-4 py-2 bg-[#E9FAF7] text-[#1A9882]"

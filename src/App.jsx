@@ -20,6 +20,9 @@ import HistoryPage from "./pages/transaksi/historyPage";
 import ErrorPage from "./components/errorPage";
 import MainLayout from "./layout/mainLayout";
 import EditProduct from "./pages/productmanage/EditProduct";
+import UserList from "./pages/usermanagement/UserList";
+import UserProfile from "./pages/usermanagement/UserProfile";
+import EditProfile from "./pages/usermanagement/EditUserProfile";
 
 function App() {
   return (
@@ -42,6 +45,9 @@ function App() {
             <Route path="/product-management/edit/:id" element={<EditProduct />} />
             <Route path="/product-management/view" element={<ViewProduct />} />
             <Route path="/riwayat-transaksi" element={<HistoryPage />} />
+            <Route path="/customers" element={<UserList/>}/>
+            <Route path="/customers/edit/:id" element={<EditProfile/>}/>
+            {/* <Route path="/customers/user-profile" element={<UserProfile/>}/> */}
           </Route>
         </Route>
         <Route path="*" element={<ErrorPage />} />
