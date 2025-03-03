@@ -9,15 +9,38 @@ const SignIn = () => {
     const [password,setPassword] = useState ("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    // const handleLogin = async (e) => {
+    //     e.preventDefault();
+    //     try {
+    //         await signIn({email, password});
+    //         navigate("/dashboard");
+    //     } catch (error){
+    //         setError("Login gagal! Periksa email atau passowrd")
+    //     }
+    // };
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            await signIn({email, password});
-            navigate("/dashboard");
-        } catch (error){
-            setError("Login gagal! Periksa email atau passowrd")
+            const userData = await signIn({ email, password });
+    
+            console.log("User Data:", userData);
+    
+            // Simpan token dan role ke localStorage
+            localStorage.setItem("token", userData.token);
+            localStorage.setItem("role", userData.user.role);
+    
+            // Redirect berdasarkan role
+            if (userData.user.role === "admin") {
+                navigate("/admin-dashboard");
+            } else if (userData.user.role === "customer") {
+                navigate("/customer-dashboard");
+            }
+        } catch (error) {
+            setError("Login gagal! Periksa email atau password");
         }
     };
+    
+    
 
 
     return (

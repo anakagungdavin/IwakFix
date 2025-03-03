@@ -7,7 +7,7 @@ const API_URL = "https://iwak.onrender.com/api";
 // Sign Up
 export const signUp = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/register`, userData);
+    const response = await axios.post(`${API_URL}/users/register`, userData);
     return response.data;
   } catch (error) {
     console.error("Sign Up Error:", error.response?.data || error.message);
@@ -20,6 +20,7 @@ export const signIn = async (userData) => {
   try {
     const response = await axios.post(`${API_URL}/users/login`, userData);
     localStorage.setItem("token", response.data.token); // Simpan token
+    localStorage.setItem("role", response.data.user.role);
     console.log(response.data.token);
     return response.data;
   } catch (error) {

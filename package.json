@@ -21,6 +21,7 @@
     "axios": "^1.7.9",
     "emailjs-com": "^3.2.0",
     "fontkit": "^2.0.4",
+    "framer-motion": "^12.4.7",
     "html2canvas": "^1.4.1",
     "hyphen": "^1.10.6",
     "jspdf": "^2.5.2",
