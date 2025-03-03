@@ -34,7 +34,7 @@ const TableUserList = ({ data, rowsPerPage, onEdit, onDelete }) => {
 
   const handleView = (item) => {
     // Navigate to the ViewPage with the selected user's details
-    navigate("/view", { state: { user: item } });
+    navigate("view", { state: { user: item } });
   };
 
   const handleEdit = (item) => {

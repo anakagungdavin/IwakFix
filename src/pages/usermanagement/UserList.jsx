@@ -8,17 +8,15 @@ const UserList = () => {
   const navigate = useNavigate();
 
   const handleEdit = (user) => {
-    // navigate("/view/edit", { state: { user } });
-    navigate("/edit", { state: { user } });
-
+    navigate(`/customers/edit/${user.id}`, { state: { user } });
   };
 
-  const handleDelete = (item) => {
-    alert(`Deleting: ${item.name}`);
+  const handleView = (user) => {
+    navigate(`/customers/view/${user.id}`, { state: { user } });
   };
 
-  const handleView = (item) => {
-    alert(`Viewing: ${item.name}`);
+  const handleDelete = (user) => {
+    alert(`Deleting: ${user.name}`);
   };
 
   return (

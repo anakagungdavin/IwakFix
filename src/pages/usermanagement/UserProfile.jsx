@@ -1,27 +1,28 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import TableHistory from "../../components/tables/TableTransaksiHistory";
 
 const UserProfile = () => {
+  const { id } = useParams();
   const location = useLocation();
-  const { user } = location.state;
+  const user = location.state?.user || {};
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex space-x-6">
         <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 text-3xl font-semibold">
-          {user.name[0]}
+          {user.name?.[0] || "?"}
         </div>
         <div>
-          <h1 className="text-2xl font-bold">{user.name}</h1>
-          <p className="text-sm text-gray-500">{user.email}</p>
+          <h1 className="text-2xl font-bold">{user.name || "Unknown User"}</h1>
+          <p className="text-sm text-gray-500">{user.email || "No Email"}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4 bg-gray-100 p-4 rounded-lg">
         <div>
           <h2 className="font-medium">Personal Information</h2>
-          <p>Contact Number: {user.phone}</p>
+          <p>Contact Number: {user.phone || "Not Provided"}</p>
           <p>Gender: {user.gender || "Not Specified"}</p>
         </div>
         <div>
@@ -37,7 +38,7 @@ const UserProfile = () => {
       </div>
       <div>
         <h2 className="text-lg font-bold">Transaction History</h2>
-        <TableHistory/>
+        <TableHistory />
       </div>
     </div>
   );

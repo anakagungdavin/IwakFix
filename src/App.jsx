@@ -97,6 +97,7 @@ function App() {
             <Route path="/riwayat-transaksi" element={<HistoryPage />} />
             <Route path="/customers" element={<UserList />} />
             <Route path="/customers/edit/:id" element={<EditProfile />} />
+            <Route path="/customers/view" element={<UserProfile/>}/>
           </Route>
         </Route>
 
