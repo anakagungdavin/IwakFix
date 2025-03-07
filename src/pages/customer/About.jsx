@@ -14,7 +14,9 @@ const AboutPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <HeaderCust />
+      <div className="sticky top-0 z-50 bg-white shadow-md">
+        <HeaderCust />
+      </div>
 
       {/* About Section */}
       <section className="relative text-black py-24 px-30 lg:px-30 rounded-br-[100px]">

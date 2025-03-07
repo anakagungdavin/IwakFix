@@ -12,7 +12,9 @@ const ProductPage = () => {
 
   return (
     <div>
-        <HeaderCust/>
+        <div className="sticky top-0 z-50 bg-white shadow-md">
+          <HeaderCust />
+        </div>
         <ProductOverview fish={fish} />
         <ProductDetails fish={fish} />
         <ProductRecommendations />

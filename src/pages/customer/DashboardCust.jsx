@@ -37,7 +37,9 @@ const DashboardCust = () => {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <HeaderCust />
+      <div className="sticky top-0 z-50 bg-white shadow-md">
+        <HeaderCust />
+      </div>
 
       {/* Hero Section */}
       <section className="relative bg-[#003D47] text-white py-24 px-6 lg:px-12 rounded-br-[100px] overflow-hidden">

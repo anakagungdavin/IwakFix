@@ -46,7 +46,9 @@ const CheckoutPage = () => {
 
   return (
     <div>
-      <HeaderCust />
+      <div className="sticky top-0 z-50 bg-white shadow-md">
+        <HeaderCust />
+      </div>
       <div className="max-w-6xl mx-auto px-6 py-10">
         <h2 className="text-3xl font-bold text-yellow-500 mb-6">Pembayaran</h2>
 

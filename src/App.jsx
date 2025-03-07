@@ -74,6 +74,10 @@ import UserList from "./pages/usermanagement/UserList";
 import UserProfile from "./pages/usermanagement/UserProfile";
 import EditProfile from "./pages/usermanagement/EditUserProfile";
 import DashboardCust from "./pages/customer/DashboardCust"
+import AboutPage from "./pages/customer/About";
+import TokoPage from "./pages/customer/Toko";
+import ProfilePage from "./pages/customer/ProfilePage";
+import ProfileCustEdit from "./pages/customer/ProfileCustEdit";
 
 function App() {
   return (
@@ -102,7 +106,13 @@ function App() {
         </Route>
 
         <Route element={<PrivateRoute allowedRoles={["customer"]} />}>
-          <Route path="/customer-dashboard" element={<DashboardCust />} />
+          {/* <Route path="/customer-dashboard" element={<DashboardCust />} /> */}
+          <Route path="/customer-dashboard" element={<DashboardCust/>}/>
+          <Route path="/about" element={<AboutPage/>}/>
+          <Route path="/shop" element={<TokoPage/>}/>
+          <Route path="/profile" element={<ProfilePage/>}/>
+          <Route path="/profile/edit" element={<ProfileCustEdit/>}/>
+
         </Route>
 
         {/* Jika akses ditolak */}

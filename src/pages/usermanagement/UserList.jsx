@@ -22,7 +22,7 @@ const UserList = () => {
   return (
     <div className="p-6 space-y-4">
       <Breadcrumb pageName="User List" />
-      <h1 className="text-2xl font-bold">Customer List</h1>
+      {/* <h1 className="text-2xl font-bold">Customer List</h1> */}
       <TableUserList
         data={customers}
         rowsPerPage={5}

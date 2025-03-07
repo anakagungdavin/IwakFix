@@ -1,4 +1,4 @@
-@import "tailwindcss";
+/* @import "tailwindcss";
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -67,9 +67,9 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */
 
-/* @import "tailwindcss";
+@import "tailwindcss";
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -112,4 +112,4 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
-} */
+}
