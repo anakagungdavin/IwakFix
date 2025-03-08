@@ -21,6 +21,9 @@ const ProductOverview = ({ fish }) => {
   const [selectedImage, setSelectedImage] = useState(defaultProduct.images[0]);
   const [selectedSize, setSelectedSize] = useState(""); // State for selected size
   const [quantity, setQuantity] = useState(1); // State for quantity
+  const handleBuyNow = (product) => {
+    navigate("/customer/checkout", { state: { product } });
+  };
 
   console.log("Default Product Images:", defaultProduct.images);
   return (
@@ -128,7 +131,45 @@ const ProductOverview = ({ fish }) => {
             >
               Beli
             </button>
-            <button className="bg-[#003D47] text-white px-6 py-2 rounded-lg w-full">
+            <button
+              className="bg-[#003D47] text-white px-6 py-2 rounded-lg w-full"
+              onClick={() => {
+                if (!selectedSize) {
+                  alert("Pilih ukuran terlebih dahulu!");
+                  return;
+                }
+
+                // Retrieve current cart from localStorage
+                const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+                // Check if the product already exists in the cart (same name & size)
+                const existingProductIndex = cart.findIndex(
+                  (item) =>
+                    item.name === defaultProduct.name &&
+                    item.size === selectedSize
+                );
+
+                if (existingProductIndex !== -1) {
+                  // If it exists, update the quantity
+                  cart[existingProductIndex].quantity += quantity;
+                } else {
+                  // Otherwise, add a new product
+                  cart.push({
+                    name: defaultProduct.name,
+                    size: selectedSize,
+                    quantity,
+                    description: defaultProduct.description,
+                    price: defaultProduct.price,
+                    image: defaultProduct.images[0],
+                  });
+                }
+
+                // Save updated cart back to localStorage
+                localStorage.setItem("cart", JSON.stringify(cart));
+
+                alert("Produk ditambahkan ke keranjang!");
+              }}
+            >
               + Keranjang
             </button>
           </div>
