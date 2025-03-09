@@ -14,7 +14,7 @@ const fishTypes = [
   { id: 4, name: "Bawal", image: ["/src/images/bawal.png"] },
 ];
 
-const fullText = "Temukan Bibit Ikan Terbaik siap Kirim Ke Seluruh Indonesia!";
+const fullText = "Temukan Bibit Ikan Terbaik dan Siap Kirim Ke Seluruh Indonesia!";
 const typingSpeed = 50; // Speed of typing effect (ms per character)
 
 const DashboardCust = () => {

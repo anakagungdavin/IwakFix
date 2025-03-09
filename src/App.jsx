@@ -78,6 +78,9 @@ import AboutPage from "./pages/customer/About";
 import TokoPage from "./pages/customer/Toko";
 import ProfilePage from "./pages/customer/ProfilePage";
 import ProfileCustEdit from "./pages/customer/ProfileCustEdit";
+import CartPage from "./pages/customer/CartPage";
+import CheckoutPage from "./pages/customer/CheckoutPage";
+import ProductPage from "./pages/customer/ProductPage";
 
 function App() {
   return (
@@ -101,7 +104,7 @@ function App() {
             <Route path="/riwayat-transaksi" element={<HistoryPage />} />
             <Route path="/customers" element={<UserList />} />
             <Route path="/customers/edit/:id" element={<EditProfile />} />
-            <Route path="/customers/view" element={<UserProfile/>}/>
+            <Route path="/customers/view/:id" element={<UserProfile/>}/>
           </Route>
         </Route>
 
@@ -110,6 +113,9 @@ function App() {
           <Route path="/customer-dashboard" element={<DashboardCust/>}/>
           <Route path="/about" element={<AboutPage/>}/>
           <Route path="/shop" element={<TokoPage/>}/>
+          <Route path="/cart" element={<CartPage/>}/>
+          <Route path="/product/:id" element={<ProductPage/>}/>
+          <Route path="/checkout" element={<CheckoutPage/>}/>
           <Route path="/profile" element={<ProfilePage/>}/>
           <Route path="/profile/edit" element={<ProfileCustEdit/>}/>
 

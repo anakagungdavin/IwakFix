@@ -9,16 +9,23 @@ const TableHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Sorting states
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "asc",
+  });
+
   const token = localStorage.getItem("token");
 
-  const fetchOrders = async () => {
+  const fetchAllOrders = async () => {
     try {
-      const response = await axios.get("https://iwak.onrender.com/api/orders", {
+      const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+      const response = await axios.get(`${apiUrl}/api/orders/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Raw API Response:", JSON.stringify(response.data, null, 2));
+
       setOrders(response.data);
       setLoading(false);
     } catch (err) {
@@ -28,37 +35,27 @@ const TableHistory = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
+    fetchAllOrders();
   }, []);
 
   const openModal = (order) => {
-    console.log("Order Data:", JSON.stringify(order, null, 2));
-
-    // Calculate the original total (before discount)
     const originalTotal = order.items.reduce(
       (sum, item) => sum + (item.quantity || 0) * (item.price || 0),
       0
     );
 
-    // Calculate the discount as the difference between original total and final total
     const totalDiscount = originalTotal - order.totalAmount;
 
-    console.log("Original Total:", originalTotal);
-    console.log("Final Total (with Discount):", order.totalAmount);
-    console.log("Calculated Total Discount:", totalDiscount);
-
-    // Format all product items for display
     const products = order.items.map((item) => ({
       id: item.product?._id || item._id,
       name: item.product?.name || "Unknown Product",
       image: item.product?.images?.[0] || "",
       quantity: item.quantity || 0,
       price: item.price || 0,
-      discountedPrice:
-        item.discountedPrice || item.price * (1 - (item.discount || 0) / 100),
-      formattedPrice: `Rp ${(
-        item.discountedPrice || item.price * (1 - (item.discount || 0) / 100)
-      ).toLocaleString("id-ID")}`,
+      discountedPrice: item.discountedPrice || item.price,
+      formattedPrice: `Rp ${(item.discountedPrice || item.price).toLocaleString(
+        "id-ID"
+      )}`,
     }));
 
     const orderDetails = {
@@ -76,11 +73,11 @@ const TableHistory = () => {
       recipient: order.user?.name || "Unknown",
       phone: order.user?.phoneNumber || "N/A",
       address: order.shippingAddress || "N/A",
-      paymentMethod: order.paymentMethod || "N/A",
-      itemsTotal: `Rp ${originalTotal.toLocaleString("id-ID")}`, // Original total before discount
+      paymentMethod: order.paymentMethod || "Belum Ditentukan",
+      itemsTotal: `Rp ${originalTotal.toLocaleString("id-ID")}`,
       shippingCost: "Rp 0",
-      discount: `Rp ${totalDiscount.toLocaleString("id-ID")}`, // This should now show the correct discount
-      totalAmount: `Rp ${order.totalAmount.toLocaleString("id-ID")}`, // Final amount after discount
+      discount: `Rp ${totalDiscount.toLocaleString("id-ID")}`,
+      totalAmount: `Rp ${order.totalAmount.toLocaleString("id-ID")}`,
       status: order.status || "Pending",
     };
 
@@ -88,19 +85,68 @@ const TableHistory = () => {
     setIsOpen(true);
   };
 
-  // Debug setelah state diperbarui
-  useEffect(() => {
-    if (selectedOrder) {
-      console.log(
-        "Updated Selected Order:",
-        JSON.stringify(selectedOrder, null, 2)
-      );
-    }
-  }, [selectedOrder]);
-
   const closeModal = () => {
     setIsOpen(false);
     setSelectedOrder(null);
+  };
+
+  // Sorting function
+  const sortedOrders = React.useMemo(() => {
+    let sortableOrders = [...orders];
+    if (sortConfig.key !== null) {
+      sortableOrders.sort((a, b) => {
+        let valueA, valueB;
+
+        switch (sortConfig.key) {
+          case "customer":
+            valueA = a.user?.name || "Unknown";
+            valueB = b.user?.name || "Unknown";
+            break;
+          case "date":
+            valueA = new Date(a.createdAt);
+            valueB = new Date(b.createdAt);
+            break;
+          case "total":
+            valueA = a.totalAmount;
+            valueB = b.totalAmount;
+            break;
+          case "paymentMethod":
+            valueA = a.paymentMethod || "N/A";
+            valueB = b.paymentMethod || "N/A";
+            break;
+          case "status":
+            valueA = a.status || "Pending";
+            valueB = b.status || "Pending";
+            break;
+          default:
+            return 0;
+        }
+
+        if (valueA < valueB) return sortConfig.direction === "asc" ? -1 : 1;
+        if (valueA > valueB) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    return sortableOrders;
+  }, [orders, sortConfig]);
+
+  // Sort request handler
+  const requestSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Sort icon component
+  const SortIcon = ({ isActive, direction }) => {
+    if (!isActive) return <span className="ml-1 text-gray-300">↕</span>;
+    return direction === "asc" ? (
+      <span className="ml-1 text-gray-600">↑</span>
+    ) : (
+      <span className="ml-1 text-gray-600">↓</span>
+    );
   };
 
   if (loading) return <p className="p-6">Loading...</p>;
@@ -112,54 +158,107 @@ const TableHistory = () => {
         <thead>
           <tr className="border-b border-gray-300 text-gray-500 text-sm">
             <th className="p-4">ID</th>
-            <th className="p-4">CUSTOMER</th>
-            <th className="p-4">TANGGAL</th>
-            <th className="p-4">TOTAL</th>
-            <th className="p-4">METODE BAYAR</th>
-            <th className="p-4">STATUS</th>
+            <th
+              className="p-4 cursor-pointer hover:bg-gray-100"
+              onClick={() => requestSort("customer")}
+            >
+              CUSTOMER
+              <SortIcon
+                isActive={sortConfig.key === "customer"}
+                direction={sortConfig.direction}
+              />
+            </th>
+            <th
+              className="p-4 cursor-pointer hover:bg-gray-100"
+              onClick={() => requestSort("date")}
+            >
+              TANGGAL
+              <SortIcon
+                isActive={sortConfig.key === "date"}
+                direction={sortConfig.direction}
+              />
+            </th>
+            <th
+              className="p-4 cursor-pointer hover:bg-gray-100"
+              onClick={() => requestSort("total")}
+            >
+              TOTAL
+              <SortIcon
+                isActive={sortConfig.key === "total"}
+                direction={sortConfig.direction}
+              />
+            </th>
+            <th
+              className="p-4 cursor-pointer hover:bg-gray-100"
+              onClick={() => requestSort("paymentMethod")}
+            >
+              METODE BAYAR
+              <SortIcon
+                isActive={sortConfig.key === "paymentMethod"}
+                direction={sortConfig.direction}
+              />
+            </th>
+            <th
+              className="p-4 cursor-pointer hover:bg-gray-100"
+              onClick={() => requestSort("status")}
+            >
+              STATUS
+              <SortIcon
+                isActive={sortConfig.key === "status"}
+                direction={sortConfig.direction}
+              />
+            </th>
             <th className="p-4">ACTION</th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
-            <tr key={order._id} className="border-b border-gray-200 text-sm">
-              <td className="p-4">{order._id}</td>
-              <td className="p-4">{order.user?.name || "Unknown"}</td>
-              <td className="p-4">
-                {new Date(order.createdAt).toLocaleDateString("id-ID", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </td>
-              <td className="p-4">
-                {order.totalAmount.toLocaleString("id-ID")}
-              </td>
-              <td className="p-4">{order.paymentMethod || "N/A"}</td>
-              <td className="p-4">
-                <span
-                  className={
-                    order.status === "Delivered" || order.status === "Paid"
-                      ? "text-[#1A9882]"
-                      : order.status === "Pending" ||
-                        order.status === "Processing"
-                      ? "text-[#F86624]"
-                      : order.status === "Cancelled"
-                      ? "text-[#EB3D4D]"
-                      : ""
-                  }
-                >
-                  {order.status}
-                </span>
-              </td>
-              <td
-                className="p-4 text-blue-500 cursor-pointer hover:underline"
-                onClick={() => openModal(order)}
-              >
-                Lihat Details
+          {sortedOrders.length === 0 ? (
+            <tr>
+              <td colSpan="7" className="p-4 text-center text-gray-500">
+                Tidak ada riwayat transaksi
               </td>
             </tr>
-          ))}
+          ) : (
+            sortedOrders.map((order) => (
+              <tr key={order._id} className="border-b border-gray-200 text-sm">
+                <td className="p-4">{order._id}</td>
+                <td className="p-4">{order.user?.name || "Unknown"}</td>
+                <td className="p-4">
+                  {new Date(order.createdAt).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </td>
+                <td className="p-4">
+                  Rp {order.totalAmount.toLocaleString("id-ID")}
+                </td>
+                <td className="p-4">{order.paymentMethod || "N/A"}</td>
+                <td className="p-4">
+                  <span
+                    className={
+                      order.status === "Delivered" || order.status === "Paid"
+                        ? "text-[#1A9882]"
+                        : order.status === "Pending" ||
+                          order.status === "Processing"
+                        ? "text-[#F86624]"
+                        : order.status === "Cancelled"
+                        ? "text-[#EB3D4D]"
+                        : ""
+                    }
+                  >
+                    {order.status}
+                  </span>
+                </td>
+                <td
+                  className="p-4 text-blue-500 cursor-pointer hover:underline"
+                  onClick={() => openModal(order)}
+                >
+                  Lihat Details
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 

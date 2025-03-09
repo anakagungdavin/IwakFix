@@ -98,18 +98,102 @@
   
 //   export default CustProfile;
 
-import { useState } from "react";
+// import { useState } from "react";
+// import InformasiCust from "./profile/informasi";
+// import Alamat from "./profile/alamat";
+
+// const CustProfile = () => {
+//   const [activeMenu, setActiveMenu] = useState("Profile Saya");
+
+//   const menuItems = [
+//     { name: "Profile Saya", icon: "fas fa-user" },
+//     { name: "Pesanan Saya", icon: "fas fa-box" },
+//     { name: "Alamat", icon: "fas fa-map-marker-alt" },
+//   ];
+
+//   return (
+//     <div className="min-h-screen bg-gray-100 p-8">
+//       <div className="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-lg flex gap-8">
+//         {/* Sidebar */}
+//         <div className="w-1/4 bg-white shadow-md p-6 rounded-lg">
+//           <div className="flex flex-col items-center">
+//             <img
+//               // src="https://via.placeholder.com/80"
+//               alt="User Avatar"
+//               className="w-20 h-20 rounded-full border-4 border-gray-300"
+//             />
+//             <p className="mt-3 text-gray-600">Hello,</p>
+//             <h2 className="text-lg font-semibold">Jimin Park</h2>
+//           </div>
+//           <div className="mt-6">
+//             <ul className="space-y-4">
+//               {menuItems.map((item) => (
+//                 <li
+//                   key={item.name}
+//                   onClick={() => setActiveMenu(item.name)}
+//                   className={`flex items-center gap-2 p-3 rounded-md cursor-pointer font-semibold ${
+//                     activeMenu === item.name
+//                       ? "bg-[#003D47] text-white"
+//                       : "text-gray-600 hover:bg-gray-200"
+//                   }`}
+//                 >
+//                   <i className={item.icon}></i> {item.name}
+//                 </li>
+//               ))}
+//               <li className="text-red-500 font-semibold p-3 hover:bg-red-100 rounded-md cursor-pointer">
+//                 Log Out
+//               </li>
+//             </ul>
+//           </div>
+//         </div>
+
+//         {/* Profile Form */}
+//         <div className="w-3/4 bg-white p-6 rounded-lg shadow-md">
+//           <h2 className="text-2xl font-bold mb-6">{activeMenu}</h2>
+//           {activeMenu === "Profile Saya" && <InformasiCust />}
+//           {activeMenu === "Pesanan Saya" && <p>Halaman Pesanan Saya</p>}
+//           {activeMenu === "Alamat" && <Alamat/>}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default CustProfile;
+import { useState, useEffect } from "react"; // Tambahkan useEffect
+import { useNavigate, useSearchParams } from "react-router-dom"; // Tambahkan useNavigate dan useSearchParams
 import InformasiCust from "./profile/informasi";
 import Alamat from "./profile/alamat";
+import TransactionList from "./profile/pesanan";
 
 const CustProfile = () => {
   const [activeMenu, setActiveMenu] = useState("Profile Saya");
+  const navigate = useNavigate(); // Inisialisasi useNavigate
+  const [searchParams] = useSearchParams(); // Inisialisasi useSearchParams
 
   const menuItems = [
-    { name: "Profile Saya", icon: "fas fa-user" },
-    { name: "Pesanan Saya", icon: "fas fa-box" },
-    { name: "Alamat", icon: "fas fa-map-marker-alt" },
+    { name: "Profile Saya", icon: "fas fa-user", tab: "profile" },
+    { name: "Pesanan Saya", icon: "fas fa-box", tab: "orders" },
+    { name: "Alamat", icon: "fas fa-map-marker-alt", tab: "address" },
   ];
+
+  // Fungsi untuk mengubah URL dan activeMenu saat menu di-klik
+  const handleMenuClick = (menuName, tab) => {
+    setActiveMenu(menuName); // Set activeMenu
+    navigate(`/profile?tab=${tab}`); // Update URL dengan query parameter
+  };
+
+  // Gunakan useEffect untuk membaca query parameter saat komponen di-render
+  useEffect(() => {
+    const tab = searchParams.get("tab"); // Ambil nilai query parameter "tab"
+    if (tab) {
+      // Temukan menu yang sesuai dengan nilai "tab"
+      const selectedMenu = menuItems.find((item) => item.tab === tab);
+      if (selectedMenu) {
+        setActiveMenu(selectedMenu.name); // Set activeMenu sesuai dengan nilai "tab"
+      }
+    }
+  }, [searchParams]); // Jalankan useEffect saat searchParams berubah
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -130,7 +214,7 @@ const CustProfile = () => {
               {menuItems.map((item) => (
                 <li
                   key={item.name}
-                  onClick={() => setActiveMenu(item.name)}
+                  onClick={() => handleMenuClick(item.name, item.tab)} // Panggil handleMenuClick saat menu di-klik
                   className={`flex items-center gap-2 p-3 rounded-md cursor-pointer font-semibold ${
                     activeMenu === item.name
                       ? "bg-[#003D47] text-white"
@@ -151,8 +235,8 @@ const CustProfile = () => {
         <div className="w-3/4 bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold mb-6">{activeMenu}</h2>
           {activeMenu === "Profile Saya" && <InformasiCust />}
-          {activeMenu === "Pesanan Saya" && <p>Halaman Pesanan Saya</p>}
-          {activeMenu === "Alamat" && <Alamat/>}
+          {activeMenu === "Pesanan Saya" && <TransactionList/>}
+          {activeMenu === "Alamat" && <Alamat />}
         </div>
       </div>
     </div>

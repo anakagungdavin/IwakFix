@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { getStatus } from "../../pages/productmanage/AddProduct";
 import DeleteModal from "../modal/modalDelete";
 import ModalView from "../modal/modalViewProduk";
+import { PencilIcon, TrashIcon, EyeIcon } from "@heroicons/react/24/solid";
+
 import {
   getProducts,
   getProductById,
@@ -57,11 +59,10 @@ const TableMeneProduk = () => {
 
   const confirmDelete = async () => {
     try {
-      await deleteProduct(selectedItem._id); // Pastikan menggunakan '_id', bukan 'id'
+      await deleteProduct(selectedItem._id); 
       setData(data.filter((item) => item._id !== selectedItem._id));
       setIsModalOpen(false);
     } catch (error) {
-      // No error logging, just continue
     }
   };
 
@@ -136,9 +137,11 @@ const TableMeneProduk = () => {
                   <div className="flex items-center space-x-3.5">
                     <button
                       onClick={() => handleViewDetails(packageItem)}
-                      className="hover:text-primary"
+                      className="text-[#003D47] cursor-pointer hover:underline"
                     >
-                      <svg
+                      <EyeIcon className="w-5 h-5" />
+                      
+                      {/* <svg
                         className="fill-current"
                         width="18"
                         height="18"
@@ -154,13 +157,33 @@ const TableMeneProduk = () => {
                           d="M9 11.3906C7.67812 11.3906 6.60938 10.3219 6.60938 9C6.60938 7.67813 7.67812 6.60938 9 6.60938C10.3219 6.60938 11.3906 7.67813 11.3906 9C11.3906 10.3219 10.3219 11.3906 9 11.3906ZM9 7.875C8.38125 7.875 7.875 8.38125 7.875 9C7.875 9.61875 8.38125 10.125 9 10.125C9.61875 10.125 10.125 9.61875 10.125 9C10.125 8.38125 9.61875 7.875 9 7.875Z"
                           fill=""
                         />
-                      </svg>
+                      </svg> */}
+                    </button>
+                    <button
+                      onClick={() => handleEditClick(packageItem._id)}
+                      className="text-[#003D47] cursor-pointer hover:underline"
+                    >
+                      <PencilIcon className="w-5 h-5" />
+                      {/* <svg
+                        className="fill-current"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 18 18"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M12.8093 1.73438L15.6968 4.62188L6.31805 14.0006L3.4043 14.2412C2.9293 14.2844 2.52805 13.9125 2.4843 13.4375L2.24368 10.5238L12.8093 1.73438ZM16.6687 3.65L14.9906 1.97188C14.5687 1.55 13.875 1.55 13.4531 1.97188L11.9812 3.44375L14.8687 6.33125L16.3406 4.85938C16.7625 4.4375 16.7625 3.74375 16.6687 3.65ZM1.5 15.375C1.5 15.6813 1.74375 15.925 2.05 15.925H15.95C16.2563 15.925 16.5 15.6813 16.5 15.375C16.5 15.0688 16.2563 14.825 15.95 14.825H2.05C1.74375 14.825 1.5 15.0688 1.5 15.375Z"
+                          fill=""
+                        />
+                      </svg> */}
                     </button>
                     <button
                       onClick={() => handleDeleteClick(packageItem)}
-                      className="hover:text-primary"
+                      className="text-[#003D47] cursor-pointer hover:underline"
                     >
-                      <svg
+                      <TrashIcon className="w-5 h-5" />
+                      {/* <svg
                         className="fill-current"
                         width="18"
                         height="18"
@@ -184,26 +207,9 @@ const TableMeneProduk = () => {
                           d="M6.72245 9.67504C6.38495 9.70317 6.1037 10.0125 6.13182 10.35L6.3287 12.825C6.35683 13.1625 6.63808 13.4157 6.94745 13.4157C6.97558 13.4157 6.97558 13.4157 7.0037 13.4157C7.3412 13.3875 7.62245 13.0782 7.59433 12.7407L7.39745 10.2657C7.39745 9.90004 7.08808 9.64692 6.72245 9.67504Z"
                           fill=""
                         />
-                      </svg>
+                      </svg> */}
                     </button>
-                    <button
-                      onClick={() => handleEditClick(packageItem._id)}
-                      className="hover:text-primary"
-                    >
-                      <svg
-                        className="fill-current"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 18 18"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M12.8093 1.73438L15.6968 4.62188L6.31805 14.0006L3.4043 14.2412C2.9293 14.2844 2.52805 13.9125 2.4843 13.4375L2.24368 10.5238L12.8093 1.73438ZM16.6687 3.65L14.9906 1.97188C14.5687 1.55 13.875 1.55 13.4531 1.97188L11.9812 3.44375L14.8687 6.33125L16.3406 4.85938C16.7625 4.4375 16.7625 3.74375 16.6687 3.65ZM1.5 15.375C1.5 15.6813 1.74375 15.925 2.05 15.925H15.95C16.2563 15.925 16.5 15.6813 16.5 15.375C16.5 15.0688 16.2563 14.825 15.95 14.825H2.05C1.74375 14.825 1.5 15.0688 1.5 15.375Z"
-                          fill=""
-                        />
-                      </svg>
-                    </button>
+                    
                   </div>
                 </td>
               </tr>

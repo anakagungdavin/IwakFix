@@ -1,6 +1,7 @@
 import Breadcrumb from '../../breadcrumb/breadcrumb';
 import TableMeneProduk from '../../components/tables/TableProdukMene';
 import { useNavigate } from 'react-router';
+
 const ProductManagement = () => {
   const navigate = useNavigate();
   return (

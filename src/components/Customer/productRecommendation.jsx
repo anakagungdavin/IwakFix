@@ -10,13 +10,18 @@ const recommendations = [
 const ProductRecommendations = () => {
   const navigate = useNavigate();
 
+  const handleShowMore = () => {
+    navigate("/shop");
+    window.scrollTo(0, 0);
+  };
+
   return (
     <div className="container mx-auto">
       <h3 className="text-blue-600 text-m text-center mb-1">Temukan bibit ikanmu.</h3>
       <h3 className="text-lg font-bold text-center mb-4">Bibit Ikan Terfavorit</h3>
       <div className="flex justify-center gap-8">
         {recommendations.map(item => (
-          <div key={item.id} className="border p-4 rounded-lg w-1/4 cursor-pointer shadow-lg hover:shadow-xl" onClick={() => navigate(`/product/${item.id}`)}>
+          <div key={item.id} className="border p-4 rounded-lg w-1/4 cursor-pointer shadow-lg hover:shadow-xl" onClick={() => navigate(`/product/${item.id}`) }>
             <div className="relative">
               <img src={item.image} alt={item.name} className="w-full h-auto rounded-lg" />
               <div className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md">🛒</div>
@@ -29,7 +34,12 @@ const ProductRecommendations = () => {
         ))}
       </div>
       <div className="text-center mt-4">
-        <button className="border px-6 py-2 rounded-lg">Show More</button>
+        <button 
+          className="border px-6 py-2 rounded-lg hover:bg-gray-200 transition"
+          onClick={handleShowMore}
+        >
+          Show More
+        </button>
       </div>
     </div>
   );

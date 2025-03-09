@@ -138,12 +138,12 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
           {/* Order ID */}
           <div className="text-xs text-gray-500">Order ID: {orderId}</div>
 
-          <button
+          {/* <button
             className="bg-[#f3f3c9] text-[#EB3D4D] rounded-md px-4 py-2 w-full hover:bg-yellow-600"
             onClick={onClose}
           >
             Close
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

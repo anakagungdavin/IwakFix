@@ -129,12 +129,16 @@ const styles = StyleSheet.create({
 });
 
 const MyDocument = ({ startDate, endDate, orders }) => {
-  const adjustedEndDate = new Date(endDate);
-  adjustedEndDate.setHours(23, 59, 59, 999);
+  // Convert input dates to Date objects for precise filtering
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0); // Set to start of day
+
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999); // Set to end of day
 
   const filteredOrders = orders.filter((order) => {
     const orderDate = new Date(order.createdAt);
-    return orderDate >= new Date(startDate) && orderDate <= adjustedEndDate;
+    return orderDate >= start && orderDate <= end;
   });
 
   const totalInvoice = filteredOrders.reduce((sum, order) => {
@@ -176,6 +180,7 @@ const MyDocument = ({ startDate, endDate, orders }) => {
         {/* Tabel */}
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
+            <Text style={styles.tableCell}>Tanggal</Text>
             <Text style={styles.tableCell}>Item</Text>
             <Text style={styles.tableCell}>Jumlah</Text>
             <Text style={styles.tableCell}>Harga Satuan</Text>
@@ -184,6 +189,9 @@ const MyDocument = ({ startDate, endDate, orders }) => {
           {filteredOrders.flatMap((order) =>
             order.items.map((item, index) => (
               <View key={`${order._id}-${index}`} style={styles.tableRow}>
+                <Text style={styles.tableCell}>
+                  {getFormattedDate(order.createdAt)}
+                </Text>
                 <Text style={styles.tableCell}>
                   {item.product?.name || "Unknown Product"}
                 </Text>
@@ -201,18 +209,6 @@ const MyDocument = ({ startDate, endDate, orders }) => {
 
         {/* Total */}
         <View style={styles.totalSection}>
-          {/* <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotal:</Text>
-            <Text style={styles.totalValue}>Rp {totalInvoice.toLocaleString("id-ID")}</Text>
-          </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Biaya Pengiriman:</Text>
-            <Text style={styles.totalValue}>Rp 0</Text>
-          </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Diskon:</Text>
-            <Text style={styles.totalValue}>Rp 0</Text>
-          </View> */}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total Penjualan:</Text>
             <Text style={styles.totalValue}>
@@ -242,11 +238,14 @@ const SalesReportModal = ({ onClose }) => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/orders", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "https://iwak.onrender.com/api/orders/all",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setOrders(response.data);
         setLoading(false);
       } catch (err) {
