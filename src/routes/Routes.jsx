@@ -12,59 +12,59 @@ import HistoryPage from "../pages/transaksi/historyPage";
 import PrivateRoute from "../routes/PrivateRoutes";
 
 const router = createBrowserRouter([
-    {
-      path: "/",
-      // element: <MainLayout />,
-      element: <Navigate to="/login" />,
-    },
-    {
-      path: "/login",
-      element: <SignInPage/>,
-    },
-    {
-      path: "/register",
-      element: <SignUpPage/>,
-    },
-    {
-      path: "/dashboard",
-      element: <PrivateRoute/>,
-      children: [
-        {
-          path: "",
-          element: <MainLayout />,  
-        },
-        {
-          path: "",
-          element: <Dashboard />,
-        },
-        {
-          path: "product-management",
-          element: <ProductManagement />,
-        },
-        {
-          path: "product-management/add",
-          element: <AddProduct/>,
-        },
-        {
-          path: "product-management/edit",
-          element: <EditProduct/>,
-        },
-        {
-          path: "product-management/view",
-          element: <ViewProduct/>,
-        },
-        {
-          path: "riwayat-transaksi",
-          element: <HistoryPage/>,
-        },
-      ],
-    },
-    {
-      path: "*",
-      element: <ErrorPage/>
-    }
-  ],
-);
-  
+  {
+    path: "/",
+    // element: <MainLayout />,
+    element: <Navigate to="/login" />,
+  },
+  {
+    path: "/login",
+    element: <SignInPage />,
+  },
+  {
+    path: "/register",
+    element: <SignUpPage />,
+  },
+  {
+    path: "/dashboard",
+    element: <PrivateRoute />,
+    children: [
+      {
+        path: "",
+        element: <MainLayout />,
+        children: [
+          {
+            path: "",
+            element: <Dashboard />,
+          },
+          {
+            path: "product-management",
+            element: <ProductManagement />,
+          },
+          {
+            path: "product-management/add",
+            element: <AddProduct />,
+          },
+          {
+            path: "product-management/edit",
+            element: <EditProduct />,
+          },
+          {
+            path: "product-management/view",
+            element: <ViewProduct />,
+          },
+          {
+            path: "riwayat-transaksi",
+            element: <HistoryPage />,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
+  },
+]);
 
 export default router;

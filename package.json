@@ -17,7 +17,7 @@
     "@react-pdf/renderer": "^4.2.1",
     "@tailwindcss/vite": "^4.0.2",
     "apexcharts": "^4.4.0",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "emailjs-com": "^3.2.0",
     "fontkit": "^2.0.4",
     "html2canvas": "^1.4.1",
