@@ -29,9 +29,9 @@ const PrivateRoute = ({ allowedRoles }) => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  console.log("Token:", token);
-  console.log("Role:", role);
-  console.log("Allowed Roles:", allowedRoles);
+  // console.log("Token:", token);
+  // console.log("Role:", role);
+  // console.log("Allowed Roles:", allowedRoles);
 
   if (!token) {
     return <Navigate to="/login" />;
@@ -45,5 +45,3 @@ const PrivateRoute = ({ allowedRoles }) => {
 };
 
 export default PrivateRoute;
-
-
