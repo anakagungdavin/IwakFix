@@ -16,7 +16,7 @@
 //   useEffect(() => {
 //     const fetchOrders = async () => {
 //       try {
-//         const response = await axios.get("https://iwak.onrender.com/api/orders", {
+//         const response = await axios.get("http://localhost:5000/api/orders", {
 //           headers: {
 //             Authorization: `Bearer ${token}`,
 //           },
@@ -300,16 +300,10 @@
 //   useEffect(() => {
 //     const fetchOrders = async () => {
 //       try {
-//         const response = await axios.get("https://iwak.onrender.com/api/orders", {
+//         const response = await axios.get("http://localhost:5000/api/orders", {
 //           headers: {
 //             Authorization: `Bearer ${token}`,
 //           },
-
-
-
-
-
-
 
 //         });
 //         setOrders(response.data);
@@ -321,11 +315,6 @@
 //       }
 //     };
 //     fetchOrders();
-
-
-
-
-
 
 //   }, [token]);
 
@@ -460,32 +449,6 @@
 
 //     // Placeholder untuk stok produk (ganti dengan API stok jika ada)
 //     const dailyStock = days.map(() => 0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //     return {
 //       days,
@@ -625,7 +588,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
         // Fetch pesanan
         const ordersResponse = await axios.get(`${apiUrl}/api/orders/all`, {
@@ -745,7 +708,6 @@ const Dashboard = () => {
         .reduce((sum, order) => sum + order.totalAmount, 0);
     });
 
-
     const dailyCustomers = days.map((day, index) => {
       const dayStart = new Date(thisWeekStart);
       dayStart.setDate(thisWeekStart.getDate() + index);
@@ -847,7 +809,6 @@ const Dashboard = () => {
     stroke: { curve: "smooth", width: 2 },
     xaxis: { categories: data.days },
 
-
     legend: { position: "top" },
   };
 
@@ -863,7 +824,6 @@ const Dashboard = () => {
     stroke: { curve: "smooth", width: 2 },
     xaxis: { categories: data.days },
 
-
     legend: { position: "top" },
     dataLabels: { enabled: false },
   };
@@ -877,7 +837,6 @@ const Dashboard = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6">
       <div className="col-span-3">
-
         <ChartWithLegend
           title="Total Pembelian"
           time="1 Minggu Terakhir"

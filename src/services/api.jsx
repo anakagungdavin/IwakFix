@@ -1,13 +1,13 @@
 import axios from "axios";
 
 // const API_URL = "http://localhost:5000/api";
-const API_URL = "https://iwak.onrender.com/api";
+const API_URL = "http://localhost:5000/api";
 
 // Fungsi untuk menentukan header berdasarkan tipe data
 const getHeaders = (data) => {
   const token = localStorage.getItem("token");
   const headers = {
-    Authorization: `Bearer ${token}`, 
+    Authorization: `Bearer ${token}`,
   };
 
   if (data instanceof FormData) {
@@ -23,7 +23,7 @@ const getHeaders = (data) => {
 export const getProducts = async () => {
   try {
     const response = await axios.get(`${API_URL}/products`, {
-      headers: getHeaders(null), 
+      headers: getHeaders(null),
     });
     return response.data;
   } catch (error) {
@@ -88,8 +88,8 @@ export const updateProduct = async (id, formData) => {
 // };
 export const deleteProduct = async (id) => {
   try {
-    const url = `https://iwak.onrender.com/api/products/${id}`; 
-    console.log("Deleting product with URL:", url); 
+    const url = `http://localhost:5000/api/products/${id}`;
+    console.log("Deleting product with URL:", url);
 
     const response = await fetch(url, {
       method: "DELETE",
@@ -99,9 +99,9 @@ export const deleteProduct = async (id) => {
       },
     });
 
-    console.log("Response status:", response.status); 
+    console.log("Response status:", response.status);
     const responseText = await response.text();
-    console.log("Response text:", responseText); 
+    console.log("Response text:", responseText);
 
     if (!response.ok) {
       throw new Error(`Failed to delete product: ${response.statusText}`);

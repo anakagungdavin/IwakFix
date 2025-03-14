@@ -248,7 +248,8 @@ const MyDocument = ({ startDate, endDate, orders }) => {
     );
   }, 0);
 
-  const customerName = filteredOrders.length > 0 ? filteredOrders[0].customerName : "-";
+  const customerName =
+    filteredOrders.length > 0 ? filteredOrders[0].customerName : "-";
 
   return (
     <Document>
@@ -321,7 +322,6 @@ const MyDocument = ({ startDate, endDate, orders }) => {
   );
 };
 
-
 const CustReportModal = ({ onClose }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -335,7 +335,7 @@ const CustReportModal = ({ onClose }) => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get(
-          "https://iwak.onrender.com/api/orders/all",
+          "http://localhost:5000/api/orders/all",
           {
             headers: {
               Authorization: `Bearer ${token}`,
