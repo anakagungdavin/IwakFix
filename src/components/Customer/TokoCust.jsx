@@ -51,12 +51,12 @@ const FishStore = () => {
                 <div key={product.id} className="bg-white p-4 rounded-lg shadow h-[250px] flex flex-col justify-between">
                     <img src={product.image} alt={product.name} className="w-full h-40 object-cover" />
                     <div className="text-center">
-                    <h3 className="text-lg font-semibold">{product.name}</h3>
-                    <div className="flex justify-center items-center gap-2">
-                        <p className="text-sm text-gray-400 line-through">Rp{product.oldPrice.toLocaleString()}</p>
-                        <span className="text-red-500 text-sm">-{calculateDiscount(product.oldPrice, product.price)}%</span>
-                    </div>
-                    <p className="text-lg font-bold text-[#003D47] ">Rp{product.price.toLocaleString()}/kg</p>
+                        <h3 className="text-lg font-semibold">{product.name}</h3>
+                        <div className="flex justify-center items-center gap-2">
+                            <p className="text-sm text-gray-400 line-through">Rp{product.oldPrice.toLocaleString()}</p>
+                            <span className="text-red-500 text-sm">-{calculateDiscount(product.oldPrice, product.price)}%</span>
+                        </div>
+                        <p className="text-lg font-bold text-[#003D47] ">Rp{product.price.toLocaleString()}/kg</p>
                     </div>
                 </div>
                 ))}

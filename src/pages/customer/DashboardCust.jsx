@@ -91,9 +91,11 @@ const DashboardCust = () => {
           {fishTypes.map((fish, index) => (
             <motion.div
               key={fish.id}
-              onClick={() =>
-                navigate(`/customer/product/${fish.id}`, { state: { fish } })
-              }
+              onClick={() => {
+                navigate(`/product/${fish.id}`, { state: { fish } });
+                window.scrollTo(0, 0); // Scroll ke atas setelah navigasi
+              }}
+              
               className="bg-[#80B3BB] p-4 rounded-lg shadow-lg cursor-pointer hover:border-2 hover:border-blue-500 transition-all duration-300 w-32 h-40 flex flex-col items-center justify-center"
               whileHover={{ scale: 1.1 }}
             >
@@ -107,7 +109,7 @@ const DashboardCust = () => {
           ))}
         </div>
       </div>
-
+f
       {/* Product Recommendations */}
       <div className="mt-40 max-w-6xl mx-auto px-6 lg:px-12">
         <ProductRecommendations />
