@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const API_URL = "http://localhost:5000/api";
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://iwak.onrender.com/api";
 
 // Fungsi untuk menentukan header berdasarkan tipe data
 const getHeaders = (data) => {
@@ -88,7 +88,7 @@ export const updateProduct = async (id, formData) => {
 // };
 export const deleteProduct = async (id) => {
   try {
-    const url = `http://localhost:5000/api/products/${id}`;
+    const url = `https://iwak.onrender.com/api/products/${id}`;
     console.log("Deleting product with URL:", url);
 
     const response = await fetch(url, {

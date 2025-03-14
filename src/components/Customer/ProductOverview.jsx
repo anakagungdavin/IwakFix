@@ -151,23 +151,31 @@ const ProductOverview = ({ fish }) => {
     name: fish?.name || "Bibit Ikan",
     description:
       "Bibit ikan berkualitas unggul, cocok untuk budidaya air tawar.",
-    price: 10000,
+    price: 2000, // Harga asli
+    discount: 3, // Persentase diskon
     stock: 50,
-    images: Array.isArray(fish?.image) ? fish.image : [fish?.image],
+    images: Array.isArray(fish?.image) ? fish.image : [fish?.image || defaultImage],
     rating: 4.5,
     reviews: 5,
-    type: { size: ["S", "M", "L", "XL"] },
+    type: { 
+      size: ["S", "M", "L", "XL"],
+      colors: ["Red", "Blue", "Green", "Black"]
+    },
   };
 
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(defaultProduct.images[0]);
-  const [selectedSize, setSelectedSize] = useState(""); // State for selected size
-  const [quantity, setQuantity] = useState(1); // State for quantity
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [quantity, setQuantity] = useState(1); 
+
   const handleBuyNow = (product) => {
-    navigate("/customer/checkout", { state: { product } });
+    navigate("/checkout", { state: { product } });
   };
 
-  console.log("Default Product Images:", defaultProduct.images);
+  // Menghitung harga setelah diskon
+  const discountedPrice = defaultProduct.price * (1 - defaultProduct.discount / 100);
+
   return (
     <div className="max-w-6xl mx-auto px-16">
       {/* Breadcrumb Positioned at the Top */}
@@ -200,18 +208,19 @@ const ProductOverview = ({ fish }) => {
           </div>
         </div>
 
-        {/* Right Side - Product Details */}
         <div className="w-1/2 pl-6">
-          <h2 className="text-3xl font-bold">{defaultProduct.name}</h2>
-          <p className="text-2xl text-green-600 font-semibold">
-            Rp{defaultProduct.price}/kg
-          </p>
-          <div className="mt-2 flex items-center">
-            <span className="text-yellow-500 text-lg">⭐⭐⭐⭐⭐</span>
-            <span className="ml-2 text-gray-600">
-              {defaultProduct.reviews} Ulasan
-            </span>
+          <h2 className="text-2xl font-bold text-black">{defaultProduct.name}</h2>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-red-500">
+              {defaultProduct.discount}%
+            </p>
+            <p className="text-sm text-gray-500 line-through">
+              Rp{defaultProduct.price.toLocaleString()}
+            </p>
           </div>
+          <p className="text-2xl text-[#003D47] font-bold">
+              Rp{discountedPrice.toLocaleString()}
+          </p>
           <div className="mt-4">
             <label className="block font-semibold">Ukuran</label>
             <div className="flex gap-2 mt-2">
@@ -220,12 +229,30 @@ const ProductOverview = ({ fish }) => {
                   key={size}
                   className={`px-4 py-2 border rounded-lg transition-all ${
                     selectedSize === size
-                      ? "bg-blue-500 text-white"
+                      ? "bg-[#FFBC00] text-white"
                       : "bg-gray-100"
                   }`}
                   onClick={() => setSelectedSize(size)}
                 >
                   {size}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-4">
+            <label className="block font-semibold">Warna</label>
+            <div className="flex gap-2 mt-2">
+              {defaultProduct.type.colors.map((color) => (
+                <button
+                  key={color}
+                  className={`px-4 py-2 border rounded-lg transition-all ${
+                    selectedColor === color
+                      ? "bg-[#FFBC00] text-white"
+                      : "bg-gray-100"
+                  }`}
+                  onClick={() => setSelectedColor(color)}
+                >
+                  {color}
                 </button>
               ))}
             </div>
@@ -255,17 +282,18 @@ const ProductOverview = ({ fish }) => {
             <button
               className="border-2 border-[#003D47] text-black px-6 py-2 rounded-lg w-full"
               onClick={() => {
-                if (!selectedSize) {
-                  alert("Pilih ukuran terlebih dahulu!");
+                if (!selectedSize || !selectedColor) {
+                  alert("Pilih ukuran dan warna terlebih dahulu!");
                   return;
                 }
-                navigate("/customer/checkout", {
+                navigate("/checkout", {
                   state: {
                     name: defaultProduct.name,
                     size: selectedSize,
+                    color: selectedColor,
                     quantity,
                     description: defaultProduct.description,
-                    price: defaultProduct.price,
+                    price: discountedPrice,
                     image: defaultProduct.images[0],
                   },
                 });
@@ -276,39 +304,31 @@ const ProductOverview = ({ fish }) => {
             <button
               className="bg-[#003D47] text-white px-6 py-2 rounded-lg w-full"
               onClick={() => {
-                if (!selectedSize) {
-                  alert("Pilih ukuran terlebih dahulu!");
+                if (!selectedSize || !selectedColor) {
+                  alert("Pilih ukuran dan warna terlebih dahulu!");
                   return;
                 }
-
-                // Retrieve current cart from localStorage
                 const cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-                // Check if the product already exists in the cart (same name & size)
                 const existingProductIndex = cart.findIndex(
                   (item) =>
                     item.name === defaultProduct.name &&
-                    item.size === selectedSize
+                    item.size === selectedSize &&
+                    item.color === selectedColor
                 );
-
                 if (existingProductIndex !== -1) {
-                  // If it exists, update the quantity
                   cart[existingProductIndex].quantity += quantity;
                 } else {
-                  // Otherwise, add a new product
                   cart.push({
                     name: defaultProduct.name,
                     size: selectedSize,
+                    color: selectedColor,
                     quantity,
                     description: defaultProduct.description,
-                    price: defaultProduct.price,
+                    price: discountedPrice,
                     image: defaultProduct.images[0],
                   });
                 }
-
-                // Save updated cart back to localStorage
                 localStorage.setItem("cart", JSON.stringify(cart));
-
                 alert("Produk ditambahkan ke keranjang!");
               }}
             >

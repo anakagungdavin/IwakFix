@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TransactionDetailModal from "../../modal/modalDetailTransaksi";
-
+import CustReportModal from "../../modal/modalInvoiceCust";
 // Komponen TransactionCard
 const TransactionCard = ({
   date,
@@ -14,6 +14,7 @@ const TransactionCard = ({
   productImages = [],
 }) => {
   const imageSrc = productImages.length > 0 ? productImages[0] : "/fish.png";
+  
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md border flex justify-between items-center">
@@ -63,12 +64,13 @@ const TransactionCard = ({
 };
 
 // Komponen TransactionList
+// Komponen TransactionList
 const TransactionList = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [filter, setFilter] = useState("Semua");
-
   // Fungsi untuk memetakan status backend ke label frontend
   const mapStatusToLabel = (status) => {
     switch (status) {
@@ -91,6 +93,12 @@ const TransactionList = () => {
     setIsModalOpen(!isModalOpen);
   };
 
+  const toggleModalReport = () => {
+    setIsReportModalOpen(!isReportModalOpen);
+  };
+
+
+
   const handleViewDetail = (transaction) => {
     setSelectedTransaction(transaction);
     setIsModalOpen(true);
@@ -103,7 +111,7 @@ const TransactionList = () => {
         throw new Error("No authentication token found");
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
       const response = await fetch(`${apiUrl}/api/orders`, {
         method: "GET",
         headers: {
@@ -231,7 +239,7 @@ const TransactionList = () => {
       </div>
       <button
         className="flex items-center px-4 py-2 bg-[#003D47] text-white hover:bg-[#4a6265] transition rounded-md"
-        onClick={toggleModal}
+        onClick={toggleModalReport}
       >
         <svg
           className="w-5 h-5 mr-2"
@@ -248,6 +256,9 @@ const TransactionList = () => {
         </svg>
         Download Sejarah Transaksi
       </button>
+      {isReportModalOpen && (
+        <CustReportModal isOpen={isReportModalOpen} onClose={toggleModal} />
+      )}
       <div className="mt-6 space-y-4">
         {filteredTransactions.length > 0 ? (
           filteredTransactions.map((transaction, index) => (
