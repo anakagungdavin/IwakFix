@@ -17,7 +17,7 @@ const HistoryPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="flex justify-between items-center">
                         <button 
-                        className="flex items-center px-4 py-2 bg-[#003D47] bg-opacity-20 text-[#003D47] rounded-md hover:bg-opacity-30"
+                        className="flex items-center px-4 py-2 bg-[#003D47] text-white hover:bg-[#4a6265] transition rounded-md"
                         onClick={toggleModal}
                         >
                             <svg

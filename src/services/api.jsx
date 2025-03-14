@@ -1,13 +1,13 @@
 import axios from "axios";
 
 // const API_URL = "http://localhost:5000/api";
-const API_URL = "https://iwak.onrender.com/api";
+const API_URL = "http://localhost:5000/api";
 
 // Fungsi untuk menentukan header berdasarkan tipe data
 const getHeaders = (data) => {
   const token = localStorage.getItem("token");
   const headers = {
-    Authorization: `Bearer ${token}`, // Sertakan token JWT
+    Authorization: `Bearer ${token}`,
   };
 
   if (data instanceof FormData) {
@@ -23,11 +23,10 @@ const getHeaders = (data) => {
 export const getProducts = async () => {
   try {
     const response = await axios.get(`${API_URL}/products`, {
-      headers: getHeaders(null), // Sertakan token
+      headers: getHeaders(null),
     });
     return response.data;
   } catch (error) {
-    handleError(error, "fetching products");
     throw error;
   }
 };
@@ -40,71 +39,30 @@ export const getProductById = async (id) => {
     });
     return response.data;
   } catch (error) {
-    handleError(error, `fetching product with ID ${id}`);
     throw error;
   }
 };
 
 // Fungsi untuk menambahkan produk baru dengan gambar
-// export const addProduct = async (productData, imageFiles) => {
-//   try {
-//     const formData = new FormData();
-
-//     // Tambahkan data produk ke FormData
-//     Object.keys(productData).forEach((key) => {
-//       formData.append(key, productData[key]);
-//     });
-
-//     // Tambahkan semua file gambar ke FormData
-//     imageFiles.forEach((file, index) => {
-//       formData.append(`images`, file);
-//     });
-
-//     const headers = getHeaders(formData);
-
-//     const response = await axios.post(`${API_URL}/products`, formData, {
-//       headers,
-//     });
-//     return response.data;
-//   } catch (error) {
-//     handleError(error, "adding product with images");
-//     throw error;
-//   }
-// };
 export const addProduct = async (formData) => {
   try {
-      // Ensure formData is properly constructed
-      console.log("FormData entries:", [...formData.entries()]); // Debugging
+    const token = localStorage.getItem("token");
 
-      // Example: Check if type.color and type.size exist
-      const colors = formData.getAll("type[color]");
-      const sizes = formData.getAll("type[size]");
+    const response = await axios.post(`${API_URL}/products`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      if (!colors || !Array.isArray(colors)) {
-          console.error("Field 'type[color]' is missing or not an array");
-      }
-      if (!sizes || !Array.isArray(sizes)) {
-          console.error("Field 'type[size]' is missing or not an array");
-      }
-
-      // Make the API call
-      const response = await axios.post(`${API_URL}/products`, formData, {
-          headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-      });
-      return response.data;
+    return response.data;
   } catch (error) {
-      console.error("Error adding product:", error);
-      throw error;
+    throw error;
   }
 };
 // Fungsi untuk mengupdate produk dan mengganti gambar
 export const updateProduct = async (id, formData) => {
   try {
-    const token = localStorage.getItem("token");
-    console.log("Token yang dikirim:", token); // Debugging
     const headers = getHeaders(formData);
 
     const response = await axios.put(`${API_URL}/products/${id}`, formData, {
@@ -112,35 +70,45 @@ export const updateProduct = async (id, formData) => {
     });
     return response.data;
   } catch (error) {
-    handleError(error, "updating product with images");
     throw error;
   }
 };
 
 // Fungsi untuk menghapus produk
+// export const deleteProduct = async (id) => {
+//   try {
+//     const response = await axios.delete(`${API_URL}/products/${id}`, {
+//       headers: getHeaders(null),
+//     });
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 export const deleteProduct = async (id) => {
   try {
-    const response = await axios.delete(`${API_URL}/products/${id}`, {
-      headers: getHeaders(null), // Sertakan token
+    const url = `http://localhost:5000/api/products/${id}`;
+    console.log("Deleting product with URL:", url);
+
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     });
-    return response.data;
+
+    console.log("Response status:", response.status);
+    const responseText = await response.text();
+    console.log("Response text:", responseText);
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete product: ${response.statusText}`);
+    }
+
+    return responseText ? JSON.parse(responseText) : null;
   } catch (error) {
-    handleError(error, `deleting product with ID ${id}`);
+    console.error("Error in deleteProduct:", error);
     throw error;
   }
-};
-
-// Function to handle errors
-const handleError = (error, context) => {
-  console.error(`Error ${context}:`, error);
-  if (error.response) {
-    console.error("Response data:", error.response.data);
-    console.error("Response status:", error.response.status);
-    console.error("Response headers:", error.response.headers);
-  } else if (error.request) {
-    console.error("No response received:", error.request);
-  } else {
-    console.error("Error message:", error.message);
-  }
-  throw error;
 };

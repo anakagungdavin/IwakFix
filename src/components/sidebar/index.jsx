@@ -8,7 +8,7 @@ const Sidebar = () => {
     const navigate = useNavigate();
 
     const menuItems = [
-        { name: "Dashboard", path: "/dashboard", icon: <FaHome /> },
+        { name: "Dashboard", path: "/admin-dashboard", icon: <FaHome /> },
         { name: "Manajemen Produk", path: "/product-management", icon: <FaShoppingCart /> },
         { name: "Customers", path: "/customers", icon: <FaUsers /> },
         { name: "Riwayat Bukti Transaksi", path: "/riwayat-transaksi", icon: <FaClipboardList /> }

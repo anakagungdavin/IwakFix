@@ -3,26 +3,101 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signUp } from "../../../services/authApi"
+import { EyeClosed, EyeClosedIcon, EyeIcon } from "lucide-react";
+
 
 const SignUp = () => {
     const [name, setName] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [passwordMatch, setPasswordMatch] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    // const handleRegister = async (e) => {
+    //     // e.preventDefault();
+    //     // try {
+    //     //     await signUp({ name, email, phoneNumber, password });
+    //     //     navigate("/login");
+    //     // } catch (error) {
+    //     //     setError("Registrasi gagal! Coba lagi.");
+    //     // }
+    //     e.preventDefault();
+    //     if (!passwordMatch) {
+    //         alert("Konfirmasi kata sandi tidak sesuai");
+    //         return;
+    //     }
+    //     if (!validatePassword(password)) {
+    //         alert(
+    //             "Password harus terdiri dari minimal 8 karakter, " +
+    //             "minimal 1 huruf kapital, minimal 1 huruf kecil, " +
+    //             "minimal 1 angka, minimal 1 simbol khusus, dan tidak boleh ada spasi."
+    //         );
+    //         return;
+    //     }
+    //     try {
+    //         await signUp({ name, email, phoneNumber, password });
+    //         navigate("/login");
+    //     } catch (error) {
+    //         setError("Registrasi gagal! Coba lagi.");
+    //     }
+    // };
     const handleRegister = async (e) => {
         e.preventDefault();
+        if (!passwordMatch) {
+            alert("Konfirmasi kata sandi tidak sesuai");
+            return;
+        }
+        if (!validatePassword(password)) {
+            alert(
+                "Password harus terdiri dari minimal 8 karakter, " +
+                "minimal 1 huruf kapital, minimal 1 huruf kecil, " +
+                "minimal 1 angka, minimal 1 simbol khusus, dan tidak boleh ada spasi."
+            );
+            return;
+        }
         try {
             await signUp({ name, email, phoneNumber, password });
             navigate("/login");
         } catch (error) {
+            if (error.response && error.response.status === 400) {
+                alert("Email sudah terdaftar! Gunakan email lain.");
+            } else {
+                alert("Registrasi gagal! Coba lagi.");
+            }
             setError("Registrasi gagal! Coba lagi.");
         }
     };
+    
+    const validatePassword = (password) => {
+        const minLength = /.{8,}/;
+        const hasUpperCase = /[A-Z]/;
+        const hasLowerCase = /[a-z]/;
+        const hasNumber = /[0-9]/;
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/;
+        const noSpaces = /^\S*$/;
+
+        return (
+            minLength.test(password) &&
+            hasUpperCase.test(password) &&
+            hasLowerCase.test(password) &&
+            hasNumber.test(password) &&
+            hasSpecialChar.test(password) &&
+            noSpaces.test(password)
+        );
+    };
+
+    const handleConfirmPasswordChange = (e) => {
+        setConfirmPassword(e.target.value);
+        setPasswordMatch(e.target.value === password);
+    }
+
 
     return (
+        // <div className="rounded-2xl border-stroke bg-white px-1 pt-1 pb-2.5 shadow-default">
         <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
             <div className="max-w-full overflow-x-auto">
                 <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
@@ -34,7 +109,7 @@ const SignUp = () => {
                         {error && <p className="text-red-500">{error}</p>}
                         <div className="mb-4">
                             <label className="mb-2.5 block font-medium text-black dark:text-white">
-                                Nama
+                                Nama <span className="text-red-500">*</span>{" "}
                             </label>
                             <div className="relative">
                                 <input 
@@ -42,6 +117,7 @@ const SignUp = () => {
                                 placeholder="Masukan nama anda"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
+                                // className="w-[400px] max-w-full rounded-md border border-gray-300 bg-white py-3 px-12 text-black outline-none focus:border-blue-500"
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 required
                                 />
@@ -69,7 +145,7 @@ const SignUp = () => {
                         </div>
                         <div className="mb-4">
                             <label className="mb-2.5 block font-medium text-black dark:text-white">
-                                Email
+                                Email <span className="text-red-500">*</span>{" "}
                             </label>
                             <div className="relative">
                                 <input 
@@ -77,6 +153,7 @@ const SignUp = () => {
                                 placeholder="Masukan email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                // className="w-[400px] max-w-full rounded-md border border-gray-300 bg-white py-3 px-12 text-black outline-none focus:border-blue-500"
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 required
                                 />
@@ -100,7 +177,7 @@ const SignUp = () => {
                         </div>
                         <div className="mb-4">
                             <label className="mb-2.5 block font-medium text-black dark:text-white">
-                                Nomor Telephone
+                                Nomor Telephone <span className="text-red-500">*</span>{" "}
                             </label>
                             <div className="relative">
                                 <input 
@@ -111,6 +188,7 @@ const SignUp = () => {
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
                                 required
+                                // className="w-[400px] max-w-full rounded-md border border-gray-300 bg-white py-3 px-12 text-black outline-none focus:border-blue-500"
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                                 />
                                 <span className="absolute right-4 top-4">
@@ -133,39 +211,59 @@ const SignUp = () => {
                         </div>
                         <div className="mb-6">
                             <label className="mb-2.5 block font-medium text-black dark:text-white">
-                                Password
+                                Kata Sandi <span className="text-red-500">*</span>{" "}
                             </label>
                             <div className="relative">
                                 <input
-                                type="password"
+                                type = {showPassword ? "text" : "password"}
                                 placeholder="Masukan Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
+                                // className="w-[400px] max-w-full rounded-md border border-gray-300 bg-white py-3 px-12 text-black outline-none focus:border-blue-500"
                                 className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
-                                
                                 />
-                                <span className="absolute right-4 top-4">
-                                    <svg
-                                    className="fill-current"
-                                    width="22"
-                                    height="22"
-                                    viewBox="0 0 22 22"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <g opacity="0.5">
-                                            <path
-                                            d="M16.1547 6.80626V5.91251C16.1547 3.16251 14.0922 0.825009 11.4797 0.618759C10.0359 0.481259 8.59219 0.996884 7.52656 1.95938C6.46094 2.92188 5.84219 4.29688 5.84219 5.70626V6.80626C3.84844 7.18438 2.33594 8.93751 2.33594 11.0688V17.2906C2.33594 19.5594 4.19219 21.3813 6.42656 21.3813H15.5016C17.7703 21.3813 19.6266 19.525 19.6266 17.2563V11C19.6609 8.93751 18.1484 7.21876 16.1547 6.80626ZM8.55781 3.09376C9.31406 2.40626 10.3109 2.06251 11.3422 2.16563C13.1641 2.33751 14.6078 3.98751 14.6078 5.91251V6.70313H7.38906V5.67188C7.38906 4.70938 7.80156 3.78126 8.55781 3.09376ZM18.1141 17.2906C18.1141 18.7 16.9453 19.8688 15.5359 19.8688H6.46094C5.05156 19.8688 3.91719 18.7344 3.91719 17.325V11.0688C3.91719 9.52189 5.15469 8.28438 6.70156 8.28438H15.2953C16.8422 8.28438 18.1141 9.52188 18.1141 11V17.2906Z"
-                                            fill=""
-                                            />
-                                            <path
-                                            d="M10.9977 11.8594C10.5852 11.8594 10.207 12.2031 10.207 12.65V16.2594C10.207 16.6719 10.5508 17.05 10.9977 17.05C11.4102 17.05 11.7883 16.7063 11.7883 16.2594V12.6156C11.7883 12.2031 11.4102 11.8594 10.9977 11.8594Z"
-                                            fill=""
-                                            />
-                                        </g>
-                                    </svg>
+                                <span className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2" onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? (
+                                      <EyeIcon className=" dark:fill-gray-400 size-5 opacity-55"/>
+                                    ): (
+                                       <EyeClosedIcon className=" dark:fill-gray-400 size-5 opacity-55"/>
+                                    )}
                                 </span>
+                                {/* <span
+                                    className="absolute right-4 top-4 cursor-pointer"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <EyeClosedIcon /> : <EyeIcon />}
+                                </span> */}
+                            </div>
+                            <p className="text-sm text-gray-600 mt-2">
+                                Kata sandi harus terdiri dari minimal 8 karakter, huruf kapital, huruf kecil, angka, simbol khusus, dan tidak boleh ada spasi.
+                            </p>
+                        </div>
+                        <div className="mb-6">
+                            <label className="mb-2.5 block font-medium text-black dark:text-white">
+                                Konfirmasi Kata Sandi <span className="text-red-500">*</span>{" "}
+                            </label>
+                            <div className="relative">
+                                <input
+                                type = "password"
+                                placeholder="Masukan Konfirmasi Kata Sandi"
+                                value={confirmPassword}
+                                onChange={handleConfirmPasswordChange}
+                                required
+                                // className="w-[400px] max-w-full rounded-md border border-gray-300 bg-white py-3 px-12 text-black outline-none focus:border-blue-500"
+                                className={`w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black focus:border-blue-500 focus:right-2 outline-none ${passwordMatch ? "border-gray-300 focus:ring-blue-500" : "border-red-500 focus:ring-red-500"}`}
+                                />
+                                {!passwordMatch && (
+                                    <p className="text-red-500 text-sm mt-1">Konfirmasi kata sandi tidak cocok.</p>
+                                )}
+                                {/* <span
+                                    className="absolute right-4 top-4 cursor-pointer"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <EyeClosedIcon /> : <EyeIcon />}
+                                </span> */}
                             </div>
                         </div>
                         {/* <div className="mb-6">
@@ -211,7 +309,7 @@ const SignUp = () => {
                         <div className="mt-6 text-center">
                             <p>
                                 Sudah punya akun?{' '}
-                                <Link to="/login" className=" cursor-pointer text-[#003D47]">
+                                <Link to="/login" className=" cursor-pointer text-[#FFBC00]">
                                     Sign In
                                 </Link>
                             </p>

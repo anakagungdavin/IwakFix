@@ -1,141 +1,274 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import ModalConfig from "../modal/ModalConfig";
-import historyPembelian from "../../dummyData/dataSet";
-// const historyPembelian = [
-//     {
-//         id: 55171,
-//         custName: 'Jimin',
-//         date: '13 Oktober 2024',
-//         total: '200.000',
-//         paidBy: 'CC',
-//         statusBayar: 'Gagal',
-//         orderDetails: {
-//             orderId: 55171,
-//             orderDate: '13 Oktober 2024',
-//             productImage: '',
-//             productName: 'Iwak bandeng',
-//             quantity: 1,
-//             pricePerUnit: '200.000',
-//             recipient: 'Jimin',
-//             phone: '08123456789',
-//             address: 'Seoul, Korea Selatan',
-//             paymentMethod: 'Credit Card',
-//             itemsTotal: '200.000',
-//             shippingCost: '20.000',
-//             discount: '-10.000',
-//             totalAmount: '210.000',
-//         },
-//     },
-//     {
-//         id: 55172,
-//         custName: 'Jungkook',
-//         date: '1 September 2024',
-//         total: '300.000',
-//         paidBy: 'VA',
-//         statusBayar: 'Pending',
-//         orderDetails: {
-//             orderId: 55172,
-//             orderDate: '1 September 2024',
-//             productImage: '',
-//             productName: 'Iwak Lele',
-//             quantity: 1,
-//             pricePerUnit: '300.000',
-//             recipient: 'Jungkook',
-//             phone: '08129876543',
-//             address: 'Busan, Korea Selatan',
-//             paymentMethod: 'Virtual Account',
-//             itemsTotal: '300.000',
-//             shippingCost: '25.000',
-//             discount: '-15.000',
-//             totalAmount: '310.000',
-//         },
-//     },
-//     {
-//         id: 55173,
-//         custName: 'Uarmyhope',
-//         date: '18 Februari 2024',
-//         total: '400.000',
-//         paidBy: 'Transfer Bank',
-//         statusBayar: 'Sukses',
-//         orderDetails: {
-//             orderId: 55173,
-//             orderDate: '18 Februari 2024',
-//             productImage: '',
-//             productName: 'Iwak Peyek',
-//             quantity: 1,
-//             pricePerUnit: '400.000',
-//             recipient: 'Uarmyhope',
-//             phone: '08137775555',
-//             address: 'Gadjah Mada University, Perpustakaan UGM, Jl Tri Darma No.2, Karang Malang, Caturtunggal, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55281 ',
-//             paymentMethod: 'Bank Transfer',
-//             itemsTotal: '400.000',
-//             shippingCost: '30.000',
-//             discount: '-20.000',
-//             totalAmount: '410.000',
-//         },
-//     },
-// ];
 
 const TableHistory = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    const openModal = (order) => {
-        setSelectedOrder(order);
-        setIsOpen(true);
-    };
+  // Sorting states
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "asc",
+  });
 
-    const closeModal = () => {
-        setIsOpen(false);
-        setSelectedOrder(null);
-    };
+  const token = localStorage.getItem("token");
 
-    return (
-        <div className="overflow-x-auto p-6">
-            <table className="w-full border-collapse text-left text-gray-700">
-                <thead>
-                    <tr className="border-b border-gray-300 text-gray-500 text-sm">
-                        <th className="p-4">ID</th>
-                        <th className="p-4">CUSTOMER</th>
-                        <th className="p-4">TANGGAL</th>
-                        <th className="p-4">TOTAL</th>
-                        <th className="p-4">METODE BAYAR</th>
-                        <th className="p-4">STATUS</th>
-                        <th className="p-4">ACTION</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {historyPembelian.map((item, index) => (
-                        <tr key={index} className="border-b border-gray-200 text-sm">
-                            <td className="p-4">{item.id}</td>
-                            <td className="p-4">{item.custName}</td>
-                            <td className="p-4">{item.date}</td>
-                            <td className="p-4">{(item.orderDetails.quantity * item.orderDetails.pricePerUnit).toFixed(3)}</td>
-                            <td className="p-4">{item.paidBy}</td>
-                            <td className="p-4">
-                                <span className={
-                                    item.statusBayar === 'Sukses' ? 'text-[#1A9882]' :
-                                    item.statusBayar === 'Pending' ? 'text-[#F86624]' :
-                                    item.statusBayar === 'Gagal' ? 'text-[#EB3D4D]' : ''
-                                }>
-                                    {item.statusBayar}
-                                </span>
-                            </td>
-                            <td
-                                className="p-4 text-blue-500 cursor-pointer hover:underline"
-                                onClick={() => openModal(item.orderDetails)}
-                            >
-                                Lihat Details
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+  const fetchAllOrders = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const response = await axios.get(`${apiUrl}/api/orders/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-            {/* Modal */}
-            <ModalConfig isOpen={isOpen} onClose={closeModal} orderDetails={selectedOrder} />
-        </div>
+      setOrders(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to fetch orders");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllOrders();
+  }, []);
+
+  const openModal = (order) => {
+    const originalTotal = order.items.reduce(
+      (sum, item) => sum + (item.quantity || 0) * (item.price || 0),
+      0
     );
+
+    const totalDiscount = originalTotal - order.totalAmount;
+
+    const products = order.items.map((item) => ({
+      id: item.product?._id || item._id,
+      name: item.product?.name || "Unknown Product",
+      image: item.product?.images?.[0] || "",
+      quantity: item.quantity || 0,
+      price: item.price || 0,
+      discountedPrice: item.discountedPrice || item.price,
+      formattedPrice: `Rp ${(item.discountedPrice || item.price).toLocaleString(
+        "id-ID"
+      )}`,
+    }));
+
+    const orderDetails = {
+      orderId: order._id,
+      orderDate: new Date(order.createdAt).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+      products: products,
+      totalQuantity: order.items.reduce(
+        (sum, item) => sum + (item.quantity || 0),
+        0
+      ),
+      recipient: order.user?.name || "Unknown",
+      phone: order.user?.phoneNumber || "N/A",
+      address: order.shippingAddress || "N/A",
+      paymentMethod: order.paymentMethod || "Belum Ditentukan",
+      itemsTotal: `Rp ${originalTotal.toLocaleString("id-ID")}`,
+      shippingCost: "Rp 0",
+      discount: `Rp ${totalDiscount.toLocaleString("id-ID")}`,
+      totalAmount: `Rp ${order.totalAmount.toLocaleString("id-ID")}`,
+      status: order.status || "Pending",
+    };
+
+    setSelectedOrder(orderDetails);
+    setIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsOpen(false);
+    setSelectedOrder(null);
+  };
+
+  // Sorting function
+  const sortedOrders = React.useMemo(() => {
+    let sortableOrders = [...orders];
+    if (sortConfig.key !== null) {
+      sortableOrders.sort((a, b) => {
+        let valueA, valueB;
+
+        switch (sortConfig.key) {
+          case "customer":
+            valueA = a.user?.name || "Unknown";
+            valueB = b.user?.name || "Unknown";
+            break;
+          case "date":
+            valueA = new Date(a.createdAt);
+            valueB = new Date(b.createdAt);
+            break;
+          case "total":
+            valueA = a.totalAmount;
+            valueB = b.totalAmount;
+            break;
+          case "paymentMethod":
+            valueA = a.paymentMethod || "N/A";
+            valueB = b.paymentMethod || "N/A";
+            break;
+          case "status":
+            valueA = a.status || "Pending";
+            valueB = b.status || "Pending";
+            break;
+          default:
+            return 0;
+        }
+
+        if (valueA < valueB) return sortConfig.direction === "asc" ? -1 : 1;
+        if (valueA > valueB) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    return sortableOrders;
+  }, [orders, sortConfig]);
+
+  // Sort request handler
+  const requestSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Sort icon component
+  const SortIcon = ({ isActive, direction }) => {
+    if (!isActive) return <span className="ml-1 text-gray-300">↕</span>;
+    return direction === "asc" ? (
+      <span className="ml-1 text-gray-600">↑</span>
+    ) : (
+      <span className="ml-1 text-gray-600">↓</span>
+    );
+  };
+
+  if (loading) return <p className="p-6">Loading...</p>;
+  if (error) return <p className="p-6 text-red-500">{error}</p>;
+
+  return (
+    <div className="overflow-x-auto p-6">
+      <table className="w-full border-collapse text-left text-gray-700">
+        <thead>
+          <tr className="border-b border-gray-300 text-gray-500 text-sm">
+            <th className="p-4">ID</th>
+            <th
+              className="p-4 cursor-pointer hover:bg-gray-100"
+              onClick={() => requestSort("customer")}
+            >
+              CUSTOMER
+              <SortIcon
+                isActive={sortConfig.key === "customer"}
+                direction={sortConfig.direction}
+              />
+            </th>
+            <th
+              className="p-4 cursor-pointer hover:bg-gray-100"
+              onClick={() => requestSort("date")}
+            >
+              TANGGAL
+              <SortIcon
+                isActive={sortConfig.key === "date"}
+                direction={sortConfig.direction}
+              />
+            </th>
+            <th
+              className="p-4 cursor-pointer hover:bg-gray-100"
+              onClick={() => requestSort("total")}
+            >
+              TOTAL
+              <SortIcon
+                isActive={sortConfig.key === "total"}
+                direction={sortConfig.direction}
+              />
+            </th>
+            <th
+              className="p-4 cursor-pointer hover:bg-gray-100"
+              onClick={() => requestSort("paymentMethod")}
+            >
+              METODE BAYAR
+              <SortIcon
+                isActive={sortConfig.key === "paymentMethod"}
+                direction={sortConfig.direction}
+              />
+            </th>
+            <th
+              className="p-4 cursor-pointer hover:bg-gray-100"
+              onClick={() => requestSort("status")}
+            >
+              STATUS
+              <SortIcon
+                isActive={sortConfig.key === "status"}
+                direction={sortConfig.direction}
+              />
+            </th>
+            <th className="p-4">ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedOrders.length === 0 ? (
+            <tr>
+              <td colSpan="7" className="p-4 text-center text-gray-500">
+                Tidak ada riwayat transaksi
+              </td>
+            </tr>
+          ) : (
+            sortedOrders.map((order) => (
+              <tr key={order._id} className="border-b border-gray-200 text-sm">
+                <td className="p-4">{order._id}</td>
+                <td className="p-4">{order.user?.name || "Unknown"}</td>
+                <td className="p-4">
+                  {new Date(order.createdAt).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </td>
+                <td className="p-4">
+                  Rp {order.totalAmount.toLocaleString("id-ID")}
+                </td>
+                <td className="p-4">{order.paymentMethod || "N/A"}</td>
+                <td className="p-4">
+                  <span
+                    className={
+                      order.status === "Delivered" || order.status === "Paid"
+                        ? "text-[#1A9882]"
+                        : order.status === "Pending" ||
+                          order.status === "Processing"
+                        ? "text-[#F86624]"
+                        : order.status === "Cancelled"
+                        ? "text-[#EB3D4D]"
+                        : ""
+                    }
+                  >
+                    {order.status}
+                  </span>
+                </td>
+                <td
+                  className="p-4 text-blue-500 cursor-pointer hover:underline"
+                  onClick={() => openModal(order)}
+                >
+                  Lihat Details
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+
+      <ModalConfig
+        isOpen={isOpen}
+        onClose={closeModal}
+        orderDetails={selectedOrder}
+      />
+    </div>
+  );
 };
 
 export default TableHistory;

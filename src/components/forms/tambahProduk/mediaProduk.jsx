@@ -1,113 +1,41 @@
 import React, { useState, useEffect } from "react";
 
 const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
-  const [gambarList, setGambarList] = useState([]); // Array untuk multiple images
+  const [gambarList, setGambarList] = useState([]);
 
-  // Inisialisasi gambar dari data API saat mode edit
+  // Inisialisasi gambar dari data.images
   useEffect(() => {
-    if (mode === "edit" && data.images && Array.isArray(data.images)) {
+    if (data.images && Array.isArray(data.images)) {
       const initialImages = data.images.map((url, index) => ({
-        id: `existing-image-${index}`,
+        id: `image-${index}`,
         url,
-        file: null, // Tidak ada file mentah saat fetch dari API
+        file: null, // Tidak ada file mentah saat inisialisasi
       }));
       setGambarList(initialImages);
-      console.log("Inisialisasi gambar dari API:", initialImages); // Debugging
-    } else {
-      setGambarList([]); // Reset jika tidak ada gambar
     }
-  }, [data.images, mode]);
+  }, [data.images]); // Jalankan ulang saat data.images berubah
 
   const handleChange = (event) => {
-    const files = Array.from(event.target.files); // Ambil semua file yang dipilih
+    const files = Array.from(event.target.files);
     if (files.length > 0) {
       const newImages = files.map((file) => ({
         id: file.name,
         url: URL.createObjectURL(file),
         file,
       }));
-
-      // Hapus URL preview lama untuk mencegah memory leak
-      gambarList.forEach((item) => {
-        if (item.url.startsWith("blob:")) {
-          URL.revokeObjectURL(item.url);
-        }
-      });
-
-      setGambarList((prevList) => [
-        ...prevList.filter((item) => !item.file), // Simpan gambar lama tanpa file
-        ...newImages, // Tambahkan gambar baru
-      ]);
-      if (onUpload) {
-        console.log(
-          "Mengirim file baru ke parent (handleChange):",
-          files.map((f) => ({ name: f.name, type: f.type, size: f.size }))
-        ); // Debugging rinci
-        onUpload(files); // Kirim semua file baru ke parent
-      }
-    }
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const files = Array.from(event.dataTransfer.files); // Ambil semua file yang di-drop
-    if (files.length > 0) {
-      const newImages = files.map((file) => ({
-        id: file.name,
-        url: URL.createObjectURL(file),
-        file,
-      }));
-
-      // Hapus URL preview lama
-      gambarList.forEach((item) => {
-        if (item.url.startsWith("blob:")) {
-          URL.revokeObjectURL(item.url);
-        }
-      });
-
-      setGambarList((prevList) => [
-        ...prevList.filter((item) => !item.file), // Simpan gambar lama tanpa file
-        ...newImages, // Tambahkan gambar baru
-      ]);
-      if (onUpload) {
-        console.log(
-          "Mengirim file baru via drop ke parent:",
-          files.map((f) => ({ name: f.name, type: f.type, size: f.size }))
-        ); // Debugging rinci
-        onUpload(files); // Kirim semua file baru ke parent
-      }
+      setGambarList((prevList) => [...prevList, ...newImages]);
+      if (onUpload) onUpload(files);
     }
   };
 
   const handleRemove = (id) => {
-    const filteredList = gambarList.filter((item) => item.id !== id);
     const removedImage = gambarList.find((item) => item.id === id);
-
-    // Hapus URL preview yang dihapus untuk mencegah memory leak
     if (removedImage && removedImage.url.startsWith("blob:")) {
       URL.revokeObjectURL(removedImage.url);
     }
-
+    const filteredList = gambarList.filter((item) => item.id !== id);
     setGambarList(filteredList);
-
-    if (onRemove) {
-      // Kirim URL yang dihapus ke parent (termasuk blob URL untuk penghapusan sementara)
-      if (removedImage) {
-        console.log(
-          "Mengirim URL gambar yang dihapus ke parent:",
-          removedImage.url
-        );
-        onRemove(removedImage.url); // Kirim URL yang dihapus (blob atau permanen)
-      }
-    }
-
-    if (onUpload) {
-      console.log(
-        "Menghapus gambar, reset ke file yang tersisa:",
-        filteredList.map((item) => item.file).filter(Boolean)
-      );
-      onUpload(filteredList.map((item) => item.file).filter(Boolean)); // Kirim file yang tersisa
-    }
+    if (onRemove && removedImage) onRemove(removedImage.url);
   };
 
   return (
@@ -116,7 +44,19 @@ const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
       <div
         className="border-2 border-dashed border-gray-300 rounded-md p-5 text-center cursor-pointer"
         onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
+        onDrop={(e) => {
+          e.preventDefault();
+          const files = Array.from(e.dataTransfer.files);
+          if (files.length > 0) {
+            const newImages = files.map((file) => ({
+              id: file.name,
+              url: URL.createObjectURL(file),
+              file,
+            }));
+            setGambarList((prevList) => [...prevList, ...newImages]);
+            if (onUpload) onUpload(files);
+          }
+        }}
       >
         {gambarList.length > 0 ? (
           <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
@@ -125,16 +65,12 @@ const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
                 key={item.id}
                 className="relative bg-white p-2 rounded-md shadow"
               >
-                <a href={item.url} target="_blank" rel="noopener noreferrer">
-                  <img
-                    src={item.url}
-                    alt={`Preview ${item.id}`}
-                    className="w-40 h-40 object-cover rounded-md"
-                    onError={(e) =>
-                      console.error("Gambar gagal dimuat:", e, item.url)
-                    } // Debugging jika gambar tidak dimuat
-                  />
-                </a>
+                <img
+                  src={item.url}
+                  alt={`Preview ${item.id}`}
+                  className="w-40 h-40 object-cover rounded-md"
+                  onError={(e) => console.error("Gambar gagal dimuat:", e, item.url)}
+                />
                 <button
                   onClick={() => handleRemove(item.id)}
                   className="absolute top-2 right-2 bg-[#FEECEE] text-[#EB3D4D] rounded-full p-1 text-xs shadow-md"
@@ -168,7 +104,6 @@ const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
           </div>
         )}
 
-        {/* Tombol Tambah Gambar */}
         <label className="px-4 py-2 bg-[#003D47] text-white rounded-md mt-4 inline-block cursor-pointer">
           Tambah Gambar
           <input
@@ -176,7 +111,7 @@ const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
             className="hidden"
             onChange={handleChange}
             accept="image/*"
-            multiple={true} // Aktifkan multiple upload
+            multiple={true}
           />
         </label>
       </div>

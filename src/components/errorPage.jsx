@@ -7,7 +7,7 @@ const ErrorPage = () => {
             <h1 className="text-2xl font-bold">Uh Oh! Error 404</h1>
             <p className="text-lg text-gray-600 mb-6">It looks like you got lost far enough. Don't worry, try returning to the homepage.</p>
             <div className="flex gap-4">
-                <Link to="/dashboard" className="cursor-pointer text-[#003D47]">
+                <Link to="/admin-dashboard" className="cursor-pointer text-[#003D47]">
                     Home Page
                 </Link>
             </div>
