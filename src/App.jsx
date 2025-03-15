@@ -81,6 +81,7 @@ import ProfileCustEdit from "./pages/customer/ProfileCustEdit";
 import CartPage from "./pages/customer/CartPage";
 import CheckoutPage from "./pages/customer/CheckoutPage";
 import ProductPage from "./pages/customer/ProductPage";
+import ChangeAddress from "./components/Customer/ChangeAddress";
 
 function App() {
   return (
@@ -114,6 +115,7 @@ function App() {
           <Route path="/about" element={<AboutPage/>}/>
           <Route path="/shop" element={<TokoPage/>}/>
           <Route path="/cart" element={<CartPage/>}/>
+          <Route path="/change-address" element={<ChangeAddress/>}/>
           <Route path="/product/:id" element={<ProductPage/>}/>
           <Route path="/checkout" element={<CheckoutPage/>}/>
           <Route path="/profile" element={<ProfilePage/>}/>

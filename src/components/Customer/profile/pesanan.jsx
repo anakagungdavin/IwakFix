@@ -14,7 +14,6 @@ const TransactionCard = ({
   productImages = [],
 }) => {
   const imageSrc = productImages.length > 0 ? productImages[0] : "/fish.png";
-  
 
   return (
     <div className="p-4 bg-white rounded-lg shadow-md border flex justify-between items-center">
@@ -64,7 +63,6 @@ const TransactionCard = ({
 };
 
 // Komponen TransactionList
-// Komponen TransactionList
 const TransactionList = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -96,8 +94,6 @@ const TransactionList = () => {
   const toggleModalReport = () => {
     setIsReportModalOpen(!isReportModalOpen);
   };
-
-
 
   const handleViewDetail = (transaction) => {
     setSelectedTransaction(transaction);

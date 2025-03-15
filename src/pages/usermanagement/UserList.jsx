@@ -65,7 +65,7 @@ const UserList = () => {
 
   const handleDelete = async (user) => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
       await axios.delete(`${apiUrl}/api/users/customers/${user._id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,

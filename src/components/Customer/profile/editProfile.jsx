@@ -5,16 +5,61 @@ import CancelModal from "../../modal/modalCancel";
 import SimpanModal from "../../modal/modalBerhasilSimpan";
 
 const EditProfileCust = () => {
-    const navigate = useNavigate();
-    const [avatar, setAvatar] = useState("/path-to-your-image.png");
-    const [name, setName] = useState("Jimin Park");
-    const [phone, setPhone] = useState("000000000000000");
-    const [email, setEmail] = useState("robertfox@example.com");
-    const [password, setPassword] = useState("password");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [passwordMatch, setPasswordMatch] = useState(true);
-    const [showModal, setShowModal] = useState(false);
-    const [showSimpanModal, setShowSimpanModal] = useState(false);
+  const navigate = useNavigate();
+  const [avatar, setAvatar] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null); // Simpan file untuk upload
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [gender, setGender] = useState("Lainnya");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMatch, setPasswordMatch] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [showSimpanModal, setShowSimpanModal] = useState(false);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("No authentication token found");
+        }
+
+        const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+        const response = await fetch(`${apiUrl}/api/users/profile`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+        }
+
+        const result = await response.json();
+        const userData = result.data;
+        setName(userData.name || "");
+        setPhone(userData.phoneNumber || "");
+        setEmail(userData.email || "");
+        setGender(userData.gender || "Lainnya");
+        setAvatar(userData.avatar || null); // URL dari Uploadcare
+      } catch (err) {
+        setError(err.message);
+        navigate("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [navigate]);
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -33,14 +78,85 @@ const EditProfileCust = () => {
     setPasswordMatch(e.target.value === password);
   };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        if (!passwordMatch) {
-            alert("Konfirmasi kata sandi tidak sesuai!");
-            return;
+  const handleGenderChange = (e) => {
+    setGender(e.target.value);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!passwordMatch) {
+      alert("Konfirmasi kata sandi tidak sesuai!");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+
+      // Upload avatar jika ada file baru
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("avatar", avatarFile);
+
+        const avatarResponse = await fetch(
+          `${apiUrl}/api/users/profile/avatar`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+
+        if (!avatarResponse.ok) {
+          const text = await avatarResponse.text();
+          throw new Error(
+            `Upload avatar failed! status: ${avatarResponse.status} - ${text}`
+          );
         }
-        setShowSimpanModal(true);
-    };
+
+        const avatarResult = await avatarResponse.json();
+        setAvatar(avatarResult.avatar); // Update avatar dari respons
+      }
+
+      // Update profil lainnya
+      const updatedData = {
+        name,
+        phoneNumber: phone,
+        email,
+        gender,
+      };
+
+      if (password) {
+        updatedData.password = password;
+      }
+
+      const response = await fetch(`${apiUrl}/api/users/profile`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`HTTP error! status: ${response.status} - ${text}`);
+      }
+
+      setShowSimpanModal(true);
+    } catch (err) {
+      setError(err.message);
+      alert("Gagal menyimpan perubahan: " + err.message);
+    }
+  };
 
   const handleBack = () => {
     setShowModal(true);
@@ -67,26 +183,26 @@ const EditProfileCust = () => {
       <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Edit Profile</h2>
 
-                <div className="relative w-24 h-24 mx-auto">
-                    <img
-                        src={avatar}
-                        alt="Avatar"
-                        className="w-full h-full object-cover rounded-full border-2 border-gray-300"
-                    />
-                    <input
-                        type="file"
-                        accept="image/*"
-                        id="avatarUpload"
-                        className="hidden"
-                        onChange={handleImageChange}
-                    />
-                    <label
-                        htmlFor="avatarUpload"
-                        className="absolute bottom-0 right-0 bg-gray-700 p-2 rounded-full border border-white cursor-pointer hover:bg-gray-600 transition"
-                    >
-                        <Pencil size={16} color="white" />
-                    </label>
-                </div>
+        <div className="relative w-24 h-24 mx-auto">
+          <img
+            // src={avatar || "https://via.placeholder.com/80"}
+            alt="Avatar"
+            className="w-full h-full object-cover rounded-full border-2 border-gray-300"
+          />
+          <input
+            type="file"
+            accept="image/*"
+            id="avatarUpload"
+            className="hidden"
+            onChange={handleImageChange}
+          />
+          <label
+            htmlFor="avatarUpload"
+            className="absolute bottom-0 right-0 bg-gray-700 p-2 rounded-full border border-white cursor-pointer hover:bg-gray-600 transition"
+          >
+            <Pencil size={16} color="white" />
+          </label>
+        </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>

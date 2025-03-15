@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import TableHistory from "../../components/tables/TableTransaksiHistory";
+import CustomerTransactionHistory from "../../components/tables/CustomerTransactionHistory";
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -120,8 +120,8 @@ const UserProfile = () => {
         </div>
       </div>
       <div>
-        <h2 className="text-lg font-bold">Transaction History</h2>
-        <TableHistory />
+        <h2 className="text-lg font-bold mb-4">Transaction History</h2>
+        <CustomerTransactionHistory customerId={id} />
       </div>
     </div>
   );
