@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import defaultImage from "../../images/image1.png";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const ProductOverview = () => {
   const [product, setProduct] = useState(null);
@@ -44,37 +44,56 @@ const ProductOverview = () => {
     ? product.price * (1 - (product.discount || 0) / 100)
     : 0;
 
-  const handleBuyNow = () => {
-    console.log(
-      "Selected Size:",
-      selectedSize,
-      "Selected Color:",
-      selectedColor
-    ); // Debug
+  const handleBuyNow = async () => {
     if (!selectedSize || !selectedColor) {
       alert("Pilih ukuran dan warna terlebih dahulu!");
       return;
     }
-    navigate("/checkout", {
-      state: {
-        name: product.name,
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Silakan login terlebih dahulu!");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      // Cek stok sebelum melanjutkan
+      const productResponse = await axios.get(`${API_URL}/api/products/${id}`);
+      const productData = productResponse.data;
+      if (quantity > productData.stock) {
+        alert("Jumlah melebihi stok yang tersedia!");
+        return;
+      }
+
+      // Data produk untuk dikirim ke CheckoutPage
+      const buyNowData = {
+        product: {
+          _id: id,
+          name: product.name,
+          price: product.price,
+          discount: product.discount || 0,
+          description: product.description,
+          images: product.images,
+        },
         size: selectedSize,
         color: selectedColor,
         quantity,
-        description: product.description,
-        price: discountedPrice,
         image: product.images?.[0] || defaultImage,
-      },
-    });
+        price: discountedPrice,
+      };
+
+      navigate("/checkout", { state: buyNowData });
+    } catch (err) {
+      alert(
+        "Gagal memproses pembelian: " +
+          (err.response?.data?.message || err.message)
+      );
+      console.error("Buy now error:", err.response ? err.response.data : err);
+    }
   };
 
   const handleAddToCart = async () => {
-    console.log(
-      "Selected Size:",
-      selectedSize,
-      "Selected Color:",
-      selectedColor
-    ); // Debug
     if (!selectedSize || !selectedColor) {
       alert("Pilih ukuran dan warna terlebih dahulu!");
       return;
@@ -116,7 +135,6 @@ const ProductOverview = () => {
     }
   };
 
-  // Fallback sizes dan colors jika data API kosong
   const availableSizes = product?.type?.size || ["S", "M", "L", "XL"];
   const availableColors = product?.type?.colors || [
     "Red",

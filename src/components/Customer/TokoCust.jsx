@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const FishStore = () => {
   const [products, setProducts] = useState([]);
@@ -106,7 +106,7 @@ const FishStore = () => {
               <div
                 key={product._id}
                 className="bg-white p-4 rounded-lg shadow h-[250px] flex flex-col justify-between cursor-pointer hover:shadow-lg transition"
-                onClick={() => navigate(`/product/${product._id}`)} 
+                onClick={() => navigate(`/product/${product._id}`)}
               >
                 <img
                   src={product.images?.[0] || "/default-fish.png"}

@@ -15,7 +15,7 @@
 //   useEffect(() => {
 //     const fetchOrders = async () => {
 //       try {
-//         const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+//         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 //         console.log("Fetching from:", `${apiUrl}/api/orders/all`);
 //         console.log("Token:", token);
 //         const response = await axios.get(`${apiUrl}/api/orders/all`, {
@@ -197,11 +197,10 @@ const TableOne = () => {
 
   const token = localStorage.getItem("token");
 
-
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
         console.log("Fetching from:", `${apiUrl}/api/orders/all`);
         console.log("Token:", token);
         const response = await axios.get(`${apiUrl}/api/orders/all`, {
@@ -348,7 +347,6 @@ const TableOne = () => {
 
   return (
     <div>
-
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-gray-800 text-left">
           Transaksi Terakhir

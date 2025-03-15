@@ -122,7 +122,7 @@ const ChartS = ({
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("https://iwak.onrender.com/api/orders", {
+        const response = await axios.get("http://localhost:5000/api/orders", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -172,7 +172,6 @@ const ChartS = ({
       curve: "smooth",
       width: 2,
       colors: ["#10B981"], // Green line for the chart
-
     },
   };
 
@@ -236,9 +235,6 @@ const ChartS = ({
             </svg>
           )}
           <span className="ml-1 text-green-500">{percent}%</span>
-
-
-
 
           <span className="ml-1">{comparedTo}</span>
         </div>
