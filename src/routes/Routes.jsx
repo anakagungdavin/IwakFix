@@ -9,62 +9,65 @@ import ErrorPage from "../components/errorPage";
 import EditProduct from "../pages/productmanage/EditProduct";
 import ViewProduct from "../pages/productmanage/viewProduct";
 import HistoryPage from "../pages/transaksi/historyPage";
+import OTPVerification from "../components/forms/auth/OTPVerification";
 import PrivateRoute from "../routes/PrivateRoutes";
 
 const router = createBrowserRouter([
-    {
-      path: "/",
-      // element: <MainLayout />,
-      element: <Navigate to="/login" />,
-    },
-    {
-      path: "/login",
-      element: <SignInPage/>,
-    },
-    {
-      path: "/register",
-      element: <SignUpPage/>,
-    },
-    {
-      path: "/dashboard",
-      element: <PrivateRoute/>,
-      children: [
-        {
-          path: "",
-          element: <MainLayout />,  
-        },
-        {
-          path: "",
-          element: <Dashboard />,
-        },
-        {
-          path: "product-management",
-          element: <ProductManagement />,
-        },
-        {
-          path: "product-management/add",
-          element: <AddProduct/>,
-        },
-        {
-          path: "product-management/edit",
-          element: <EditProduct/>,
-        },
-        {
-          path: "product-management/view",
-          element: <ViewProduct/>,
-        },
-        {
-          path: "riwayat-transaksi",
-          element: <HistoryPage/>,
-        },
-      ],
-    },
-    {
-      path: "*",
-      element: <ErrorPage/>
-    }
-  ],
-);
-  
+  {
+    path: "/",
+    // element: <MainLayout />,
+    element: <Navigate to="/login" />,
+  },
+  {
+    path: "/login",
+    element: <SignInPage />,
+  },
+  {
+    path: "/register",
+    element: <SignUpPage />,
+  },
+  {
+    path: "/otp-verification", // Add new route for OTP verification
+    element: <OTPVerification />,
+  },
+  {
+    path: "/dashboard",
+    element: <PrivateRoute />,
+    children: [
+      {
+        path: "",
+        element: <MainLayout />,
+      },
+      {
+        path: "",
+        element: <Dashboard />,
+      },
+      {
+        path: "product-management",
+        element: <ProductManagement />,
+      },
+      {
+        path: "product-management/add",
+        element: <AddProduct />,
+      },
+      {
+        path: "product-management/edit",
+        element: <EditProduct />,
+      },
+      {
+        path: "product-management/view",
+        element: <ViewProduct />,
+      },
+      {
+        path: "riwayat-transaksi",
+        element: <HistoryPage />,
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
+  },
+]);
 
 export default router;

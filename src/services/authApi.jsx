@@ -1,8 +1,8 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://iwak.onrender.com/api";
 // const API_URL = "https://iwak-seven.vercel.app/api/users";
-// const API_URL = "http://localhost:5000/api";
+// const API_URL = "https://iwak.onrender.com";
 
 // Sign Up
 export const signUp = async (userData) => {
@@ -46,6 +46,38 @@ export const getUser = async () => {
     return response.data;
   } catch (error) {
     console.error("Get User Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Request OTP
+export const requestOTP = async (email) => {
+  try {
+    const response = await axios.post(`${API_URL}/users/request-otp`, {
+      email,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("OTP Request Error:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+// Verify OTP
+export const verifyOTP = async (email, otp) => {
+  try {
+    const response = await axios.post(`${API_URL}/users/verify-otp`, {
+      email,
+      otp,
+    });
+    localStorage.setItem("token", response.data.token);
+    localStorage.setItem("role", response.data.user.role);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "OTP Verification Error:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };

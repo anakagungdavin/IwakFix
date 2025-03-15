@@ -15,7 +15,7 @@
 //   useEffect(() => {
 //     const fetchOrders = async () => {
 //       try {
-//         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+//         const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 //         console.log("Fetching from:", `${apiUrl}/api/orders/all`);
 //         console.log("Token:", token);
 //         const response = await axios.get(`${apiUrl}/api/orders/all`, {
@@ -187,6 +187,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import TableProcessor from "./TableProcessor";
 import ModalConfig from "../modal/ModalConfig";
+import { EyeIcon } from "@heroicons/react/24/solid";
 
 const TableOne = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -200,7 +201,8 @@ const TableOne = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const apiUrl =
+          import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
         // console.log("Fetching from:", `${apiUrl}/api/orders/all`);
         // console.log("Token:", token);
         const response = await axios.get(`${apiUrl}/api/orders/all`, {
@@ -330,7 +332,7 @@ const TableOne = () => {
           className="text-blue-500 hover:underline"
           onClick={() => onActionClick(row)}
         >
-          Lihat Detail
+          <EyeIcon className="h-4 w-4" />
         </button>
       ),
     },
@@ -351,6 +353,9 @@ const TableOne = () => {
         <h2 className="text-lg font-semibold text-gray-800 text-left">
           Transaksi Terakhir
         </h2>
+        <div className="md:hidden text-xs text-gray-500 italic text-right mb-2">
+          ← Geser untuk melihat selengkapnya →
+        </div>
       </div>
       <TableProcessor
         columns={columns}
