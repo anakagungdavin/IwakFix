@@ -27,8 +27,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl =
-          import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
         // Fetch pesanan
         const ordersResponse = await axios.get(`${apiUrl}/api/orders/all`, {

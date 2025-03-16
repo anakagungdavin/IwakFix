@@ -1,7 +1,7 @@
 // import React, { useState, useEffect } from "react";
 // import axios from "axios";
 
-// const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+// const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // const ChangeAddress = ({ onClose, onSelectAddress }) => {
 //   const [addresses, setAddresses] = useState([]);
@@ -78,7 +78,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { X } from "lucide-react"; // Menggunakan ikon X dari Lucide React
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const ChangeAddress = ({ onClose, onSelectAddress }) => {
   const [addresses, setAddresses] = useState([]);
@@ -128,7 +128,7 @@ const ChangeAddress = ({ onClose, onSelectAddress }) => {
         <h2 className="text-xl font-bold mb-4 text-center">Pilih Alamat</h2>
         {loading && <p className="text-center">Memuat...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
-        
+
         <div className="max-h-60 overflow-auto">
           {addresses.length > 0 ? (
             addresses.map((address) => (
@@ -140,7 +140,8 @@ const ChangeAddress = ({ onClose, onSelectAddress }) => {
                 <p className="font-bold">{address.recipientName}</p>
                 <p className="text-sm">{address.phoneNumber}</p>
                 <p className="text-sm">
-                  {address.streetAddress}, {address.city}, {address.province}, {address.postalCode}
+                  {address.streetAddress}, {address.city}, {address.province},{" "}
+                  {address.postalCode}
                 </p>
               </div>
             ))
@@ -148,7 +149,7 @@ const ChangeAddress = ({ onClose, onSelectAddress }) => {
             <p className="text-gray-500 text-sm">Tidak ada alamat tersedia.</p>
           )}
         </div>
-        
+
         {/* <div className="mt-4 flex justify-end">
           <button
             className="bg-[#003D47] text-white px-4 py-2 rounded-lg"

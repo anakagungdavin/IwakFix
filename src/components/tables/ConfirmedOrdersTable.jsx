@@ -1,7 +1,7 @@
 // import React, { useState, useEffect } from "react";
 // import axios from "axios";
 
-// const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+// const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // const ConfirmedOrdersTable = () => {
 //   const [confirmedOrders, setConfirmedOrders] = useState([]);
@@ -122,7 +122,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const ConfirmedOrdersTable = () => {
   const [confirmedOrders, setConfirmedOrders] = useState([]);
@@ -143,11 +143,15 @@ const ConfirmedOrdersTable = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const filteredOrders = response.data.filter((order) => order.status === "Paid");
+      const filteredOrders = response.data.filter(
+        (order) => order.status === "Paid"
+      );
       setConfirmedOrders(filteredOrders);
       setLoading(false);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch confirmed orders");
+      setError(
+        err.response?.data?.message || "Failed to fetch confirmed orders"
+      );
       setLoading(false);
     }
   };
@@ -184,7 +188,11 @@ const ConfirmedOrdersTable = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
   };
 
   return (
@@ -192,7 +200,9 @@ const ConfirmedOrdersTable = () => {
       <h2 className="text-lg font-semibold mb-4">Pesanan yang Perlu Dikirim</h2>
 
       {confirmedOrders.length === 0 ? (
-        <p className="text-center text-gray-500 py-6">Tidak ada pesanan yang menunggu pengiriman.</p>
+        <p className="text-center text-gray-500 py-6">
+          Tidak ada pesanan yang menunggu pengiriman.
+        </p>
       ) : (
         <div className="relative bg-white rounded-lg shadow-sm">
           <div className="rounded-lg overflow-x-auto w-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
@@ -210,18 +220,34 @@ const ConfirmedOrdersTable = () => {
               </thead>
               <tbody>
                 {confirmedOrders.map((order) => (
-                  <tr key={order._id} className="text-xs sm:text-sm hover:bg-gray-100 border-b border-gray-100">
+                  <tr
+                    key={order._id}
+                    className="text-xs sm:text-sm hover:bg-gray-100 border-b border-gray-100"
+                  >
                     <td className="py-3 px-2 sm:p-4">{order._id}</td>
-                    <td className="py-3 px-2 sm:p-4">{formatDate(order.createdAt)}</td>
-                    <td className="py-3 px-2 sm:p-4">{order.items.map((item) => item.product.name).join(", ")}</td>
-                    <td className="py-3 px-2 sm:p-4">{order.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
-                    <td className="py-3 px-2 sm:p-4 whitespace-nowrap">Rp {order.totalAmount.toLocaleString("id-ID")}</td>
+                    <td className="py-3 px-2 sm:p-4">
+                      {formatDate(order.createdAt)}
+                    </td>
+                    <td className="py-3 px-2 sm:p-4">
+                      {order.items.map((item) => item.product.name).join(", ")}
+                    </td>
+                    <td className="py-3 px-2 sm:p-4">
+                      {order.items.reduce(
+                        (sum, item) => sum + item.quantity,
+                        0
+                      )}
+                    </td>
+                    <td className="py-3 px-2 sm:p-4 whitespace-nowrap">
+                      Rp {order.totalAmount.toLocaleString("id-ID")}
+                    </td>
                     <td className="py-3 px-2 sm:p-4">
                       <input
                         type="text"
                         placeholder="Masukkan nomor resi"
                         value={resiNumbers[order._id] || ""}
-                        onChange={(e) => handleResiChange(order._id, e.target.value)}
+                        onChange={(e) =>
+                          handleResiChange(order._id, e.target.value)
+                        }
                         className="border border-gray-300 p-2 rounded w-full text-xs sm:text-sm"
                       />
                     </td>
@@ -245,8 +271,12 @@ const ConfirmedOrdersTable = () => {
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-6 shadow-lg w-80 text-center">
-            <h3 className="text-lg font-semibold mb-4">Pesanan Telah Dikirim</h3>
-            <p className="text-gray-600">Pesanan telah berhasil dikirim dengan nomor resi.</p>
+            <h3 className="text-lg font-semibold mb-4">
+              Pesanan Telah Dikirim
+            </h3>
+            <p className="text-gray-600">
+              Pesanan telah berhasil dikirim dengan nomor resi.
+            </p>
             <button
               onClick={closeModal}
               className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"

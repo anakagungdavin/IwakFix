@@ -6,7 +6,7 @@
 // import axios from "axios";
 // import defaultImage from "../../images/image1.png";
 
-// const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+// const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 // const CartPage = () => {
 //   const navigate = useNavigate();
@@ -298,7 +298,6 @@
 
 // export default CartPage;
 
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiTrash2 } from "react-icons/fi";
@@ -307,7 +306,7 @@ import FooterCust from "../../components/Customer/footerCust";
 import axios from "axios";
 import defaultImage from "../../images/image1.png";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -446,7 +445,9 @@ const CartPage = () => {
     <div className="bg-gray-50 min-h-screen">
       <HeaderCust />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <h2 className="text-3xl sm:text-4xl font-bold text-yellow-500 mb-6">Keranjang</h2>
+        <h2 className="text-3xl sm:text-4xl font-bold text-yellow-500 mb-6">
+          Keranjang
+        </h2>
         {loading && <p className="text-center">Memuat keranjang...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
         {cartItems.length > 0 ? (
@@ -534,7 +535,7 @@ const CartPage = () => {
                       className="text-red-500 hover:text-red-700 mt-3 sm:mt-0"
                       onClick={() => handleDelete(index)}
                     >
-                      <FiTrash2 size={18}/>
+                      <FiTrash2 size={18} />
                     </button>
                   </div>
                 </div>

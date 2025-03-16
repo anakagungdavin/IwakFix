@@ -5,7 +5,7 @@ import FooterCust from "../../components/Customer/footerCust";
 import ChangeAddress from "../../components/Customer/ChangeAddress";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -21,7 +21,6 @@ const CheckoutPage = () => {
   const [successMessage, setSuccessMessage] = useState(null);
   const [proofPayment, setProofPayment] = useState(null);
   const [proofPreview, setProofPreview] = useState(null);
-
 
   // Mengatur item keranjang berdasarkan data yang diterima
   useEffect(() => {
@@ -74,8 +73,8 @@ const CheckoutPage = () => {
   const handleSelectAddress = (address) => {
     setSelectedAddress(address);
     setShowAddressModal(false);
-    navigate("/checkout")
-  }
+    navigate("/checkout");
+  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -85,7 +84,6 @@ const CheckoutPage = () => {
       setProofPreview(URL.createObjectURL(file));
     }
   };
-
 
   // Mengambil alamat dari API saat komponen dimuat
   useEffect(() => {
@@ -299,7 +297,6 @@ const CheckoutPage = () => {
     }
   };
 
-
   return (
     <div>
       <HeaderCust />
@@ -364,11 +361,16 @@ const CheckoutPage = () => {
               )}
               {showAddressModal && (
                 <ChangeAddress
-                onClose={() => setShowAddressModal(false)}
-                onSelectAddress={handleSelectAddress}
+                  onClose={() => setShowAddressModal(false)}
+                  onSelectAddress={handleSelectAddress}
                 />
               )}
-              <button className="mt-2 text-blue-600" onClick={() => setShowAddressModal(true)}>Ganti Alamat</button>
+              <button
+                className="mt-2 text-blue-600"
+                onClick={() => setShowAddressModal(true)}
+              >
+                Ganti Alamat
+              </button>
             </div>
 
             <div className="bg-white p-4 mt-6 rounded-lg shadow-lg">
@@ -418,66 +420,70 @@ const CheckoutPage = () => {
             <div className="bg-gray-100 p-4 rounded-lg mt-6">
               {/* <h3 className="font-bold mb-2">Metode Pembayaran</h3> */}
               <div className="grid grid-cols-2 gap-6 bg-white p-6 rounded-lg shadow-lg">
-              {/* <div className="flex flex-col space-y-2 border-b pb-4"> */}
-          {/* Kolom Kiri: Pilihan Metode Pembayaran */}
-          <div>
-            <h3 className="font-bold text-lg mb-2">Metode Pembayaran</h3>
-            <select
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              className="w-full p-2 border rounded-md"
-            >
-              <option value="">Pilih Metode Pembayaran</option>
-              <option value="Mandiri">Bank Mandiri</option>
-              <option value="BCA">BCA</option>
-              <option value="QRIS">QRIS</option>
-            </select>
+                {/* <div className="flex flex-col space-y-2 border-b pb-4"> */}
+                {/* Kolom Kiri: Pilihan Metode Pembayaran */}
+                <div>
+                  <h3 className="font-bold text-lg mb-2">Metode Pembayaran</h3>
+                  <select
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                  >
+                    <option value="">Pilih Metode Pembayaran</option>
+                    <option value="Mandiri">Bank Mandiri</option>
+                    <option value="BCA">BCA</option>
+                    <option value="QRIS">QRIS</option>
+                  </select>
 
-            {/* Informasi Nomor Rekening atau QRIS */}
-            {paymentMethod === "Mandiri" && (
-              <p className="mt-3 text-blue-600 font-semibold">
-                Nomor Rekening Mandiri: 123-456-7890 a/n IWAK Store
-              </p>
-            )}
-            {paymentMethod === "BCA" && (
-              <p className="mt-3 text-blue-600 font-semibold">
-                Nomor Rekening BCA: 098-765-4321 a/n IWAK Store
-              </p>
-            )}
-            {paymentMethod === "QRIS" && (
-              <div className="mt-3">
-                <p className="text-blue-600 font-semibold">Silakan scan QRIS:</p>
-                <img
-                  src="/assets/qris-example.png"
-                  alt="QRIS Code"
-                  className="w-48 mt-2"
-                />
+                  {/* Informasi Nomor Rekening atau QRIS */}
+                  {paymentMethod === "Mandiri" && (
+                    <p className="mt-3 text-blue-600 font-semibold">
+                      Nomor Rekening Mandiri: 123-456-7890 a/n IWAK Store
+                    </p>
+                  )}
+                  {paymentMethod === "BCA" && (
+                    <p className="mt-3 text-blue-600 font-semibold">
+                      Nomor Rekening BCA: 098-765-4321 a/n IWAK Store
+                    </p>
+                  )}
+                  {paymentMethod === "QRIS" && (
+                    <div className="mt-3">
+                      <p className="text-blue-600 font-semibold">
+                        Silakan scan QRIS:
+                      </p>
+                      <img
+                        src="/assets/qris-example.png"
+                        alt="QRIS Code"
+                        className="w-48 mt-2"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Kolom Kanan: Upload Bukti Pembayaran */}
+                <div>
+                  <h3 className="font-bold">Unggah Bukti Pembayaran</h3>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full p-2 border rounded-md mt-2"
+                  />
+
+                  {proofPreview && (
+                    <div className="mt-4">
+                      <h4 className="font-semibold">
+                        Preview Bukti Pembayaran:
+                      </h4>
+                      <img
+                        src={proofPreview}
+                        alt="Bukti Pembayaran"
+                        className="w-48 h-auto mt-2 border rounded-md"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-
-          {/* Kolom Kanan: Upload Bukti Pembayaran */}
-          <div>
-            <h3 className="font-bold">Unggah Bukti Pembayaran</h3>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="w-full p-2 border rounded-md mt-2"
-            />
-
-            {proofPreview && (
-              <div className="mt-4">
-                <h4 className="font-semibold">Preview Bukti Pembayaran:</h4>
-                <img
-                  src={proofPreview}
-                  alt="Bukti Pembayaran"
-                  className="w-48 h-auto mt-2 border rounded-md"
-                />
-              </div>
-            )}
-          </div>
-        </div>
               {/* <div className="flex flex-col space-y-2 border-b pb-4">
                 <label className="flex items-center">
                   <input
@@ -503,7 +509,7 @@ const CheckoutPage = () => {
                 </label>
               </div> */}
               {error && <p className="text-red-500 text-center">{error}</p>}
-              
+
               <h3 className="font-bold mt-4">Ringkasan</h3>
               <p className="flex justify-between">
                 Items ({cartItems.length}): Rp
