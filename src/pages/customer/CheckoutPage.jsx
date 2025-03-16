@@ -105,6 +105,7 @@ const CheckoutPage = () => {
         });
 
         const userData = response.data.data;
+        console.log("User Data:", userData); // Tambahkan log ini
         const primaryAddress = userData.addresses.find(
           (addr) => addr.isPrimary
         );
@@ -125,7 +126,6 @@ const CheckoutPage = () => {
 
     fetchAddress();
   }, [navigate]);
-
   // Menghitung total harga
   const totalPriceBeforeDiscount = cartItems.reduce(
     (total, item) =>
@@ -245,10 +245,20 @@ const CheckoutPage = () => {
     try {
       const token = localStorage.getItem("token");
       const formData = new FormData();
+
+      // Kirim shippingAddress sebagai objek JSON
       formData.append(
         "shippingAddress",
-        `${selectedAddress.recipientName}, ${selectedAddress.phoneNumber}, ${selectedAddress.streetAddress}, ${selectedAddress.city}, ${selectedAddress.province}, ${selectedAddress.postalCode}`
+        JSON.stringify({
+          recipientName: selectedAddress.recipientName,
+          phoneNumber: selectedAddress.phoneNumber,
+          streetAddress: selectedAddress.streetAddress,
+          city: selectedAddress.city,
+          province: selectedAddress.province,
+          postalCode: selectedAddress.postalCode,
+        })
       );
+
       formData.append("paymentMethod", paymentMethod);
       formData.append("proofOfPayment", proofPayment);
 
@@ -266,6 +276,20 @@ const CheckoutPage = () => {
         ];
         formData.append("items", JSON.stringify(orderItems));
         formData.append("totalAmount", finalTotal);
+        formData.append("shippingCost", 10000); // Tambahkan ongkir default atau ambil dari state
+      } else if (cartData) {
+        const orderItems = cartData.map((item) => ({
+          product: item.product._id,
+          quantity: item.quantity,
+          price: item.product.price,
+          discount: item.product.discount || 0,
+          discountedPrice: item.price,
+          size: item.size,
+          color: item.color,
+        }));
+        formData.append("items", JSON.stringify(orderItems));
+        formData.append("totalAmount", finalTotal);
+        formData.append("shippingCost", 10000); // Tambahkan ongkir default
       }
 
       // Debugging: Log FormData entries
