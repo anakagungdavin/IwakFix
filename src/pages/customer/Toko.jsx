@@ -7,12 +7,14 @@ const TokoPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header Sticky */}
-      <div className="sticky top-0 z-50 bg-white shadow-md">
+      <div className="sticky top-0 z-50 bg-white shadow-md w-full">
         <HeaderCust />
       </div>
 
-      {/* Content */}
-      <FishStore />
+      {/* Content - with flex-grow to push footer down */}
+      <div className="flex-grow">
+        <FishStore />
+      </div>
 
       {/* Footer */}
       <FooterCust />

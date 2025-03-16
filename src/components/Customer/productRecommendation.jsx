@@ -67,18 +67,18 @@ const ProductRecommendations = () => {
 
       {/* Produk */}
       {!loading && !error && recommendations.length > 0 && (
-        <div className="flex justify-center gap-6">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 md:gap-6">
           {recommendations.map((item) => (
             <div
               key={item._id}
-              className="relative bg-white p-4 rounded-2xl shadow-lg hover:shadow-xl w-64 cursor-pointer"
+              className="relative bg-white p-4 rounded-2xl shadow-lg hover:shadow-xl w-full sm:w-64 cursor-pointer mb-4 sm:mb-0"
               onClick={() => handleNavigate(item._id)}
             >
               <div className="relative">
                 <img
                   src={item.images?.[0] || "https://via.placeholder.com/150"}
                   alt={item.name}
-                  className="w-full h-40 object-contain"
+                  className="w-full h-40 object-contain mx-auto"
                 />
               </div>
               <h4 className="font-bold mt-2 text-center text-lg">

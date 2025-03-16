@@ -54,14 +54,20 @@ const FishStore = () => {
     );
   };
 
+  const handleImageError = (e) => {
+    e.target.onerror = null; // Prevent infinite loop
+    e.target.src = "/default-fish.png"; // Fallback image
+  };
+
+
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="max-w-6xl mx-auto px-6 lg:px-0">
+    <div className="p-3 sm:p-4 md:p-6 bg-gray-100 min-h-screen">
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-0">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-center sm:justify-start">
             <button
-              className={`px-4 py-2 rounded ${
+              className={`px-2 sm:px-4 py-2 text-sm sm:text-base rounded ${
                 sortBy === "terlaris" && "bg-[#003D47] text-white"
               }`}
               onClick={() => setSortBy("terlaris")}
@@ -69,7 +75,7 @@ const FishStore = () => {
               Terlaris
             </button>
             <button
-              className={`px-4 py-2 rounded ${
+              className={`px-2 sm:px-4 py-2 text-sm sm:text-base rounded ${
                 sortBy === "terbaru" && "bg-[#003D47] text-white"
               }`}
               onClick={() => setSortBy("terbaru")}
@@ -77,7 +83,7 @@ const FishStore = () => {
               Terbaru
             </button>
             <select
-              className={`border rounded px-3 py-2 ${
+              className={`border rounded px-2 sm:px-3 py-2 text-sm sm:text-base ${
                 sortBy === "harga-rendah" || sortBy === "harga-tinggi"
                   ? "bg-[#003D47] text-white"
                   : "bg-white text-black"
@@ -90,7 +96,7 @@ const FishStore = () => {
               <option value="harga-tinggi">Harga Termahal</option>
             </select>
           </div>
-          <span className="text-gray-600">
+          <span className="text-gray-600 text-sm sm:text-base mt-2 sm:mt-0">
             Menampilkan {products.length} hasil
           </span>
         </div>
@@ -101,25 +107,31 @@ const FishStore = () => {
 
         {/* Grid Produk 5 Kolom */}
         {!loading && !error && products.length > 0 && (
-          <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
             {products.map((product) => (
               <div
                 key={product._id}
-                className="bg-white p-4 rounded-lg shadow h-[250px] flex flex-col justify-between cursor-pointer hover:shadow-lg transition"
+                className="bg-white p-2 sm:p-3 md:p-4 rounded-lg shadow flex flex-col justify-between"
                 onClick={() => navigate(`/product/${product._id}`)} 
               >
-                <img
-                  src={product.images?.[0] || "/default-fish.png"}
-                  alt={product.name}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold">{product.name}</h3>
-                  <div className="flex justify-center items-center gap-2">
-                    <p className="text-sm text-gray-400 line-through">
+                <div className="w-full aspect-square overflow-hidden rounded">
+                  <img
+                    src={product.images?.[0] || "/default-fish.png"}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    onError={handleImageError}
+                    loading="lazy"
+                  />
+                </div>
+                <div className="text-center mt-2">
+                  <h3 className="text-sm sm:text-base md:text-lg font-semibold truncate">
+                    {product.name}
+                  </h3>
+                  <div className="flex justify-center items-center gap-1 sm:gap-2">
+                    <p className="text-xs sm:text-sm text-gray-400 line-through">
                       Rp{product.originalPrice.toLocaleString()}
                     </p>
-                    <span className="text-red-500 text-sm">
+                    <span className="text-red-500 text-xs sm:text-sm">
                       -
                       {calculateDiscount(
                         product.originalPrice,
@@ -128,7 +140,7 @@ const FishStore = () => {
                       %
                     </span>
                   </div>
-                  <p className="text-lg font-bold text-[#003D47]">
+                  <p className="text-sm sm:text-base md:text-lg font-bold text-[#003D47]">
                     Rp{product.discountedPrice.toLocaleString()}/kg
                   </p>
                 </div>
@@ -139,11 +151,11 @@ const FishStore = () => {
 
         {/* Pagination */}
         {!loading && !error && products.length > 0 && (
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="flex justify-center flex-wrap gap-1 sm:gap-2 mt-4 sm:mt-6">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
               <button
                 key={num}
-                className={`px-4 py-2 rounded ${
+                className={`px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded ${
                   page === num ? "bg-[#003D47] text-white" : "bg-gray-200"
                 }`}
                 onClick={() => setPage(num)}
@@ -152,7 +164,7 @@ const FishStore = () => {
               </button>
             ))}
             <button
-              className="bg-gray-300 px-4 py-2 rounded"
+              className="bg-gray-300 px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded"
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={page === totalPages}
             >

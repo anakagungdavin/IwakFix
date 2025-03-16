@@ -67,13 +67,13 @@ const Alamat = ({ userData }) => {
   };
 
   return (
-    <div>
+    <div className="w-full">
       <button
         onClick={() => setIsAddOpen(true)}
-        className="flex items-center px-4 py-2 bg-[#003D47] text-white hover:bg-[#4a6265] transition rounded-md"
+        className="flex items-center px-3 py-2 md:px-4 md:py-2 bg-[#003D47] text-white hover:bg-[#4a6265] transition rounded-md text-sm md:text-base"
       >
         <svg
-          className="w-5 h-5 mr-2"
+          className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2"
           fill="currentColor"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
@@ -86,31 +86,31 @@ const Alamat = ({ userData }) => {
         </svg>
         Tambah Alamat
       </button>
-      <div className="mt-6 space-y-4">
+      <div className="mt-4 md:mt-6 space-y-3 md:space-y-4">
         {addresses.length > 0 ? (
           addresses.map((address) => (
             <div
               key={address._id}
-              className="flex justify-between items-center p-4 bg-white rounded-lg shadow-md border"
+              className="flex flex-col md:flex-row md:justify-between md:items-center p-3 md:p-4 bg-white rounded-lg shadow-md border"
             >
-              <div>
-                <h3 className="font-semibold text-gray-800">
+              <div className="mb-2 md:mb-0">
+                <h3 className="font-semibold text-gray-800 text-sm md:text-base"> 
                   {address.recipientName}
                 </h3>
-                <p className="text-gray-500 text-sm">{address.streetAddress}</p>
+                <p className="text-gray-500 text-xs md:text-sm">{address.streetAddress}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 justify-end md:justify-start">
                 <button
                   onClick={() => handleEditClick(address)}
-                  className="flex items-center gap-1 bg-[#fdfbe7] text-[#ff9d00] px-3 py-1 rounded-lg shadow-md hover:bg-yellow-400 transition"
+                  className="flex items-center gap-1 bg-[#fdfbe7] text-[#ff9d00] px-2 py-1 md:px-3 md:py-1 rounded-lg shadow-md hover:bg-yellow-400 transition text-xs md:text-sm"
                 >
-                  <Pencil size={14} /> Edit
+                  <Pencil size={12} className="md:w-4 md:h-4" /> Edit
                 </button>
                 <button
                   onClick={() => handleDeleteClick(address)}
-                  className="flex items-center gap-1 bg-[#FEECEE] text-[#EB3D4D] px-3 py-1 rounded-lg shadow-md hover:bg-red-300 transition"
+                  className="flex items-center gap-1 bg-[#FEECEE] text-[#EB3D4D] px-2 py-1 md:px-3 md:py-1 rounded-lg shadow-md hover:bg-red-300 transition text-xs md:text-sm"
                 >
-                  <Trash2 size={14} /> Hapus
+                  <Trash2 size={12} className="md:w-4 md:h-4" /> Hapus
                 </button>
               </div>
             </div>

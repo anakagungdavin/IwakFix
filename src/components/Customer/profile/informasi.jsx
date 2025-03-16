@@ -9,9 +9,9 @@ const InformasiCust = ({ userData }) => {
   }
 
   return (
-    <div>
+    <div className="w-full">
       {/* Avatar */}
-      <div className="relative w-24 h-24">
+      <div className="relative w-16 h-16 md:w-24 md:h-24 mx-auto md:mx-0">
         <img
           src={userData.avatar || "/default-avatar.png"}
           alt="Avatar"
@@ -20,52 +20,52 @@ const InformasiCust = ({ userData }) => {
       </div>
 
       {/* Form */}
-      <div className="mt-6 space-y-4">
+      <div className="mt-4 md:mt-6 space-y-3 md:space-y-4">
         <div>
-          <label className="block text-gray-700 font-medium">Nama</label>
+          <label className="block text-gray-700 text-sm md:text-base font-medium">Nama</label>
           <input
             type="text"
             value={userData.name || ""}
             readOnly
-            className="w-full p-3 border rounded-lg bg-gray-100 cursor-default"
+            className="w-full p-2 md:p-3 text-sm md:text-base border rounded-lg bg-gray-100 cursor-default"
           />
         </div>
         <div>
-          <label className="block text-gray-700 font-medium">
+          <label className="block text-gray-700 text-sm md:text-base font-medium">
             No Telephone
           </label>
           <input
             type="text"
             value={userData.phoneNumber || ""}
             readOnly
-            className="w-full p-3 border rounded-lg bg-gray-100 cursor-default"
+            className="w-full p-2 md:p-3 text-sm md:text-base border rounded-lg bg-gray-100 cursor-default"
           />
         </div>
         <div>
-          <label className="block text-gray-700 font-medium">Email</label>
+          <label className="block text-gray-700 text-sm md:text-base font-medium">Email</label>
           <input
             type="email"
             value={userData.email || ""}
             readOnly
-            className="w-full p-3 border rounded-lg bg-gray-100 cursor-default"
+            className="w-full p-2 md:p-3 text-sm md:text-base border rounded-lg bg-gray-100 cursor-default"
           />
         </div>
         <div>
-          <label className="block text-gray-700 font-medium">Gender</label>
+          <label className="block text-gray-700 text-sm md:text-base font-medium">Gender</label>
           <input
             type="text"
             value={userData.gender || "Lainnya"}
             readOnly
-            className="w-full p-3 border rounded-lg bg-gray-100 cursor-default"
+            className="w-full p-2 md:p-3 text-sm md:text-base border rounded-lg bg-gray-100 cursor-default"
           />
         </div>
       </div>
 
       {/* Edit Profile Button */}
-      <div className="mt-6 text-right">
+      <div className="mt-4 md:mt-6 text-center md:text-right">
         <button
           onClick={() => navigate("/profile/edit")}
-          className="bg-[#003D47] text-white hover:bg-[#4a6265] transition px-6 py-2 rounded-lg flex items-center gap-2"
+          className="bg-[#003D47] text-white hover:bg-[#4a6265] transition px-4 md:px-6 py-2 text-sm md:text-base rounded-lg flex items-center gap-2 mx-auto md:ml-auto"
         >
           Edit Profile
         </button>

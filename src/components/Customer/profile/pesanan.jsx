@@ -16,42 +16,42 @@ const TransactionCard = ({
   const imageSrc = productImages.length > 0 ? productImages[0] : "/fish.png";
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md border flex justify-between items-center">
-      <div className="flex items-center gap-4">
+    <div className="p-3 md:p-4 bg-white rounded-lg shadow-md border flex flex-col md:flex-row md:justify-between md:items-center">
+      <div className="flex items-center gap-2 md:gap-4 mb-3 md:mb-0">
         <img
           src={imageSrc}
           alt={name}
-          className="w-16 h-16 rounded-lg object-cover"
+          className="w-12 h-12 md:w-16 md:h-16 rounded-lg object-cover"
         />
         <div>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 text-xs md:text-sm">
             {new Date(date).toLocaleDateString("id-ID", {
               day: "numeric",
               month: "long",
               year: "numeric",
             })}
           </p>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-1 bg-yellow-100 text-[#d9a002] text-xs rounded-md">
+          <div className="flex items-center gap-1 md:gap-2 flex-wrap">
+            <span className="px-1 py-0.5 md:px-2 md:py-1 bg-yellow-100 text-[#d9a002] text-xs rounded-md">
               {status || "N/A"}
             </span>
             <p className="text-gray-400 text-xs">{code || "N/A"}</p>
           </div>
-          <h3 className="text-lg font-semibold text-gray-800">
+          <h3 className="text-base md:text-lg font-semibold text-gray-800">
             {name} {name === "N/A" && "(Data produk tidak tersedia)"}
           </h3>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 text-xs md:text-sm">
             {quantity} x Rp{originalPrice.toLocaleString()}
           </p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="text-xl font-semibold text-gray-800">
+      <div className="text-right flex flex-row justify-between md:flex-col md:justify-center items-center md:items-end">
+        <p className="text-lg md:text-xl font-semibold text-gray-800 order-2 md:order-1">
           Rp{totalAmount.toLocaleString()}
         </p>
-        <div className="flex gap-2 mt-2">
+        <div className="mt-0 md:mt-2 order-1 md:order-2">
           <button
-            className="text-[#FFBC00] text-sm font-bold cursor-pointer"
+            className="text-[#FFBC00] text-xs md:text-sm font-bold cursor-pointer"
             onClick={onViewDetail}
           >
             Lihat Detail Transaksi
@@ -180,10 +180,10 @@ const TransactionList = () => {
   console.log("Current User ID:", currentUserId);
 
   return (
-    <div className="p-6 min-h-screen">
-      <div className="flex gap-4 mb-6">
+    <div className="p-2 md:p-6 min-h-screen">
+      <div className="flex flex-wrap gap-2 md:gap-4 mb-4 md:mb-6">
         <button
-          className={`px-6 py-2 border rounded-md ${
+          className={`px-3 py-1 md:px-6 md:py-2 border rounded-md text-xs md:text-sm ${
             filter === "Semua"
               ? "text-yellow-600 bg-yellow-100"
               : "text-gray-600"
@@ -193,7 +193,7 @@ const TransactionList = () => {
           Semua
         </button>
         <button
-          className={`px-6 py-2 border rounded-md ${
+          className={`px-3 py-1 md:px-6 md:py-2 border rounded-md text-xs md:text-sm ${
             filter === "Berlangsung"
               ? "text-yellow-600 bg-yellow-100"
               : "text-gray-600"
@@ -203,7 +203,7 @@ const TransactionList = () => {
           Berlangsung
         </button>
         <button
-          className={`px-6 py-2 border rounded-md ${
+          className={`px-3 py-1 md:px-6 md:py-2 border rounded-md text-xs md:text-sm ${
             filter === "Selesai"
               ? "text-yellow-600 bg-yellow-100"
               : "text-gray-600"
@@ -213,7 +213,7 @@ const TransactionList = () => {
           Selesai
         </button>
         <button
-          className={`px-6 py-2 border rounded-md ${
+          className={`px-3 py-1 md:px-6 md:py-2 border rounded-md text-xs md:text-sm ${
             filter === "Gagal"
               ? "text-yellow-600 bg-yellow-100"
               : "text-gray-600"
@@ -223,7 +223,7 @@ const TransactionList = () => {
           Gagal
         </button>
         <button
-          className={`px-6 py-2 border rounded-md ${
+          className={`px-3 py-1 md:px-6 md:py-2 border rounded-md text-xs md:text-sm ${
             filter === "Menunggu Konfirmasi"
               ? "text-yellow-600 bg-yellow-100"
               : "text-gray-600"
@@ -234,11 +234,11 @@ const TransactionList = () => {
         </button>
       </div>
       <button
-        className="flex items-center px-4 py-2 bg-[#003D47] text-white hover:bg-[#4a6265] transition rounded-md"
+        className="flex items-center px-3 py-1 md:px-4 md:py-2 bg-[#003D47] text-white hover:bg-[#4a6265] transition rounded-md text-xs md:text-sm"
         onClick={toggleModalReport}
       >
         <svg
-          className="w-5 h-5 mr-2"
+          className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2"
           fill="currentColor"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
@@ -255,7 +255,7 @@ const TransactionList = () => {
       {isReportModalOpen && (
         <CustReportModal isOpen={isReportModalOpen} onClose={toggleModal} />
       )}
-      <div className="mt-6 space-y-4">
+      <div className="mt-4 md:mt-6 space-y-3 md:space-y-4">
         {filteredTransactions.length > 0 ? (
           filteredTransactions.map((transaction, index) => (
             <TransactionCard
@@ -272,7 +272,7 @@ const TransactionList = () => {
             />
           ))
         ) : (
-          <p>Tidak ada transaksi yang ditemukan untuk filter ini.</p>
+          <p className="text-sm md:text-base text-center py-4">Tidak ada transaksi yang ditemukan untuk filter ini.</p>
         )}
       </div>
       {isModalOpen && (

@@ -29,7 +29,8 @@ const EditProfileCust = () => {
           throw new Error("No authentication token found");
         }
 
-        const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+        const apiUrl =
+          import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
         const response = await fetch(`${apiUrl}/api/users/profile`, {
           method: "GET",
           headers: {
@@ -96,7 +97,8 @@ const EditProfileCust = () => {
         throw new Error("No authentication token found");
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
       // Upload avatar jika ada file baru
       if (avatarFile) {
