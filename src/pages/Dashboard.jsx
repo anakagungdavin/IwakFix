@@ -5,6 +5,7 @@ import ChartWithLegend from "../components/charts/ChartWithLegend";
 import ChartXL from "../components/charts/ChartXL";
 import TableOne from "../components/tables/TableOne";
 import PendingOrdersTable from "../components/tables/PendingOrdersTable";
+import ConfirmedOrdersTable from "../components/tables/ConfirmedOrdersTable";
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
@@ -431,6 +432,14 @@ const Dashboard = () => {
         </h2>
         <div className="overflow-x-auto">
           <PendingOrdersTable />
+        </div>
+      </div>
+      <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-white p-4 md:p-6 rounded-lg shadow-sm">
+        <h2 className="text-lg md:text-xl font-semibold mb-4">
+          Pesanan Terkonfirmasi
+        </h2>
+        <div className="overflow-x-auto">
+          <ConfirmedOrdersTable />
         </div>
       </div>
 

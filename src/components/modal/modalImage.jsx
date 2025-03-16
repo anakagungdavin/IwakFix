@@ -96,7 +96,7 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
         <div className="flex justify-center space-x-4">
           <button
             onClick={() => onApprove(_id)}
-            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs flex items-center"
+            className="bg-[#1A9882]  text-[#E9FAF7] hover:bg-green-600 px-3 py-1 rounded text-xs flex items-center"
             title="Setujui Pesanan"
           >
             <CheckIcon className="h-4 w-4 inline mr-1" />
@@ -104,7 +104,7 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
           </button>
           <button
             onClick={() => onReject(_id)}
-            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs flex items-center"
+            className="bg-[#EB3D4D] text-[#FEECEE] hover:bg-red-600 px-3 py-1 rounded text-xs flex items-center"
             title="Tolak Pesanan"
           >
             <XMarkIcon className="h-4 w-4 inline mr-1" />

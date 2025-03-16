@@ -41,13 +41,15 @@ const TransactionCard = ({
             {name} {name === "N/A" && "(Data produk tidak tersedia)"}
           </h3>
           <p className="text-gray-500 text-xs md:text-sm">
-            {quantity} x Rp{originalPrice.toLocaleString()}
+            {/* {quantity} x Rp{originalPrice.toLocaleString()} */}
+            {quantity} x Rp{(originalPrice || 0).toLocaleString()}
           </p>
         </div>
       </div>
       <div className="text-right flex flex-row justify-between md:flex-col md:justify-center items-center md:items-end">
         <p className="text-lg md:text-xl font-semibold text-gray-800 order-2 md:order-1">
-          Rp{totalAmount.toLocaleString()}
+          {/* Rp{totalAmount.toLocaleString()} */}
+          Rp{(totalAmount || 0).toLocaleString()}
         </p>
         <div className="mt-0 md:mt-2 order-1 md:order-2">
           <button
@@ -272,7 +274,7 @@ const TransactionList = () => {
             />
           ))
         ) : (
-          <p className="text-sm md:text-base text-center py-4">Tidak ada transaksi yang ditemukan untuk filter ini.</p>
+          <p >Tidak ada transaksi yang ditemukan untuk filter ini.</p>
         )}
       </div>
       {isModalOpen && (

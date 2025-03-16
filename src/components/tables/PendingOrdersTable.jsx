@@ -189,7 +189,7 @@ const PendingOrdersTable = () => {
                           title="View Payment Proof"
                           aria-label="View Payment Proof"
                         >
-                          <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                          <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5 text-[#003D47]" />
                         </button>
                       </td>
                     </tr>
