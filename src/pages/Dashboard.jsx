@@ -188,7 +188,6 @@ const Dashboard = () => {
         );
     });
 
-    // Hitung stok harian berdasarkan produk dan pengurangan dari pesanan
     const dailyStock = days.map((day, index) => {
       const dayStart = new Date(thisWeekStart);
       dayStart.setDate(thisWeekStart.getDate() + index);
@@ -196,13 +195,11 @@ const Dashboard = () => {
       const dayEnd = new Date(dayStart);
       dayEnd.setHours(23, 59, 59, 999);
 
-      // Total stok awal dari semua produk
       const totalInitialStock = products.reduce(
         (sum, product) => sum + product.stock,
         0
       );
 
-      // Kurangi stok berdasarkan pesanan harian
       const dailySold = thisWeekOrders
         .filter((order) => {
           const orderDate = new Date(order.createdAt);
@@ -214,8 +211,15 @@ const Dashboard = () => {
           0
         );
 
-      return Math.max(0, totalInitialStock - dailySold); // Pastikan tidak negatif
+      return Math.max(0, totalInitialStock - dailySold);
     });
+
+    console.log("Chart Data - Days:", days);
+    console.log("Chart Data - Daily Orders:", dailyOrders);
+    console.log("Chart Data - Daily Revenue:", dailyRevenue);
+    console.log("Chart Data - Daily Customers:", dailyCustomers);
+    console.log("Chart Data - Daily Products Sold:", dailyProductsSold);
+    console.log("Chart Data - Daily Stock:", dailyStock);
 
     return {
       days,
@@ -243,9 +247,9 @@ const Dashboard = () => {
 
   // Responsive chart options based on screen size
   const getChartHeight = () => {
-    if (windowWidth < 640) return 220; // Small screens
-    if (windowWidth < 1024) return 300; // Medium screens
-    return 350; // Large screens
+    if (windowWidth < 640) return 220;
+    if (windowWidth < 1024) return 300;
+    return 350;
   };
 
   const smallChartOptions = {
@@ -261,14 +265,14 @@ const Dashboard = () => {
   const largeChartOptions = {
     chart: {
       type: "line",
-      toolbar: { show: windowWidth > 768 }, // Only show toolbar on larger screens
+      toolbar: { show: windowWidth > 768 },
       height: getChartHeight(),
     },
     stroke: { curve: "smooth", width: 2 },
     xaxis: {
       categories: data.days,
       labels: {
-        rotate: windowWidth < 640 ? -45 : 0, // Rotate labels on small screens
+        rotate: windowWidth < 640 ? -45 : 0,
         style: {
           fontSize: windowWidth < 640 ? "10px" : "12px",
         },
@@ -300,14 +304,14 @@ const Dashboard = () => {
   const xlChartOptions = {
     chart: {
       type: "line",
-      toolbar: { show: windowWidth > 768 }, // Only show toolbar on larger screens
+      toolbar: { show: windowWidth > 768 },
       height: getChartHeight() * 1.2,
     },
     stroke: { curve: "smooth", width: 2 },
     xaxis: {
       categories: data.days,
       labels: {
-        rotate: windowWidth < 640 ? -45 : 0, // Rotate labels on small screens
+        rotate: windowWidth < 640 ? -45 : 0,
         style: {
           fontSize: windowWidth < 640 ? "10px" : "12px",
         },
@@ -334,7 +338,7 @@ const Dashboard = () => {
         breakpoint: 640,
         options: {
           legend: {
-            show: false, // Hide legend completely on very small screens
+            show: false,
           },
         },
       },
@@ -344,10 +348,8 @@ const Dashboard = () => {
   const smallChartData = [{ name: "Orders", data: data.dailyOrders }];
   const largeChartData = [{ name: "Pendapatan", data: data.dailyRevenue }];
 
-  // Function to format currency according to screen size
   const formatCurrency = (amount) => {
     if (windowWidth < 640 && amount > 999999) {
-      // For small screens, abbreviate large numbers
       return `Rp${(amount / 1000000).toFixed(1)}M`;
     }
     return `Rp${amount.toLocaleString("id-ID")}`;
@@ -399,8 +401,9 @@ const Dashboard = () => {
               : "kurang dari 1 minggu yang lalu"
           }
           levelUp={orderLevelUp}
-          chartData={data.dailyOrders}
-          chartOptions={smallChartOptions}
+          chartData={smallChartData[0].data} // Kirim data langsung dari Dashboard
+          showLegend={false}
+          chartHeight={60} // Kembalikan ke nilai default seperti sebelumnya
         />
       </div>
 
@@ -411,7 +414,7 @@ const Dashboard = () => {
           time="1 Minggu Terakhir"
           options={
             windowWidth < 640
-              ? ["Customers", "Stock", "Revenue", "Terjual"] // Shorter labels for small screens
+              ? ["Customers", "Stock", "Revenue", "Terjual"]
               : [
                   "Customers",
                   "Stock Produk",
