@@ -14,7 +14,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
     shippingAddress = {},
     shippingCost = 0,
     paymentMethod = "N/A",
-    trackingNumber = "N/A",
+    trackingNumber = "Belum tersedia", // Default jika tidak ada
   } = transaction;
 
   // Hitung total item dan subtotal
@@ -24,7 +24,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
   );
   const discount = items.reduce(
     (sum, item) =>
-      sum + (item.price - item.discountedPrice || 0) * item.quantity,
+      sum + (item.price - (item.discountedPrice || item.price)) * item.quantity,
     0
   );
 
@@ -114,7 +114,10 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
               .join(", ") || "Alamat tidak tersedia"}
           </p>
           <p className="text-sm text-gray-600">
-            Nomor Resi: {trackingNumber || "Belum tersedia"}
+            <strong>Nomor Resi:</strong>{" "}
+            {trackingNumber !== "N/A" && trackingNumber !== null
+              ? trackingNumber
+              : "Belum tersedia"}
           </p>
         </div>
 
@@ -146,13 +149,6 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
             <span>Rp{(totalAmount || 0).toLocaleString()}</span>
           </div>
         </div>
-
-        {/* Tombol Beli Lagi (Opsional) */}
-        {/* <div className="mt-4 flex justify-center">
-          <button className="px-6 py-2 border border-yellow-500 text-yellow-600 rounded-md hover:bg-yellow-100 text-sm">
-            Beli Lagi
-          </button>
-        </div> */}
       </div>
     </div>
   );
