@@ -1,6 +1,7 @@
+// TokoCust.jsx
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
@@ -12,23 +13,25 @@ const FishStore = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  // Ambil data produk dari API
-  const fetchProducts = async () => {
+  const location = useLocation();
+
+  const fetchProducts = async (search = "", sort = sortBy, pg = page) => {
     setLoading(true);
     setError(null);
     try {
       const params = {
-        page,
-        limit: 10,
+        page: pg,
+        limit: 20, // Ubah dari 10 menjadi 20
         sortBy:
-          sortBy === "terlaris"
+          sort === "terlaris"
             ? "sales"
-            : sortBy === "terbaru"
+            : sort === "terbaru"
             ? "createdAt"
             : "price",
-        sortOrder: sortBy === "harga-rendah" ? "asc" : "desc",
+        sortOrder: sort === "harga-rendah" ? "asc" : "desc",
+        search: search,
       };
-      const response = await axios.get(`${API_URL}/api/products`, { params }); // Perbaiki URL
+      const response = await axios.get(`${API_URL}/api/products`, { params });
       const { products: fetchedProducts, pagination } = response.data;
 
       setProducts(fetchedProducts);
@@ -45,8 +48,10 @@ const FishStore = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, [sortBy, page]);
+    const queryParams = new URLSearchParams(location.search);
+    const search = queryParams.get("search") || "";
+    fetchProducts(search, sortBy, page);
+  }, [location.search, sortBy, page]);
 
   const calculateDiscount = (originalPrice, discountedPrice) => {
     return Math.round(
@@ -55,15 +60,13 @@ const FishStore = () => {
   };
 
   const handleImageError = (e) => {
-    e.target.onerror = null; // Prevent infinite loop
-    e.target.src = "/default-fish.png"; // Fallback image
+    e.target.onerror = null;
+    e.target.src = "/default-fish.png";
   };
-
 
   return (
     <div className="p-3 sm:p-4 md:p-6 bg-gray-100 min-h-screen">
       <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-0">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
           <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-center sm:justify-start">
             <button
@@ -98,21 +101,21 @@ const FishStore = () => {
           </div>
           <span className="text-gray-600 text-sm sm:text-base mt-2 sm:mt-0">
             Menampilkan {products.length} hasil
+            {location.search &&
+              ` untuk "${new URLSearchParams(location.search).get("search")}"`}
           </span>
         </div>
 
-        {/* Loading/Error State */}
         {loading && <p className="text-center">Memuat produk...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
 
-        {/* Grid Produk 5 Kolom */}
         {!loading && !error && products.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
             {products.map((product) => (
               <div
                 key={product._id}
-                className="bg-white p-2 sm:p-3 md:p-4 rounded-lg shadow flex flex-col justify-between"
-                onClick={() => navigate(`/product/${product._id}`)} 
+                className="bg-white p-2 sm:p-3 md:p-4 rounded-lg shadow flex flex-col justify-between cursor-pointer"
+                onClick={() => navigate(`/product/${product._id}`)}
               >
                 <div className="w-full aspect-square overflow-hidden rounded">
                   <img
@@ -149,7 +152,10 @@ const FishStore = () => {
           </div>
         )}
 
-        {/* Pagination */}
+        {!loading && !error && products.length === 0 && (
+          <p className="text-center">Tidak ada produk ditemukan</p>
+        )}
+
         {!loading && !error && products.length > 0 && (
           <div className="flex justify-center flex-wrap gap-1 sm:gap-2 mt-4 sm:mt-6">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (

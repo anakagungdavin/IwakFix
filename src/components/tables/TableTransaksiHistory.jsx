@@ -19,7 +19,8 @@ const TableHistory = () => {
 
   const fetchAllOrders = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
       const response = await axios.get(`${apiUrl}/api/orders/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -58,6 +59,21 @@ const TableHistory = () => {
       )}`,
     }));
 
+    // Konversi shippingAddress menjadi string
+    const formatShippingAddress = (address) => {
+      if (!address) return "Alamat tidak tersedia";
+      return (
+        [
+          address.streetAddress,
+          address.city,
+          address.province,
+          address.postalCode,
+        ]
+          .filter(Boolean)
+          .join(", ") || "Alamat tidak tersedia"
+      );
+    };
+
     const orderDetails = {
       orderId: order._id,
       orderDate: new Date(order.createdAt).toLocaleDateString("id-ID", {
@@ -72,7 +88,7 @@ const TableHistory = () => {
       ),
       recipient: order.user?.name || "Unknown",
       phone: order.user?.phoneNumber || "N/A",
-      address: order.shippingAddress || "N/A",
+      address: formatShippingAddress(order.shippingAddress), // Menggunakan string hasil konversi
       paymentMethod: order.paymentMethod || "Belum Ditentukan",
       itemsTotal: `Rp ${originalTotal.toLocaleString("id-ID")}`,
       shippingCost: "Rp 0",

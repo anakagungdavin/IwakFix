@@ -109,7 +109,8 @@ const TransactionList = () => {
         throw new Error("No authentication token found");
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
       const response = await fetch(`${apiUrl}/api/orders`, {
         method: "GET",
         headers: {
@@ -125,37 +126,36 @@ const TransactionList = () => {
       const data = await response.json();
       console.log("Data dari API untuk user:", data);
 
-      const formattedTransactions = data.map((transaction) => {
-        console.log(
-          "Processing transaction for user:",
-          transaction._id,
-          transaction.user?._id
-        );
-        return {
-          createdAt: transaction.createdAt || new Date().toISOString(),
-          status: mapStatusToLabel(transaction.status), // Petakan status ke label
-          rawStatus: transaction.status, // Simpan status asli untuk filter
-          _id: transaction._id || "N/A",
-          totalAmount: transaction.totalAmount || 0,
-          items:
-            Array.isArray(transaction.items) && transaction.items.length > 0
-              ? transaction.items.map((item) => ({
-                  ...item,
-                  product: item.product || { name: "N/A", images: [] },
-                  originalPrice: item.price || 0,
-                  productImages: item.product?.images || [],
-                }))
-              : [
-                  {
-                    product: { name: "N/A", images: [] },
-                    quantity: 1,
-                    originalPrice: 0,
-                    productImages: [],
-                  },
-                ],
-          userId: transaction.user?._id,
-        };
-      });
+      const formattedTransactions = data.map((transaction) => ({
+        createdAt: transaction.createdAt || new Date().toISOString(),
+        status: mapStatusToLabel(transaction.status),
+        rawStatus: transaction.status,
+        _id: transaction._id || "N/A",
+        totalAmount: transaction.totalAmount || 0,
+        items:
+          Array.isArray(transaction.items) && transaction.items.length > 0
+            ? transaction.items.map((item) => ({
+                product: item.product || { name: "N/A", images: [] },
+                quantity: item.quantity || 1,
+                price: item.price || 0,
+                discountedPrice: item.discountedPrice || item.price || 0,
+                productImages: item.product?.images || [],
+              }))
+            : [
+                {
+                  product: { name: "N/A", images: [] },
+                  quantity: 1,
+                  price: 0,
+                  discountedPrice: 0,
+                  productImages: [],
+                },
+              ],
+        shippingAddress: transaction.shippingAddress || {},
+        shippingCost: transaction.shippingCost || 0,
+        paymentMethod: transaction.paymentMethod || "N/A",
+        trackingNumber: transaction.trackingNumber || "N/A",
+        userId: transaction.user?._id,
+      }));
       setTransactions(formattedTransactions);
     } catch (err) {
       console.error("Failed to fetch transactions:", err);
@@ -274,7 +274,7 @@ const TransactionList = () => {
             />
           ))
         ) : (
-          <p >Tidak ada transaksi yang ditemukan untuk filter ini.</p>
+          <p>Tidak ada transaksi yang ditemukan untuk filter ini.</p>
         )}
       </div>
       {isModalOpen && (

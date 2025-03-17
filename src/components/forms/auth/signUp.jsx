@@ -10,6 +10,7 @@ const SignUp = () => {
     const [name, setName] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -258,12 +259,7 @@ const SignUp = () => {
                                 {!passwordMatch && (
                                     <p className="text-red-500 text-sm mt-1">Konfirmasi kata sandi tidak cocok.</p>
                                 )}
-                                {/* <span
-                                    className="absolute right-4 top-4 cursor-pointer"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                >
-                                    {showPassword ? <EyeClosedIcon /> : <EyeIcon />}
-                                </span> */}
+                                
                             </div>
                         </div>
                         {/* <div className="mb-6">

@@ -28,6 +28,11 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
       year: "numeric",
     });
 
+  // Konversi shippingAddress menjadi string
+  const shippingAddressString = shippingAddress
+    ? `${shippingAddress.recipientName}, ${shippingAddress.phoneNumber}, ${shippingAddress.streetAddress}, ${shippingAddress.city}, ${shippingAddress.province}, ${shippingAddress.postalCode}`
+    : "Alamat tidak tersedia";
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -65,7 +70,7 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
                 {totalAmount.toLocaleString("id-ID")}
               </p>
               <p>
-                <strong>Alamat Pengiriman:</strong> {shippingAddress}
+                <strong>Alamat Pengiriman:</strong> {shippingAddressString}
               </p>
               <p>
                 <strong>Metode Pembayaran:</strong> {paymentMethod}
@@ -96,7 +101,7 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
         <div className="flex justify-center space-x-4">
           <button
             onClick={() => onApprove(_id)}
-            className="bg-[#1A9882]  text-[#E9FAF7] hover:bg-green-600 px-3 py-1 rounded text-xs flex items-center"
+            className="bg-[#1A9882] text-[#E9FAF7] hover:bg-green-600 px-3 py-1 rounded text-xs flex items-center"
             title="Setujui Pesanan"
           >
             <CheckIcon className="h-4 w-4 inline mr-1" />

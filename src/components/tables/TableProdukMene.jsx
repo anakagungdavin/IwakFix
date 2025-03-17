@@ -102,7 +102,7 @@ const TableMeneProduk = () => {
                 {/* Kolom Nama & Harga */}
                 <td className="border-b border-[#eee] py-5 px-4 pl-9">
                   <h5 className="font-medium text-black">{packageItem.name}</h5>
-                  <p className="text-sm">${packageItem.price}</p>
+                  <p className="text-sm">Rp{packageItem.price}</p>
                   {packageItem.image && (
                     <img
                       src={packageItem.image}

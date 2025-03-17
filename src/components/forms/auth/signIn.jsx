@@ -345,7 +345,7 @@ const SignIn = () => {
                   {showPassword ? (
                     <EyeIcon className=" dark:fill-gray-400 size-5 opacity-55"/>
                   ): (
-                  <EyeClosedIcon className=" dark:fill-gray-400 size-5 opacity-55"/>
+                    <EyeClosedIcon className=" dark:fill-gray-400 size-5 opacity-55"/>
                    )}
                 </span>
               </div>

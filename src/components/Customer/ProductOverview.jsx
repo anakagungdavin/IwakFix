@@ -269,7 +269,7 @@ const ProductOverview = () => {
                     +
                   </button>
                   <span className="ml-4 text-gray-600">
-                    Stok Total: <b>{product.stock} Kg</b>
+                    Stok Total: <b>{product.stock}</b>
                   </span>
                 </div>
               </div>
