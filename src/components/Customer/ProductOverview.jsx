@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import defaultImage from "../../images/image1.png";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
 const ProductOverview = () => {
   const [product, setProduct] = useState(null);

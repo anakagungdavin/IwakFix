@@ -5,7 +5,7 @@ import FooterCust from "../../components/Customer/footerCust";
 import ChangeAddress from "../../components/Customer/ChangeAddress";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
 const CheckoutPage = () => {
   const location = useLocation();

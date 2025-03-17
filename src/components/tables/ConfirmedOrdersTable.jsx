@@ -3,7 +3,7 @@ import axios from "axios";
 import { EyeIcon } from "@heroicons/react/24/solid"; // Tambahkan ikon untuk melihat detail
 import TransactionDetailModal from "../modal/modalDetailTransaksi"; // Impor modal
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
 const ConfirmedOrdersTable = () => {
   const [confirmedOrders, setConfirmedOrders] = useState([]);

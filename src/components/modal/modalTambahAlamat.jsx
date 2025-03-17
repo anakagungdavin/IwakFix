@@ -33,7 +33,8 @@ export default function AddressModal({
         throw new Error("No authentication token found");
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
       const response = await fetch(`${apiUrl}/api/users/address`, {
         method: "POST",
         headers: {

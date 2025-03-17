@@ -6,7 +6,7 @@
 // import axios from "axios";
 // import defaultImage from "../../images/image1.png";
 
-// const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
 // const CartPage = () => {
 //   const navigate = useNavigate();
@@ -306,7 +306,7 @@ import FooterCust from "../../components/Customer/footerCust";
 import axios from "axios";
 import defaultImage from "../../images/image1.png";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
 const CartPage = () => {
   const navigate = useNavigate();

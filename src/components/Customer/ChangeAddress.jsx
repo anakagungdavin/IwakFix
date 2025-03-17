@@ -1,7 +1,7 @@
 // import React, { useState, useEffect } from "react";
 // import axios from "axios";
 
-// const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
 // const ChangeAddress = ({ onClose, onSelectAddress }) => {
 //   const [addresses, setAddresses] = useState([]);
@@ -78,7 +78,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { X } from "lucide-react"; // Menggunakan ikon X dari Lucide React
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
 const ChangeAddress = ({ onClose, onSelectAddress }) => {
   const [addresses, setAddresses] = useState([]);
