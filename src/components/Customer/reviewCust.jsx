@@ -3,10 +3,10 @@ import React from "react";
 const reviews = [
   {
     id: 1,
-    name: "Penjual ikan tongkol",
+    name: "Agung",
     review:
       "Don't waste time, just order! This is the best website to purchase fish.",
-    image: "/images/review1.jpg",
+    image: "src/images/agung.png",
     rating: 5,
   },
   {
@@ -14,7 +14,7 @@ const reviews = [
     name: "Bagus Fajar",
     review:
       "Saya telah membeli bibit ikan lele. Semua ikan sangat sehat dan kualitasnya sangat baik.",
-    image: "/images/review2.jpg",
+    image: "src/images/bagus.jpeg",
     rating: 5,
   },
   {
@@ -22,7 +22,7 @@ const reviews = [
     name: "Shafa Tiara",
     review:
       "Saya telah membeli bibit ikan lele. Semua ikan sangat sehat dan kualitasnya sangat baik.",
-    image: "/images/review2.jpg",
+    image: "src/images/IMG_5415.jpg",
     rating: 5,
   },
 ];
