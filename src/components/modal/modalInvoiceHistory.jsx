@@ -9,6 +9,7 @@ import {
   PDFDownloadLink,
   Font,
 } from "@react-pdf/renderer";
+import * as XLSX from "xlsx";
 
 // Register font untuk tampilan formal (opsional, jika Anda punya font khusus)
 Font.register({
@@ -129,12 +130,11 @@ const styles = StyleSheet.create({
 });
 
 const MyDocument = ({ startDate, endDate, orders }) => {
-  // Convert input dates to Date objects for precise filtering
   const start = new Date(startDate);
-  start.setHours(0, 0, 0, 0); // Set to start of day
+  start.setHours(0, 0, 0, 0);
 
   const end = new Date(endDate);
-  end.setHours(23, 59, 59, 999); // Set to end of day
+  end.setHours(23, 59, 59, 999);
 
   const filteredOrders = orders.filter((order) => {
     const orderDate = new Date(order.createdAt);
@@ -151,10 +151,17 @@ const MyDocument = ({ startDate, endDate, orders }) => {
     );
   }, 0);
 
+  // Using recipient and address from first customer's first order (if available)
+  const recipient =
+    filteredOrders.length > 0 ? filteredOrders[0].recipient || "-" : "-";
+  const customerAddress =
+    filteredOrders.length > 0 ? filteredOrders[0].address || "-" : "-";
+  const phone =
+    filteredOrders.length > 0 ? filteredOrders[0].phone || "-" : "-";
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <View style={styles.companyInfo}>
@@ -167,20 +174,23 @@ const MyDocument = ({ startDate, endDate, orders }) => {
             <View style={styles.invoiceInfo}>
               <Text>Nomor Invoice: INV-{new Date().getTime()}</Text>
               <Text>Tanggal Cetak: {getFormattedDate(new Date())}</Text>
+              <Text>Nama Penerima: {recipient}</Text>
+              <Text>Telepon: {phone}</Text>
+              <Text>Alamat: {customerAddress}</Text>
             </View>
           </View>
         </View>
 
-        {/* Judul */}
-        <Text style={styles.title}>Laporan Penjualan Ikan</Text>
+        <Text style={styles.title}>Sejarah Pembelian Bibit Ikan</Text>
         <Text style={styles.subtitle}>
           Periode: {getFormattedDate(startDate)} - {getFormattedDate(endDate)}
         </Text>
 
-        {/* Tabel */}
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
             <Text style={styles.tableCell}>Tanggal</Text>
+            <Text style={styles.tableCell}>Nama Penerima</Text>
+            <Text style={styles.tableCell}>Alamat</Text>
             <Text style={styles.tableCell}>Item</Text>
             <Text style={styles.tableCell}>Jumlah</Text>
             <Text style={styles.tableCell}>Harga Satuan</Text>
@@ -192,6 +202,8 @@ const MyDocument = ({ startDate, endDate, orders }) => {
                 <Text style={styles.tableCell}>
                   {getFormattedDate(order.createdAt)}
                 </Text>
+                <Text style={styles.tableCell}>{order.recipient || "-"}</Text>
+                <Text style={styles.tableCell}>{order.address || "-"}</Text>
                 <Text style={styles.tableCell}>
                   {item.product?.name || "Unknown Product"}
                 </Text>
@@ -207,7 +219,6 @@ const MyDocument = ({ startDate, endDate, orders }) => {
           )}
         </View>
 
-        {/* Total */}
         <View style={styles.totalSection}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total Penjualan:</Text>
@@ -217,12 +228,103 @@ const MyDocument = ({ startDate, endDate, orders }) => {
           </View>
         </View>
 
-        {/* Footer */}
         <Text style={styles.footer}>
           Dokumen ini dicetak secara otomatis oleh sistem IWAK.
         </Text>
       </Page>
     </Document>
+  );
+};
+
+// Function to generate Excel data
+const generateExcelData = (startDate, endDate, orders) => {
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+
+  const filteredOrders = orders.filter((order) => {
+    const orderDate = new Date(order.createdAt);
+    return orderDate >= start && orderDate <= end;
+  });
+
+  // Create Excel data array
+  const excelData = [];
+
+  // Add headers
+  excelData.push(["IWAK. - Laporan Penjualan Ikan", "", "", "", "", "", ""]);
+
+  excelData.push([
+    `Periode: ${getFormattedDate(startDate)} - ${getFormattedDate(endDate)}`,
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
+
+  excelData.push([""]); // Empty row for spacing
+
+  // Add table headers
+  excelData.push([
+    "Tanggal",
+    "Nama Penerima",
+    "Alamat",
+    "Item",
+    "Jumlah",
+    "Harga Satuan (Rp)",
+    "Total (Rp)",
+  ]);
+
+  // Add data rows
+  filteredOrders.forEach((order) => {
+    order.items.forEach((item) => {
+      excelData.push([
+        getFormattedDate(order.createdAt),
+        order.recipient || "-",
+        order.address || "-",
+        item.product?.name || "Unknown Product",
+        item.quantity,
+        item.price,
+        item.quantity * item.price,
+      ]);
+    });
+  });
+
+  // Add total row
+  const totalInvoice = filteredOrders.reduce((sum, order) => {
+    return (
+      sum +
+      order.items.reduce(
+        (itemSum, item) => itemSum + item.quantity * item.price,
+        0
+      )
+    );
+  }, 0);
+
+  excelData.push([""]); // Empty row for spacing
+  excelData.push(["", "", "", "", "", "Total Penjualan:", totalInvoice]);
+
+  return excelData;
+};
+
+// Function to download Excel file
+const downloadExcel = (startDate, endDate, orders) => {
+  const excelData = generateExcelData(startDate, endDate, orders);
+
+  // Create workbook and worksheet
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+
+  // Add worksheet to workbook
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Penjualan");
+
+  // Generate Excel file
+  XLSX.writeFile(
+    workbook,
+    `Laporan_Penjualan_Ikan_${startDate}_${endDate}.xlsx`
   );
 };
 
@@ -246,7 +348,23 @@ const SalesReportModal = ({ onClose }) => {
             },
           }
         );
-        setOrders(response.data);
+        // Map the response to include recipient and address properties similar to ModalConfig
+        // Replace lines 445-450 with this
+        const mappedOrders = response.data.map((order) => ({
+          ...order,
+          recipient:
+            order.shippingAddress?.recipientName ||
+            order.customerName ||
+            order.recipient ||
+            "-",
+          phone: order.shippingAddress?.phoneNumber || order.phone || "-",
+          address: order.shippingAddress
+            ? `${order.shippingAddress.streetAddress}, ${order.shippingAddress.city}, ${order.shippingAddress.province} ${order.shippingAddress.postalCode}`
+            : order.address || "-",
+        }));
+
+        console.log("Order data sample:", mappedOrders[0]);
+        setOrders(mappedOrders);
         setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch orders");
@@ -256,41 +374,120 @@ const SalesReportModal = ({ onClose }) => {
     fetchOrders();
   }, [token]);
 
-  if (loading) return <p>Loading orders...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  // Get current date for default endDate
+  useEffect(() => {
+    const today = new Date();
+    const formattedDate = today.toISOString().split("T")[0];
+    setEndDate(formattedDate);
+
+    // Set default startDate to 30 days ago
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    setStartDate(thirtyDaysAgo.toISOString().split("T")[0]);
+  }, []);
+
+  if (loading)
+    return (
+      <div className="fixed inset-0 bg-white-100 bg-opacity-30 backdrop-blur-sm flex justify-center items-center">
+        <div className="bg-white shadow-lg rounded-lg p-6 w-11/12 max-w-md mx-auto">
+          <div className="flex flex-col items-center justify-center h-40">
+            <div className="w-12 h-12 border-4 border-t-[#1A9882] border-b-[#1A9882] border-l-transparent border-r-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-gray-700">Loading orders...</p>
+          </div>
+        </div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="fixed inset-0 bg-white bg-opacity-30 backdrop-blur-sm flex justify-center items-center">
+        <div className="bg-white shadow-lg rounded-lg p-6 w-11/12 max-w-md mx-auto">
+          <button
+            onClick={onClose}
+            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            aria-label="Close"
+          >
+            ✖
+          </button>
+          <div className="flex flex-col items-center justify-center h-40">
+            <div className="text-red-500 text-center">
+              <svg
+                className="w-12 h-12 mx-auto mb-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <p>{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-4xl relative">
+    <div className="fixed inset-0 bg-opacity-10 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      <div className="bg-white shadow-lg rounded-lg p-4 sm:p-6 w-full max-w-4xl mx-auto relative overflow-y-auto max-h-[90vh]">
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 p-2 z-10"
+          aria-label="Close"
         >
-          ✖
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
         </button>
-        <h2 className="text-2xl font-bold text-center mb-4">
+
+        <h2 className="text-xl sm:text-2xl font-bold text-left mb-3 sm:mb-4 mt-1">
           Laporan Penjualan Ikan
         </h2>
-        <p className="text-center text-gray-600">
+
+        <p className="text-left text-gray-600 text-sm sm:text-base">
           Dicetak pada: <strong>{getFormattedDate(new Date())}</strong>
         </p>
 
-        <div className="flex justify-center space-x-4 mt-4">
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="border p-2 rounded"
-          />
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="border p-2 rounded"
-          />
+        <div className="flex flex-col sm:flex-row justify-left items-left gap-3 mt-4">
+          <div className="w-full sm:w-auto">
+            <label
+              htmlFor="startDate"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Tanggal Mulai:
+            </label>
+            <input
+              id="startDate"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+          </div>
+          <div className="w-full sm:w-auto">
+            <label
+              htmlFor="endDate"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Tanggal Akhir:
+            </label>
+            <input
+              id="endDate"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full border p-2 rounded"
+            />
+          </div>
         </div>
 
-        <p className="text-center text-gray-600 mb-6">
+        <p className="text-left text-gray-600 text-sm sm:text-base my-4">
           Laporan penjualan pada:{" "}
           <strong>
             {startDate && endDate
@@ -299,26 +496,178 @@ const SalesReportModal = ({ onClose }) => {
           </strong>
         </p>
 
-        <div className="flex justify-center mt-6">
+        <div className="flex flex-col sm:flex-row justify-left gap-3 sm:gap-4 mt-6 px-2">
           {startDate && endDate && (
-            <PDFDownloadLink
-              document={
-                <MyDocument
-                  startDate={startDate}
-                  endDate={endDate}
-                  orders={orders}
-                />
-              }
-              fileName="Laporan_Penjualan_Ikan.pdf"
-            >
-              {({ loading }) => (
-                <button className="bg-[#E9FAF7] text-[#1A9882] px-6 py-2 rounded-lg shadow-lg hover:bg-blue-700">
-                  {loading ? "Membuat PDF..." : "Download PDF"}
-                </button>
-              )}
-            </PDFDownloadLink>
+            <>
+              <PDFDownloadLink
+                document={
+                  <MyDocument
+                    startDate={startDate}
+                    endDate={endDate}
+                    orders={orders}
+                  />
+                }
+                fileName="Laporan_Penjualan_Ikan.pdf"
+                className="w-full sm:w-auto"
+              >
+                {({ loading }) => (
+                  <button className="w-full bg-[#E9FAF7] text-[#1A9882] px-4 sm:px-6 py-2 rounded-lg shadow-lg hover:bg-[#D8EFEC] flex items-center justify-center">
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
+                    </svg>
+                    {loading ? "Membuat PDF..." : "Download PDF"}
+                  </button>
+                )}
+              </PDFDownloadLink>
+
+              <button
+                onClick={() => downloadExcel(startDate, endDate, orders)}
+                className="w-full sm:w-auto bg-[#E9F0FF] text-[#3182CE] px-4 sm:px-6 py-2 rounded-lg shadow-lg hover:bg-[#D8E4FF] flex items-center justify-center"
+              >
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
+                </svg>
+                Download Excel
+              </button>
+            </>
           )}
         </div>
+
+        {startDate && endDate && orders.length > 0 && (
+          <div className="mt-8 overflow-x-auto">
+            <p className="font-medium mb-2 text-center">Preview Laporan:</p>
+            <div className="border rounded-lg">
+              <table className="min-w-full divide-y divide-gray-200 rounded-lg">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Tanggal
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Nama Penerima
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Alamat
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Item
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Jumlah
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Harga
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {orders
+                    .filter((order) => {
+                      const orderDate = new Date(order.createdAt);
+                      const start = new Date(startDate);
+                      start.setHours(0, 0, 0, 0);
+                      const end = new Date(endDate);
+                      end.setHours(23, 59, 59, 999);
+                      return orderDate >= start && orderDate <= end;
+                    })
+                    .slice(0, 5)
+                    .flatMap((order) =>
+                      order.items.map((item, index) => (
+                        <tr
+                          key={`${order._id}-${index}`}
+                          className="hover:bg-gray-50"
+                        >
+                          <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                            {getFormattedDate(order.createdAt)}
+                          </td>
+                          <td className="px-3 py-2 whitespace-pre-wrap text-sm text-gray-900">
+                            {order.recipient || "-"}
+                          </td>
+                          <td className="px-3 py-2 whitespace-pre-wrap text-sm text-gray-900">
+                            {order.address || "-"}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                            {item.product?.name || "Unknown Product"}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                            {item.quantity}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                            Rp {item.price.toLocaleString("id-ID")}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                            Rp{" "}
+                            {(item.quantity * item.price).toLocaleString(
+                              "id-ID"
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                </tbody>
+              </table>
+              {orders
+                .filter((order) => {
+                  const orderDate = new Date(order.createdAt);
+                  const start = new Date(startDate);
+                  start.setHours(0, 0, 0, 0);
+                  const end = new Date(endDate);
+                  end.setHours(23, 59, 59, 999);
+                  return orderDate >= start && orderDate <= end;
+                })
+                .flatMap((order) => order.items).length > 5 && (
+                <div className="p-2 text-center text-sm text-gray-500">
+                  Showing 5 of{" "}
+                  {
+                    orders
+                      .filter((order) => {
+                        const orderDate = new Date(order.createdAt);
+                        const start = new Date(startDate);
+                        start.setHours(0, 0, 0, 0);
+                        const end = new Date(endDate);
+                        end.setHours(23, 59, 59, 999);
+                        return orderDate >= start && orderDate <= end;
+                      })
+                      .flatMap((order) => order.items).length
+                  }{" "}
+                  items. Download the report to see all data.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

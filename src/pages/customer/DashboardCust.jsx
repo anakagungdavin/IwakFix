@@ -8,10 +8,66 @@ import FooterCust from "../../components/Customer/footerCust";
 import CustomerReviews from "../../components/Customer/reviewCust";
 
 const fishTypes = [
-  { id: 1, name: "Lele", image: ["/src/images/Rectangle 1.png"] },
-  { id: 2, name: "Nila", image: ["/src/images/nila.png"] },
-  { id: 3, name: "Mas", image: ["/src/images/mas.png"] },
-  { id: 4, name: "Bawal", image: ["/src/images/bawal.png"] },
+  {
+    id: 1,
+    name: "Lele",
+    image: ["/src/images/Rectangle 1.png"],
+    nutrition: {
+      short: ["Protein 18g Calories 120"],
+      detailed: {
+        protein: "18g per 100g",
+        calories: "120 kcal per serving",
+        omega3: "1.2g",
+        fat: "5g",
+        calcium: "85mg",
+      },
+    },
+  },
+  {
+    id: 2,
+    name: "Nila",
+    image: ["/src/images/nila.png"],
+    nutrition: {
+      short: ["Protein 20g Calories 96"],
+      detailed: {
+        protein: "20g per 100g",
+        calories: "96 kcal per serving",
+        omega3: "0.4g",
+        fat: "3.2g",
+        calcium: "60mg",
+      },
+    },
+  },
+  {
+    id: 3,
+    name: "Mas",
+    image: ["/src/images/mas.png"],
+    nutrition: {
+      short: ["Protein 16g Calories 135"],
+      detailed: {
+        protein: "16g per 100g",
+        calories: "135 kcal per serving",
+        omega3: "0.8g",
+        fat: "7g",
+        calcium: "70mg",
+      },
+    },
+  },
+  {
+    id: 4,
+    name: "Bawal",
+    image: ["/src/images/bawal.png"],
+    nutrition: {
+      short: ["Protein 19g Calories 110"],
+      detailed: {
+        protein: "19g per 100g",
+        calories: "110 kcal per serving",
+        omega3: "1.5g",
+        fat: "4.8g",
+        calcium: "92mg",
+      },
+    },
+  },
 ];
 
 const fullText =
@@ -19,6 +75,7 @@ const fullText =
 const typingSpeed = 50; // Speed of typing effect (ms per character)
 
 const DashboardCust = () => {
+  const [hoveredFishId, setHoveredFishId] = useState(null);
   const navigate = useNavigate();
   const [textIndex, setTextIndex] = useState(0);
   const [showCursor, setShowCursor] = useState(true);
@@ -87,27 +144,102 @@ const DashboardCust = () => {
       {/* Fish Types Section (Floating Cards) */}
       {/* Fish Types Section - 2x2 Grid */}
       {/* Fish Types Section - Responsive Layout */}
+      {/*Then modify the card section in the return statement*/}
       <div className="relative max-w-6xl mx-auto px-4 md:px-6 lg:px-12 -mt-12 z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 lg:gap-6 px-2 md:px-0">
-          {fishTypes.map((fish, index) => (
-            <motion.div
+          {fishTypes.map((fish) => (
+            <div
               key={fish.id}
-              onClick={() => {
-                navigate(`/product/${fish.id}`, { state: { fish } });
-                window.scrollTo(0, 0);
+              className="relative"
+              style={{
+                minHeight: hoveredFishId === fish.id ? "240px" : "auto",
               }}
-              className="bg-[#80B3BB] p-3 md:p-4 rounded-lg shadow-lg cursor-pointer hover:border-2 hover:border-blue-500 transition-all duration-300 flex flex-col items-center justify-center h-32 md:h-36 lg:h-40"
-              whileHover={{ scale: 1.05 }}
             >
-              <img
-                src={fish.image}
-                alt={fish.name}
-                className="w-16 md:w-18 lg:w-20 h-16 md:h-18 lg:h-20 object-contain"
-              />
-              <p className="text-center font-semibold mt-2 text-sm md:text-base">
-                {fish.name}
-              </p>
-            </motion.div>
+              <motion.div
+                onClick={() => {
+                  navigate(`/product/${fish.id}`, { state: { fish } });
+                  window.scrollTo(0, 0);
+                }}
+                onMouseEnter={() => setHoveredFishId(fish.id)}
+                onMouseLeave={() => setHoveredFishId(null)}
+                animate={{
+                  scale: hoveredFishId === fish.id ? 1.05 : 1,
+                  zIndex: hoveredFishId === fish.id ? 10 : 1,
+                  boxShadow:
+                    hoveredFishId === fish.id
+                      ? "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+                      : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                }}
+                initial={false}
+                transition={{ duration: 0.3 }}
+                className={`bg-[#80B3BB] p-3 md:p-4 rounded-lg border-2 ${
+                  hoveredFishId === fish.id
+                    ? "border-blue-500"
+                    : "border-transparent"
+                } cursor-pointer flex flex-col items-center justify-center h-auto w-full absolute`}
+                style={{
+                  minHeight: hoveredFishId === fish.id ? "240px" : "auto",
+                  height: "auto",
+                }}
+              >
+                {hoveredFishId === fish.id ? (
+                  /* Hover View Content - Detailed Nutrition */
+                  <div className="flex flex-col items-center w-full py-2">
+                    <img
+                      src={fish.image}
+                      alt={fish.name}
+                      className="w-14 md:w-16 h-14 md:h-16 object-contain mb-1"
+                    />
+                    <p className="text-center font-semibold text-sm md:text-base mb-2">
+                      {fish.name}
+                    </p>
+                    <div className="h-px w-3/4 bg-white/50 mb-2"></div>
+                    {/* Detailed Nutrition Table */}
+                    <div className="w-full text-xs px-2">
+                      {Object.entries(fish.nutrition.detailed).map(
+                        ([key, value]) => (
+                          <div key={key} className="flex justify-between py-1">
+                            <span className="capitalize font-medium">
+                              {key}:
+                            </span>
+                            <span className="text-right">{value}</span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  /* Normal View Content */
+                  <div className="flex flex-col items-center py-2">
+                    <img
+                      src={fish.image}
+                      alt={fish.name}
+                      className="w-16 md:w-18 lg:w-20 h-16 md:h-18 lg:h-20 object-contain"
+                    />
+                    <p className="text-center font-semibold mt-2 text-sm md:text-base">
+                      {fish.name}
+                    </p>
+                    {/* Short Nutrition Info */}
+                    <div className="flex flex-col items-center mt-1">
+                      {fish.nutrition.short.map((item, i) => (
+                        <span
+                          key={i}
+                          className="text-xs text-gray-800 font-medium"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+              {/* Spacer div to maintain grid layout - height matches content */}
+              <div
+                className={`invisible bg-transparent rounded-lg ${
+                  hoveredFishId === fish.id ? "h-60" : "h-32 md:h-36 lg:h-40"
+                }`}
+              ></div>
+            </div>
           ))}
         </div>
       </div>
