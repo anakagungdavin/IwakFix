@@ -243,7 +243,7 @@ const BeratProduk = ({ data = {}, onChange = () => {} }) => {
     dimensions: {
       height: data?.dimensions?.height || 0,
       length: data?.dimensions?.length || 0,
-      width: data?.dimensions?.width || 0,
+      // width: data?.dimensions?.width || 0,
     },
   });
 
@@ -253,7 +253,7 @@ const BeratProduk = ({ data = {}, onChange = () => {} }) => {
       dimensions: {
         height: data.dimensions?.height || 0,
         length: data.dimensions?.length || 0,
-        width: data.dimensions?.width || 0,
+        // width: data.dimensions?.width || 0,
       },
     });
   }, [data]);
@@ -282,11 +282,11 @@ const BeratProduk = ({ data = {}, onChange = () => {} }) => {
   return (
     <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
       <div className="max-w-full overflow-x-auto">
-        <h3 className="font-medium text-black dark:text-white">Berat Produk</h3>
+        <h3 className="font-medium text-black dark:text-white">Berat Ikan</h3>
         <form action="#">
           <div className="p-6.5">
             <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
-              <div className="w-full xl:w-1/4">
+              <div className="w-full xl:w-1/3">
                 <label className="mb-2.5 block text-black dark:text-white">
                   Berat (kg)<span className="text-red-500">*</span>
                 </label>
@@ -298,7 +298,7 @@ const BeratProduk = ({ data = {}, onChange = () => {} }) => {
                   className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                 />
               </div>
-              <div className="w-full xl:w-1/4">
+              <div className="w-full xl:w-1/3">
                 <label className="mb-2.5 block text-black dark:text-white">
                   Tinggi (cm)<span className="text-red-500">*</span>
                 </label>
@@ -310,7 +310,7 @@ const BeratProduk = ({ data = {}, onChange = () => {} }) => {
                   className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                 />
               </div>
-              <div className="w-full xl:w-1/4">
+              <div className="w-full xl:w-1/3">
                 <label className="mb-2.5 block text-black dark:text-white">
                   Panjang (cm) <span className="text-red-500">*</span>
                 </label>
@@ -322,7 +322,7 @@ const BeratProduk = ({ data = {}, onChange = () => {} }) => {
                   className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                 />
               </div>
-              <div className="w-full xl:w-1/4">
+              {/* <div className="w-full xl:w-1/4">
                 <label className="mb-2.5 block text-black dark:text-white">
                   Lebar (cm) <span className="text-red-500">*</span>
                 </label>
@@ -333,7 +333,7 @@ const BeratProduk = ({ data = {}, onChange = () => {} }) => {
                   onChange={(e) => handleDimensionChange("width", parseFloat(e.target.value) || 0)}
                   className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </form>

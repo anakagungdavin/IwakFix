@@ -143,7 +143,7 @@ const CheckoutPage = () => {
     0
   );
 
-  const finalTotal = totalPriceBeforeDiscount - totalDiscount;
+  const finalTotal = totalPriceBeforeDiscount - totalDiscount + 25000;
 
   // Fungsi untuk memproses pembayaran
   // const handlePayment = async () => {
@@ -454,22 +454,18 @@ const CheckoutPage = () => {
                     className="w-full p-2 border rounded-md"
                   >
                     <option value="">Pilih Metode Pembayaran</option>
-                    <option value="Mandiri">Bank Mandiri</option>
-                    <option value="BCA">BCA</option>
+                    <option value="Mandiri">Bank Jateng</option>
+                    <option value="BCA">COD</option>
                     <option value="QRIS">QRIS</option>
                   </select>
 
                   {/* Informasi Nomor Rekening atau QRIS */}
                   {paymentMethod === "Mandiri" && (
                     <p className="mt-3 text-blue-600 font-semibold">
-                      Nomor Rekening Mandiri: 123-456-7890 a/n IWAK Store
+                      Nomor Rekening Bank Jateng: 123-456-7890 a/n IWAK Store
                     </p>
                   )}
-                  {paymentMethod === "BCA" && (
-                    <p className="mt-3 text-blue-600 font-semibold">
-                      Nomor Rekening BCA: 098-765-4321 a/n IWAK Store
-                    </p>
-                  )}
+                
                   {paymentMethod === "QRIS" && (
                     <div className="mt-3">
                       <p className="text-blue-600 font-semibold">
@@ -541,6 +537,9 @@ const CheckoutPage = () => {
               </p>
               <p className="flex justify-between text-red-500">
                 Discounts: <span>-Rp{totalDiscount.toLocaleString()}</span>
+              </p>
+              <p className="flex justify-between">
+                Ongkir: <span>Rp 25.000</span>
               </p>
               <p className="font-bold text-lg mt-2 flex justify-between">
                 Total: <span>Rp{finalTotal.toLocaleString()}</span>

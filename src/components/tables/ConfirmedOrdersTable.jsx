@@ -140,7 +140,9 @@ const ConfirmedOrdersTable = () => {
                       {formatDate(order.createdAt)}
                     </td>
                     <td className="py-3 px-2 sm:p-4">
-                      {order.items.map((item) => item.product.name).join(", ")}
+                      {order.items
+                        .map((item) => item.product?.name || "Produk tidak tersedia")
+                        .join(", ")}
                     </td>
                     <td className="py-3 px-2 sm:p-4">
                       {order.items.reduce(

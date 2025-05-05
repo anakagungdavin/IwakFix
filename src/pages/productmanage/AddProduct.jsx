@@ -15,12 +15,12 @@ import { addProduct } from "../../services/api";
 // Helper function for status (same as in original AddProduct.jsx)
 export function getStatus(stok, isPublished) {
   if (!isPublished)
-    return { label: "Draft", color: "bg-[#F0F1F3] text-[#667085]" };
+    return { label: "Draft", jenis: "bg-[#F0F1F3] text-[#667085]" };
   if (stok === 0)
-    return { label: "Out of Stock", color: "bg-[#FEECEE] text-[#EB3D4D]" };
+    return { label: "Out of Stock", jenis: "bg-[#FEECEE] text-[#EB3D4D]" };
   if (stok < 10)
-    return { label: "Low Stock", color: "bg-[#FFF0EA] text-[#F86624]" };
-  return { label: "Published", color: "bg-[#E9FAF7] text-[#1A9882]" };
+    return { label: "Low Stock", jenis: "bg-[#FFF0EA] text-[#F86624]" };
+  return { label: "Published", jenis: "bg-[#E9FAF7] text-[#1A9882]" };
 }
 
 const AddProduct = () => {
@@ -44,7 +44,7 @@ const AddProduct = () => {
       width: 0,
     },
     type: {
-      color: [],
+      jenis: [],
       size: [],
     },
     seller: localStorage.getItem("sellerId") || "default-seller-id", // Ganti dengan ID penjual dari autentikasi
@@ -74,7 +74,7 @@ const AddProduct = () => {
       // setProduct(e);
       setProduct((prevState) => ({
         ...prevState,
-        type: e.type || { color: [], size: [] },
+        type: e.type || { jenis: [], size: [] },
       }));
     }
   };
@@ -216,7 +216,7 @@ const AddProduct = () => {
     };
     formData.append("dimensions", JSON.stringify(dimensions));
 
-    const type = product.type || { color: [], size: [] };
+    const type = product.type || { jenis: [], size: [] };
     formData.append("type", JSON.stringify(type));
     // formData.append(
     //   "type",
@@ -310,7 +310,7 @@ const AddProduct = () => {
                 />
               </div>
             </div>
-            <div className="col-span-4">
+            {/* <div className="col-span-4">
               <div className="bg-white shadow-md rounded-lg p-4">
                 <HargaProduk
                   data={product}
@@ -318,8 +318,8 @@ const AddProduct = () => {
                   onChange={handleInputChange}
                 />
               </div>
-            </div>
-            <div className="col-span-4">
+            </div> */}
+            {/* <div className="col-span-4">
               <div className="bg-white shadow-md rounded-lg p-4">
                 <InventarisProduk
                   data={product}
@@ -327,7 +327,7 @@ const AddProduct = () => {
                   onChange={handleInputChange}
                 />
               </div>
-            </div>
+            </div> */}
             <div className="col-span-4">
               <div className="bg-white shadow-md rounded-lg p-4">
                 <JenisProduk
@@ -376,7 +376,7 @@ const AddProduct = () => {
             </button> */}
             <button
               onClick={handleUpload}
-              className="px-4 py-2 bg-[#E9FAF7] text-[#1A9882]"
+              className="px-4 py-2 bg-[#E9FAF7] text-[#1A9882] rounded-md"
             >
               Upload
             </button>

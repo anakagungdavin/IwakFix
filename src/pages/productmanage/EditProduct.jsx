@@ -28,10 +28,10 @@ const EditProduct = () => {
     dimensions: {
       height: 0,
       length: 0,
-      width: 0,
+      // width: 0,
     },
     type: {
-      color: [],
+      jenis: [],
       size: [],
     },
   });
@@ -52,7 +52,7 @@ const EditProduct = () => {
         const dimensions = data.dimensions || {
           height: 0,
           length: 0,
-          width: 0,
+          // width: 0,
         };
         const imageUrls = data.images || [];
         setProduct({
@@ -93,12 +93,12 @@ const EditProduct = () => {
       const dimensions = product.dimensions || {
         height: 0,
         length: 0,
-        width: 0,
+        // width: 0,
       };
       formData.append("dimensions", JSON.stringify(dimensions));
 
       // Kirim type sebagai string JSON
-      const type = product.type || { color: [], size: [] };
+      const type = product.type || { jenis: [], size: [] };
       formData.append("type", JSON.stringify(type));
 
       // Tambahkan semua file gambar baru ke FormData (hanya yang masih ada di images dan mulai dengan blob:)
@@ -322,7 +322,7 @@ const EditProduct = () => {
                       dimensions: updatedData.dimensions || {
                         height: 0,
                         length: 0,
-                        width: 0,
+                        // width: 0,
                       },
                     }));
                   }}

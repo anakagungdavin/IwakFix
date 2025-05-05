@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import {
   MapPinIcon,
   PhoneIcon,
@@ -10,7 +10,21 @@ import {
 import HeaderCust from "../../components/Customer/headerCust";
 import FooterCust from "../../components/Customer/footerCust";
 
+
 const AboutPage = () => {
+  const images = [
+    "/src/images/uptd1.jpeg",
+    "/src/images/uptd2.jpeg",
+  ];
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 5000); 
+
+    return () => clearInterval(interval); // Bersihkan timer saat komponen unmount
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -21,10 +35,15 @@ const AboutPage = () => {
       {/* About Section */}
       <section className="relative text-black py-24 px-30 lg:px-30 rounded-br-[100px]">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center">
-          {/* Left Image */}
+          {/* Left Image  */}
           <div className="lg:w-1/2 flex justify-center">
-            <img
+            {/* <img
               src="/src/images/Rectangle 1.png"
+              alt="About Iwak"
+              className="max-w-full h-auto rounded-lg shadow-lg"
+            /> */}
+            <img
+              src={images[currentImageIndex]}
               alt="About Iwak"
               className="max-w-full h-auto rounded-lg shadow-lg"
             />
@@ -36,6 +55,9 @@ const AboutPage = () => {
               Tentang Kami
             </h1>
             <p className="mt-4 text-lg">
+            UPTD Aneka Usaha Perikanan merupakan Unit Pelaksana Teknis Daerah yang berada di lingkup Dinas Ketahanan Pangan dan Pertanian Kota Surakarta. UPTD Aneka Usaha Perikanan atau yang disingkat UPTD AUP berlokasi di Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari, Kota Surakarta. Salah satu tugas UPTD AUP adalah menyediakan pasokan benih ikan yang berkualitas untuk keperluan budidaya masyarakat terutama di Kota Surakarta dan sekitarnya. Untuk saat ini jenis ikan yang dibudidayakan di UPTD AUP adalah ikan lele dan ikan nila. Jenis ikan lele yang kami budidayakan yaitu jenis lele mutiara dan lele sangkuriang. Untuk ikan nila yang kami budidayakan yaitu jenis ikan nila merah larasati. Kedepan kami akan terus menambah jenis ikan yang dibudidayakan untuk memenuhi permintaan pasar dan tetap menjamin kualitas benih kami
+            </p>
+            {/* <p className="mt-4 text-lg">
               Selamat datang di iwak., platform e-commerce terpercaya yang
               menyediakan bibit ikan air tawar berkualitas unggul untuk
               mendukung kesuksesan peternak dan pecinta budidaya ikan di seluruh
@@ -44,15 +66,15 @@ const AboutPage = () => {
               terbaik. Dengan pengalaman dan dedikasi tinggi, kami memastikan
               bahwa setiap produk yang Anda terima telah melalui proses seleksi
               dan perawatan terbaik.
-            </p>
-            <p className="mt-4 text-lg">
+            </p> */}
+            {/* <p className="mt-4 text-lg">
               Di iwak., kami percaya bahwa kesuksesan Anda adalah prioritas
               kami. Dengan layanan pengiriman yang aman dan cepat, serta
               dukungan pelanggan yang siap membantu, kami hadir untuk menjadi
               mitra terpercaya dalam perjalanan budidaya Anda. Mari bersama-sama
               menciptakan hasil panen melimpah dan masa depan yang lebih cerah
               untuk perikanan Indonesia!
-            </p>
+            </p> */}
           </div>
         </div>
       </section>
@@ -74,7 +96,7 @@ const AboutPage = () => {
               <MapPinIcon className="h-10 w-10 text-[#003D47]" />
               <h3 className="text-xl font-semibold mt-3">Alamat</h3>
               <p className="text-gray-600">
-                236 5th SE Avenue, New York NY10000, United States
+                Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari, Kota Surakarta
               </p>
             </div>
 
@@ -90,8 +112,8 @@ const AboutPage = () => {
             <div className="flex flex-col items-center">
               <ClockIcon className="h-10 w-10 text-[#003D47]" />
               <h3 className="text-xl font-semibold mt-3">Jam Kerja</h3>
-              <p className="text-gray-600">Monday-Friday: 9:00 - 22:00</p>
-              <p className="text-gray-600">Saturday-Sunday: 9:00 - 21:00</p>
+              <p className="text-gray-600">Senin-Jumat: 8:00 - 16:00</p>
+              <p className="text-gray-600">Sabtu-Minggu: 9:00 - 14:00</p>
             </div>
           </div>
         </div>
@@ -100,14 +122,14 @@ const AboutPage = () => {
       {/* Features Section */}
       <section className="bg-[#FAF3EA] py-12">
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             {/* High Quality */}
             <div className="flex flex-col items-center">
               <TrophyIcon className="h-10 w-10 text-[#003D47]" />
               <h3 className="text-lg font-semibold mt-3">High Quality</h3>
-              <p className="text-gray-600 text-sm">
+              {/* <p className="text-gray-600 text-sm">
                 Crafted from top materials
-              </p>
+              </p> */}
             </div>
 
             {/* Warranty Protection */}
@@ -116,22 +138,22 @@ const AboutPage = () => {
               <h3 className="text-lg font-semibold mt-3">
                 Warranty Protection
               </h3>
-              <p className="text-gray-600 text-sm">Over 2 years</p>
+              {/* <p className="text-gray-600 text-sm">Over 2 years</p> */}
             </div>
 
             {/* Free Shipping */}
             <div className="flex flex-col items-center">
               <TruckIcon className="h-10 w-10 text-[#003D47]" />
               <h3 className="text-lg font-semibold mt-3">Free Shipping</h3>
-              <p className="text-gray-600 text-sm">Order over $150</p>
+              {/* <p className="text-gray-600 text-sm">Order over $150</p> */}
             </div>
 
             {/* 24/7 Support */}
-            <div className="flex flex-col items-center">
+            {/* <div className="flex flex-col items-center">
               <TruckIcon className="h-10 w-10 text-[#003D47]" />
-              <h3 className="text-lg font-semibold mt-3">24 / 7 Support</h3>
-              <p className="text-gray-600 text-sm">Dedicated support</p>
-            </div>
+              <h3 className="text-lg font-semibold mt-3">24 / 7 Support</h3> */}
+              {/* <p className="text-gray-600 text-sm">Dedicated support</p> */}
+            {/* </div> */}
           </div>
         </div>
       </section>

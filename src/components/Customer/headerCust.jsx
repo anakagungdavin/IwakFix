@@ -121,7 +121,7 @@ const HeaderCust = () => {
         <div className="flex items-center">
           <div className="text-xl font-bold mr-8">
             <a href="/customer-dashboard" className="flex items-center">
-              Iwak.
+              Siphiko
             </a>
           </div>
           <nav className="flex items-center space-x-6">
