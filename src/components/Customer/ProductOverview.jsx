@@ -67,14 +67,14 @@ const ProductOverview = () => {
     fetchProduct();
   }, [id]);
 
-  // Fungsi untuk mendapatkan harga dan diskon berdasarkan jenis dan ukuran
-  const getPriceForCombination = (jenis, size) => {
-    console.log("Mencari harga untuk:", { jenis, size }); // Log input values
+  // Fungsi untuk mendapatkan stok berdasarkan jenis dan ukuran
+  const getStockForCombination = (jenis, size) => {
+    console.log("Mencari stok untuk:", { jenis, size }); // Log input values
     console.log("Stocks available:", product?.stocks);
 
     if (!product?.stocks || product.stocks.length === 0) {
       console.log("Stocks tidak ada atau kosong:", product?.stocks);
-      return { price: 0, discount: 0, stock: 0 };
+      return 0;
     }
 
     const sanitizedJenis = jenis?.trim().toLowerCase() || "";
@@ -98,23 +98,17 @@ const ProductOverview = () => {
       console.warn(
         `No stock found for jenis: ${sanitizedJenis}, size: ${sanitizedSize}`
       );
-      return { price: 0, discount: 0, stock: 0 };
+      return 0;
     }
 
-    return {
-      price: stockEntry.price || 0,
-      discount: stockEntry.discount || 0,
-      stock: stockEntry.stock || 0,
-    };
+    return stockEntry.stock || 0;
   };
 
-  // Harga dan diskon berdasarkan kombinasi yang dipilih
-  const { price, discount, stock } =
+  // Stok berdasarkan kombinasi yang dipilih
+  const stock =
     selectedJenis && selectedSize
-      ? getPriceForCombination(selectedJenis, selectedSize)
-      : { price: 0, discount: 0, stock: 0 };
-
-  const discountedPrice = price * (1 - discount / 100);
+      ? getStockForCombination(selectedJenis, selectedSize)
+      : 0;
 
   const handleBuyNow = async () => {
     if (!selectedJenis || !selectedSize) {
@@ -154,8 +148,6 @@ const ProductOverview = () => {
         product: {
           _id: id,
           name: product.name,
-          price: selectedStock.price,
-          discount: selectedStock.discount || 0,
           description: product.description,
           images: product.images,
         },
@@ -163,7 +155,6 @@ const ProductOverview = () => {
         size: selectedSize,
         quantity,
         image: product.images?.[0] || defaultImage,
-        price: selectedStock.price * (1 - (selectedStock.discount || 0) / 100),
       };
 
       navigate("/checkout", { state: buyNowData });
@@ -210,8 +201,6 @@ const ProductOverview = () => {
           quantity: quantity,
           jenis: selectedJenis,
           size: selectedSize,
-          price: selectedStock.price,
-          discount: selectedStock.discount || 0,
         },
         {
           headers: {
@@ -276,23 +265,6 @@ const ProductOverview = () => {
 
             <div className="w-1/2 pl-6">
               <h2 className="text-2xl font-bold text-black">{product.name}</h2>
-              <div className="flex items-center gap-2">
-                {discount > 0 && selectedJenis && selectedSize ? (
-                  <>
-                    <p className="text-sm text-red-500">{discount}%</p>
-                    <p className="text-sm text-gray-500 line-through">
-                      Rp{price.toLocaleString()}
-                    </p>
-                  </>
-                ) : null}
-              </div>
-              <p className="text-2xl text-[#003D47] font-bold">
-                {selectedJenis && selectedSize
-                  ? price === 0
-                    ? "Harga tidak tersedia"
-                    : `Rp${discountedPrice.toLocaleString()}`
-                  : "Pilih jenis dan ukuran untuk melihat harga"}
-              </p>
 
               <div className="mt-4">
                 <label className="block font-semibold">Jenis</label>
