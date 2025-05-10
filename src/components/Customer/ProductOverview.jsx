@@ -9,8 +9,8 @@ const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 const ProductOverview = () => {
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
+  const [selectedJenis, setSelectedJenis] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -24,8 +24,35 @@ const ProductOverview = () => {
       try {
         const response = await axios.get(`${API_URL}/api/products/${id}`);
         const fetchedProduct = response.data;
+        console.log(
+          "Full product data:",
+          JSON.stringify(fetchedProduct, null, 2)
+        );
         setProduct(fetchedProduct);
         setSelectedImage(fetchedProduct.images?.[0] || defaultImage);
+
+        // Sanitize jenis and size arrays before setting defaults
+        const sanitizedJenis =
+          fetchedProduct.type?.jenis?.map((item) => item.trim()) || [];
+        const sanitizedSizes =
+          fetchedProduct.type?.size?.map((item) => item.trim()) || [];
+
+        if (sanitizedJenis.length > 0) {
+          setSelectedJenis(sanitizedJenis[0]);
+        } else {
+          console.warn(
+            "No jenis available in product.type:",
+            fetchedProduct.type
+          );
+        }
+        if (sanitizedSizes.length > 0) {
+          setSelectedSize(sanitizedSizes[0]);
+        } else {
+          console.warn(
+            "No size available in product.type:",
+            fetchedProduct.type
+          );
+        }
       } catch (err) {
         setError("Gagal mengambil detail produk");
         console.error(
@@ -40,37 +67,58 @@ const ProductOverview = () => {
     fetchProduct();
   }, [id]);
 
-  const discountedPrice = product
-    ? product.price * (1 - (product.discount || 0) / 100)
-    : 0;
+  // Fungsi untuk mendapatkan harga dan diskon berdasarkan jenis dan ukuran
+  const getPriceForCombination = (jenis, size) => {
+    console.log("Mencari harga untuk:", { jenis, size }); // Log input values
+    console.log("Stocks available:", product?.stocks);
 
-  // const handleBuyNow = () => {
-  //   console.log(
-  //     "Selected Size:",
-  //     selectedSize,
-  //     "Selected Color:",
-  //     selectedColor
-  //   ); // Debug
-  //   if (!selectedSize || !selectedColor) {
-  //     alert("Pilih ukuran dan warna terlebih dahulu!");
-  //     return;
-  //   }
-  //   navigate("/checkout", {
-  //     state: {
-  //       name: product.name,
-  //       size: selectedSize,
-  //       color: selectedColor,
-  //       quantity,
-  //       description: product.description,
-  //       price: discountedPrice,
-  //       image: product.images?.[0] || defaultImage,
-  //     },
-  //   });
-  // };
+    if (!product?.stocks || product.stocks.length === 0) {
+      console.log("Stocks tidak ada atau kosong:", product?.stocks);
+      return { price: 0, discount: 0, stock: 0 };
+    }
+
+    const sanitizedJenis = jenis?.trim().toLowerCase() || "";
+    const sanitizedSize = size?.trim().toLowerCase() || "";
+
+    const stockEntry = product.stocks.find((stock) => {
+      const stockJenis = stock.jenis?.trim().toLowerCase() || "";
+      const stockSize = stock.size?.trim().toLowerCase() || "";
+      console.log("Comparing:", {
+        stockJenis,
+        stockSize,
+        searchJenis: sanitizedJenis,
+        searchSize: sanitizedSize,
+      });
+      return stockJenis === sanitizedJenis && stockSize === sanitizedSize;
+    });
+
+    console.log("Hasil pencarian stockEntry:", stockEntry);
+
+    if (!stockEntry) {
+      console.warn(
+        `No stock found for jenis: ${sanitizedJenis}, size: ${sanitizedSize}`
+      );
+      return { price: 0, discount: 0, stock: 0 };
+    }
+
+    return {
+      price: stockEntry.price || 0,
+      discount: stockEntry.discount || 0,
+      stock: stockEntry.stock || 0,
+    };
+  };
+
+  // Harga dan diskon berdasarkan kombinasi yang dipilih
+  const { price, discount, stock } =
+    selectedJenis && selectedSize
+      ? getPriceForCombination(selectedJenis, selectedSize)
+      : { price: 0, discount: 0, stock: 0 };
+
+  const discountedPrice = price * (1 - discount / 100);
 
   const handleBuyNow = async () => {
-    if (!selectedSize || !selectedColor) {
-      alert("Pilih ukuran dan warna terlebih dahulu!");
+    if (!selectedJenis || !selectedSize) {
+      alert("Pilih jenis dan ukuran terlebih dahulu!");
       return;
     }
 
@@ -82,28 +130,40 @@ const ProductOverview = () => {
     }
 
     try {
-      // Cek stok sebelum melanjutkan
       const productResponse = await axios.get(`${API_URL}/api/products/${id}`);
       const productData = productResponse.data;
-      if (quantity > productData.stock) {
+      const selectedStock = productData.stocks.find(
+        (stock) =>
+          stock.jenis?.trim().toLowerCase() ===
+            selectedJenis?.trim().toLowerCase() &&
+          stock.size?.trim().toLowerCase() ===
+            selectedSize?.trim().toLowerCase()
+      );
+
+      if (!selectedStock) {
+        alert("Kombinasi jenis dan ukuran tidak ditemukan!");
+        return;
+      }
+
+      if (quantity > selectedStock.stock) {
         alert("Jumlah melebihi stok yang tersedia!");
         return;
       }
-      // Data produk untuk dikirim ke CheckoutPage
+
       const buyNowData = {
         product: {
           _id: id,
           name: product.name,
-          price: product.price,
-          discount: product.discount || 0,
+          price: selectedStock.price,
+          discount: selectedStock.discount || 0,
           description: product.description,
           images: product.images,
         },
+        jenis: selectedJenis,
         size: selectedSize,
-        color: selectedColor,
         quantity,
         image: product.images?.[0] || defaultImage,
-        price: discountedPrice,
+        price: selectedStock.price * (1 - (selectedStock.discount || 0) / 100),
       };
 
       navigate("/checkout", { state: buyNowData });
@@ -117,8 +177,8 @@ const ProductOverview = () => {
   };
 
   const handleAddToCart = async () => {
-    if (!selectedSize || !selectedColor) {
-      alert("Pilih ukuran dan warna terlebih dahulu!");
+    if (!selectedJenis || !selectedSize) {
+      alert("Pilih jenis dan ukuran terlebih dahulu!");
       return;
     }
 
@@ -130,13 +190,28 @@ const ProductOverview = () => {
         return;
       }
 
+      const selectedStock = product.stocks.find(
+        (stock) =>
+          stock.jenis?.trim().toLowerCase() ===
+            selectedJenis?.trim().toLowerCase() &&
+          stock.size?.trim().toLowerCase() ===
+            selectedSize?.trim().toLowerCase()
+      );
+
+      if (!selectedStock) {
+        alert("Kombinasi jenis dan ukuran tidak ditemukan!");
+        return;
+      }
+
       const response = await axios.post(
         `${API_URL}/api/cart`,
         {
           productId: id,
           quantity: quantity,
+          jenis: selectedJenis,
           size: selectedSize,
-          color: selectedColor,
+          price: selectedStock.price,
+          discount: selectedStock.discount || 0,
         },
         {
           headers: {
@@ -158,14 +233,12 @@ const ProductOverview = () => {
     }
   };
 
-  // Fallback sizes dan colors jika data API kosong
-  const availableSizes = product?.type?.size || ["S", "M", "L", "XL"];
-  const availableColors = product?.type?.colors || [
-    "Red",
-    "Blue",
-    "Green",
-    "Black",
-  ];
+  const availableJenis = (product?.type?.jenis || ["Default Jenis"]).map(
+    (item) => item.trim()
+  );
+  const availableSizes = (product?.type?.size || ["S", "M", "L", "XL"]).map(
+    (item) => item.trim()
+  );
 
   return (
     <div className="max-w-6xl mx-auto px-16">
@@ -204,18 +277,42 @@ const ProductOverview = () => {
             <div className="w-1/2 pl-6">
               <h2 className="text-2xl font-bold text-black">{product.name}</h2>
               <div className="flex items-center gap-2">
-                {product.discount > 0 && (
+                {discount > 0 && selectedJenis && selectedSize ? (
                   <>
-                    <p className="text-sm text-red-500">{product.discount}%</p>
+                    <p className="text-sm text-red-500">{discount}%</p>
                     <p className="text-sm text-gray-500 line-through">
-                      Rp{product.price.toLocaleString()}
+                      Rp{price.toLocaleString()}
                     </p>
                   </>
-                )}
+                ) : null}
               </div>
               <p className="text-2xl text-[#003D47] font-bold">
-                Rp{discountedPrice.toLocaleString()}
+                {selectedJenis && selectedSize
+                  ? price === 0
+                    ? "Harga tidak tersedia"
+                    : `Rp${discountedPrice.toLocaleString()}`
+                  : "Pilih jenis dan ukuran untuk melihat harga"}
               </p>
+
+              <div className="mt-4">
+                <label className="block font-semibold">Jenis</label>
+                <div className="flex gap-2 mt-2">
+                  {availableJenis.map((jenis) => (
+                    <button
+                      key={jenis}
+                      className={`px-4 py-2 border rounded-lg transition-all ${
+                        selectedJenis === jenis
+                          ? "bg-[#FFBC00] text-white"
+                          : "bg-gray-100"
+                      }`}
+                      onClick={() => setSelectedJenis(jenis)}
+                    >
+                      {jenis}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="mt-4">
                 <label className="block font-semibold">Ukuran</label>
                 <div className="flex gap-2 mt-2">
@@ -234,24 +331,7 @@ const ProductOverview = () => {
                   ))}
                 </div>
               </div>
-              <div className="mt-4">
-                <label className="block font-semibold">Warna</label>
-                <div className="flex gap-2 mt-2">
-                  {availableColors.map((color) => (
-                    <button
-                      key={color}
-                      className={`px-4 py-2 border rounded-lg transition-all ${
-                        selectedColor === color
-                          ? "bg-[#FFBC00] text-white"
-                          : "bg-gray-100"
-                      }`}
-                      onClick={() => setSelectedColor(color)}
-                    >
-                      {color}
-                    </button>
-                  ))}
-                </div>
-              </div>
+
               <div className="mt-4 p-4 border rounded-lg w-fit">
                 <span className="block font-semibold mb-2">Atur Jumlah</span>
                 <div className="flex items-center gap-4">
@@ -269,10 +349,16 @@ const ProductOverview = () => {
                     +
                   </button>
                   <span className="ml-4 text-gray-600">
-                    Stok Total: <b>{product.stock}</b>
+                    Stok Tersedia:{" "}
+                    <b>
+                      {selectedJenis && selectedSize
+                        ? stock
+                        : "Pilih jenis dan ukuran"}
+                    </b>
                   </span>
                 </div>
               </div>
+
               <div className="mt-4 flex flex-grow gap-4 w-[325px]">
                 <button
                   className="border-2 border-[#003D47] text-black px-6 py-2 rounded-lg w-full"

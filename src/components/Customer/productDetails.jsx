@@ -33,22 +33,6 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id]);
 
-  // Default sizes jika API tidak mengembalikan data ukuran
-  const defaultSizes = [
-    { label: "XL", value: "3 Inchi" },
-    { label: "L", value: "2.5 Inchi" },
-    { label: "M", value: "2 Inchi" },
-    { label: "S", value: "1.5 Inchi" },
-  ];
-
-  // Mapping sizes dari API (type.size)
-  const sizes = product?.type?.size?.length
-    ? product.type.size.map((size, index) => ({
-        label: ["S", "M", "L", "XL"][index] || `Size ${index + 1}`,
-        value: size,
-      }))
-    : defaultSizes;
-
   return (
     <div className="p-6 pl-0 pr-4 max-w-5xl mx-auto">
       {/* Loading/Error State */}
@@ -89,20 +73,26 @@ const ProductDetails = () => {
           ) : (
             <div>
               <h4 className="text-lg font-bold text-gray-900 mb-2">
-                Spesifikasi Ukuran:
+                Spesifikasi
               </h4>
               <ul className="text-gray-800">
-                {sizes.map((size) => (
-                  <li key={size.label}>
-                    <span className="font-semibold">{size.label}:</span>{" "}
-                    {size.value}
-                  </li>
-                ))}
+                <li>
+                  <span className="font-semibold">Berat:</span>{" "}
+                  {product.weight ? `${product.weight}kg` : "Tidak tersedia"}
+                </li>
+                <li>
+                  <span className="font-semibold">Tinggi:</span>{" "}
+                  {product.dimensions?.height
+                    ? `${product.dimensions.height} cm`
+                    : "Tidak tersedia"}
+                </li>
+                <li>
+                  <span className="font-semibold">Panjang:</span>{" "}
+                  {product.dimensions?.length
+                    ? `${product.dimensions.length} cm`
+                    : "Tidak tersedia"}
+                </li>
               </ul>
-              <h4 className="text-lg font-bold text-gray-900 mt-4 mb-2">
-                SKU:
-              </h4>
-              <p className="text-gray-800">{product.sku || "Tidak tersedia"}</p>
             </div>
           )}
         </>

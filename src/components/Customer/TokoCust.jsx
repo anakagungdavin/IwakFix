@@ -1,4 +1,3 @@
-// TokoCust.jsx
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -21,7 +20,7 @@ const FishStore = () => {
     try {
       const params = {
         page: pg,
-        limit: 20, // Ubah dari 10 menjadi 20
+        limit: 20,
         sortBy:
           sort === "terlaris"
             ? "sales"
@@ -34,7 +33,25 @@ const FishStore = () => {
       const response = await axios.get(`${API_URL}/api/products`, { params });
       const { products: fetchedProducts, pagination } = response.data;
 
-      setProducts(fetchedProducts);
+      // Transformasi produk untuk menghitung originalPrice dan discountedPrice dari stocks
+      const transformedProducts = fetchedProducts.map((product) => {
+        const stock =
+          product.stocks && product.stocks.length > 0
+            ? product.stocks[0]
+            : null;
+        const originalPrice = stock ? stock.price : 0;
+        const discountedPrice = stock
+          ? stock.price - (stock.price * (stock.discount || 0)) / 100
+          : 0;
+        return {
+          ...product,
+          originalPrice,
+          discountedPrice,
+        };
+      });
+
+      console.log("Transformed Products:", transformedProducts);
+      setProducts(transformedProducts);
       setTotalPages(pagination.totalPages);
     } catch (err) {
       setError(`Gagal mengambil data produk: ${err.message}`);
@@ -54,6 +71,7 @@ const FishStore = () => {
   }, [location.search, sortBy, page]);
 
   const calculateDiscount = (originalPrice, discountedPrice) => {
+    if (!originalPrice || !discountedPrice) return 0;
     return Math.round(
       ((originalPrice - discountedPrice) / originalPrice) * 100
     );
@@ -132,7 +150,7 @@ const FishStore = () => {
                   </h3>
                   <div className="flex justify-center items-center gap-1 sm:gap-2">
                     <p className="text-xs sm:text-sm text-gray-400 line-through">
-                      Rp{product.originalPrice.toLocaleString()}
+                      Rp{(product.originalPrice || 0).toLocaleString()}
                     </p>
                     <span className="text-red-500 text-xs sm:text-sm">
                       -
@@ -144,7 +162,7 @@ const FishStore = () => {
                     </span>
                   </div>
                   <p className="text-sm sm:text-base md:text-lg font-bold text-[#003D47]">
-                    Rp{product.discountedPrice.toLocaleString()}/kg
+                    Rp{(product.discountedPrice || 0).toLocaleString()}/kg
                   </p>
                 </div>
               </div>

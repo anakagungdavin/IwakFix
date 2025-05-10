@@ -141,7 +141,10 @@ const ConfirmedOrdersTable = () => {
                     </td>
                     <td className="py-3 px-2 sm:p-4">
                       {order.items
-                        .map((item) => item.product?.name || "Produk tidak tersedia")
+                        .map(
+                          (item) =>
+                            item.product?.name || "Produk tidak tersedia"
+                        )
                         .join(", ")}
                     </td>
                     <td className="py-3 px-2 sm:p-4">

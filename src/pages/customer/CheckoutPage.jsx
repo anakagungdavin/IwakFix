@@ -465,7 +465,7 @@ const CheckoutPage = () => {
                       Nomor Rekening Bank Jateng: 123-456-7890 a/n IWAK Store
                     </p>
                   )}
-                
+
                   {paymentMethod === "QRIS" && (
                     <div className="mt-3">
                       <p className="text-blue-600 font-semibold">
