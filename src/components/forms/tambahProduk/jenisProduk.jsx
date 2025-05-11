@@ -17,7 +17,6 @@ const JenisProduk = ({
           size: stock._doc ? stock._doc.size : stock.size,
           stock: stock._doc ? stock._doc.stock : stock.stock,
           price: stock._doc ? stock._doc.price : stock.price,
-          sku: stock._doc ? stock._doc.sku : stock.sku,
           discount: stock._doc ? stock._doc.discount : stock.discount,
         }))
       : []
@@ -35,7 +34,6 @@ const JenisProduk = ({
           size: stock._doc ? stock._doc.size : stock.size,
           stock: stock._doc ? stock._doc.stock : stock.stock,
           price: stock._doc ? stock._doc.price : stock.price,
-          sku: stock._doc ? stock._doc.sku : stock.sku,
           discount: stock._doc ? stock._doc.discount : stock.discount,
         }))
       : [];
@@ -48,7 +46,7 @@ const JenisProduk = ({
     } else if (jenisProduk.jenis.length > 0 && !selectedJenis) {
       setSelectedJenis(jenisProduk.jenis[0]);
     }
-  }, [data.type, data.stocks]); // Hapus selectedJenis dari dependensi
+  }, [data.type, data.stocks]);
 
   const handleAddVariasi = (type) => {
     const updatedJenis = { ...jenisProduk, [type]: [...jenisProduk[type], ""] };
@@ -127,16 +125,10 @@ const JenisProduk = ({
       newValue = value;
     }
 
-    const generateDefaultSKU = () => `${jenis}-${size}-${Date.now()}`;
-
     if (existingIndex >= 0) {
       updatedStocks[existingIndex] = {
         ...updatedStocks[existingIndex],
         [field]: newValue,
-        sku:
-          updatedStocks[existingIndex].sku && field !== "sku"
-            ? updatedStocks[existingIndex].sku
-            : newValue || generateDefaultSKU(),
       };
     } else {
       updatedStocks.push({
@@ -144,10 +136,6 @@ const JenisProduk = ({
         size,
         stock: field === "stock" ? newValue : 0,
         price: field === "price" ? newValue : 0,
-        sku:
-          field === "sku"
-            ? newValue || generateDefaultSKU()
-            : generateDefaultSKU(),
         discount: field === "discount" ? newValue : 0,
       });
     }
@@ -161,7 +149,7 @@ const JenisProduk = ({
     const item = stocks.find(
       (item) => item.jenis === jenis && item.size === size
     );
-    const value = item ? item[field] : field === "sku" ? "" : 0;
+    const value = item ? item[field] : 0;
     console.log("getStockValue:", { jenis, size, field, value });
     return value;
   };
@@ -268,7 +256,6 @@ const JenisProduk = ({
                       <th className="py-2 px-4 border">Ukuran</th>
                       <th className="py-2 px-4 border">Stok</th>
                       <th className="py-2 px-4 border">Harga</th>
-                      <th className="py-2 px-4 border">SKU</th>
                       <th className="py-2 px-4 border">Diskon (%)</th>
                     </tr>
                   </thead>
@@ -312,24 +299,6 @@ const JenisProduk = ({
                                 e.target.value
                               );
                             }}
-                          />
-                        </td>
-                        <td className="py-2 px-4 border">
-                          <input
-                            type="text"
-                            className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500"
-                            value={getStockValue(selectedJenis, size, "sku")}
-                            onChange={(e) => {
-                              console.log("Input SKU berubah:", e.target.value);
-                              handleStockChange(
-                                selectedJenis,
-                                size,
-                                "sku",
-                                e.target.value
-                              );
-                            }}
-                            placeholder="Kode SKU"
-                            required
                           />
                         </td>
                         <td className="py-2 px-4 border">

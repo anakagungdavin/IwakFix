@@ -10,7 +10,6 @@ import UploadSuccessModal from "../../components/modal/modalBerhasilUpload";
 import SimpanModal from "../../components/modal/modalBerhasilSimpan";
 import { addProduct } from "../../services/api";
 
-// Helper function for status
 export function getStatus(stok, isPublished) {
   if (!isPublished)
     return { label: "Draft", jenis: "bg-[#F0F1F3] text-[#667085]" };
@@ -29,9 +28,9 @@ const AddProduct = () => {
   const [product, setProduct] = useState({
     name: "",
     description: "",
-    price: 0,
-    discount: 0,
     stock: 0,
+    price: 0, // Reintroduced for consistency
+    discount: 0, // Reintroduced for consistency
     images: [],
     imageFiles: [],
     weight: 0,
@@ -48,7 +47,6 @@ const AddProduct = () => {
     stocks: [],
   });
 
-  // Handle input changes
   const handleInputChange = (e) => {
     if (e && e.target) {
       const { name, value } = e.target;
@@ -65,11 +63,11 @@ const AddProduct = () => {
         setProduct((prevState) => {
           const newState = {
             ...prevState,
-            [name]: ["price", "discount", "stock", "weight"].includes(name)
+            [name]: ["stock", "price", "discount", "weight"].includes(name)
               ? parseFloat(value) || 0
               : value,
           };
-          console.log(`Updated ${name}:`, newState[name]); // Debugging
+          console.log(`Updated ${name}:`, newState[name]);
           return newState;
         });
       }
@@ -87,7 +85,7 @@ const AddProduct = () => {
           "Updated from BeratProduk:",
           newState.weight,
           newState.dimensions
-        ); // Debugging
+        );
         return newState;
       });
     } else if (e && e.type !== undefined && e.stocks !== undefined) {
@@ -100,13 +98,12 @@ const AddProduct = () => {
           },
           stocks: e.stocks || [],
         };
-        console.log("Updated type and stocks:", newState.type, newState.stocks); // Debugging
+        console.log("Updated type and stocks:", newState.type, newState.stocks);
         return newState;
       });
     }
   };
 
-  // Handle image upload
   const handleAddImage = (files) => {
     if (files && files.length > 0) {
       const imagePreviews = files.map((file) => URL.createObjectURL(file));
@@ -116,13 +113,12 @@ const AddProduct = () => {
           images: [...prevState.images, ...imagePreviews],
           imageFiles: [...prevState.imageFiles, ...files],
         };
-        console.log("Updated images:", newState.images); // Debugging
+        console.log("Updated images:", newState.images);
         return newState;
       });
     }
   };
 
-  // Handle image removal
   const handleRemoveImage = (removedImageUrl) => {
     setProduct((prevState) => {
       const newImages = prevState.images.filter(
@@ -151,12 +147,10 @@ const AddProduct = () => {
 
   const handleUpload = async () => {
     try {
-      // Validasi field wajib
       const missingFields = [];
       if (!product.name) missingFields.push("Nama");
       if (!product.description) missingFields.push("Deskripsi");
 
-      // Validasi stocks
       if (product.type.jenis.length > 0 && product.type.size.length > 0) {
         if (product.stocks.length === 0) {
           throw new Error(
@@ -164,11 +158,11 @@ const AddProduct = () => {
           );
         }
         product.stocks.forEach((stock, index) => {
-          if (!stock.jenis || !stock.size || !stock.sku) {
+          if (!stock.jenis || !stock.size) {
             throw new Error(
               `Stock entry #${
                 index + 1
-              } missing required fields (jenis, size, or SKU)`
+              } missing required fields (jenis or size)`
             );
           }
           if (stock.stock < 0 || stock.price < 0) {
@@ -213,14 +207,12 @@ const AddProduct = () => {
         formData.append("images", file);
       });
 
-      // Debugging: Log FormData contents
       const formDataLog = {};
       for (const [key, value] of formData.entries()) {
         formDataLog[key] = value instanceof File ? value.name : value;
       }
       console.log("FormData yang dikirim:", formDataLog);
 
-      // Debugging: Log data yang akan dikirim
       console.log("Data yang dikirim ke API:", {
         name: product.name,
         description: product.description,
@@ -233,12 +225,10 @@ const AddProduct = () => {
         isPublished: product.isPublished,
       });
 
-      // Call API to add product
       const response = await addProduct(formData);
 
       if (!response) throw new Error("Gagal menambahkan produk");
 
-      // Update state with new images from server response
       setProduct((prevState) => ({
         ...prevState,
         images: response.images || prevState.images,

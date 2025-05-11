@@ -67,14 +67,14 @@ const ProductOverview = () => {
     fetchProduct();
   }, [id]);
 
-  // Fungsi untuk mendapatkan stok berdasarkan jenis dan ukuran
-  const getStockForCombination = (jenis, size) => {
-    console.log("Mencari stok untuk:", { jenis, size }); // Log input values
+  // Fungsi untuk mendapatkan detail stok (termasuk price dan discount) berdasarkan jenis dan ukuran
+  const getStockDetailsForCombination = (jenis, size) => {
+    console.log("Mencari detail stok untuk:", { jenis, size });
     console.log("Stocks available:", product?.stocks);
 
     if (!product?.stocks || product.stocks.length === 0) {
       console.log("Stocks tidak ada atau kosong:", product?.stocks);
-      return 0;
+      return { stock: 0, price: 0, discount: 0 };
     }
 
     const sanitizedJenis = jenis?.trim().toLowerCase() || "";
@@ -98,17 +98,35 @@ const ProductOverview = () => {
       console.warn(
         `No stock found for jenis: ${sanitizedJenis}, size: ${sanitizedSize}`
       );
-      return 0;
+      return { stock: 0, price: 0, discount: 0 };
     }
 
-    return stockEntry.stock || 0;
+    return {
+      stock: stockEntry.stock || 0,
+      price: stockEntry.price || 0,
+      discount: stockEntry.discount || 0,
+    };
   };
 
-  // Stok berdasarkan kombinasi yang dipilih
-  const stock =
+  // Ambil detail stok untuk kombinasi yang dipilih
+  const stockDetails =
     selectedJenis && selectedSize
-      ? getStockForCombination(selectedJenis, selectedSize)
-      : 0;
+      ? getStockDetailsForCombination(selectedJenis, selectedSize)
+      : { stock: 0, price: 0, discount: 0 };
+
+  const { stock, price: originalPrice, discount } = stockDetails;
+  const discountedPrice = originalPrice - (originalPrice * discount) / 100;
+
+  const handleQuantityChange = (value) => {
+    const numValue = parseInt(value) || 1;
+    if (numValue < 1) {
+      setQuantity(1);
+    } else if (numValue > stock) {
+      setQuantity(stock);
+    } else {
+      setQuantity(numValue);
+    }
+  };
 
   const handleBuyNow = async () => {
     if (!selectedJenis || !selectedSize) {
@@ -154,6 +172,9 @@ const ProductOverview = () => {
         jenis: selectedJenis,
         size: selectedSize,
         quantity,
+        price: originalPrice,
+        discount,
+        discountedPrice,
         image: product.images?.[0] || defaultImage,
       };
 
@@ -201,6 +222,9 @@ const ProductOverview = () => {
           quantity: quantity,
           jenis: selectedJenis,
           size: selectedSize,
+          price: originalPrice,
+          discount,
+          discountedPrice,
         },
         {
           headers: {
@@ -266,6 +290,35 @@ const ProductOverview = () => {
             <div className="w-1/2 pl-6">
               <h2 className="text-2xl font-bold text-black">{product.name}</h2>
 
+              {/* Price Display */}
+              <div className="mt-4">
+                {selectedJenis && selectedSize ? (
+                  <div className="flex items-center gap-2">
+                    {discount > 0 ? (
+                      <>
+                        <p className="text-2xl font-bold text-[#003D47]">
+                          Rp{discountedPrice.toLocaleString()}/kg
+                        </p>
+                        <p className="text-base text-gray-400 line-through">
+                          Rp{originalPrice.toLocaleString()}/kg
+                        </p>
+                        <span className="text-red-500 text-base">
+                          -{discount}%
+                        </span>
+                      </>
+                    ) : (
+                      <p className="text-2xl font-bold text-[#003D47]">
+                        Rp{originalPrice.toLocaleString()}/kg
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-base text-gray-600">
+                    Pilih jenis dan ukuran untuk melihat harga
+                  </p>
+                )}
+              </div>
+
               <div className="mt-4">
                 <label className="block font-semibold">Jenis</label>
                 <div className="flex gap-2 mt-2">
@@ -313,10 +366,25 @@ const ProductOverview = () => {
                   >
                     -
                   </button>
-                  <span>{quantity}</span>
+                  <input
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => handleQuantityChange(e.target.value)}
+                    className="w-16 text-center border rounded py-1 text-base appearance-none"
+                    min="1"
+                    max={stock}
+                    style={{
+                      WebkitAppearance: "none",
+                      MozAppearance: "textfield",
+                      "::-webkit-inner-spin-button": { display: "none" },
+                      "::-webkit-outer-spin-button": { display: "none" },
+                    }}
+                  />
                   <button
                     className="px-3 py-1 border rounded"
-                    onClick={() => setQuantity((prev) => prev + 1)}
+                    onClick={() =>
+                      setQuantity((prev) => Math.min(stock, prev + 1))
+                    }
                   >
                     +
                   </button>

@@ -53,15 +53,13 @@ const EditProduct = () => {
         const data = await getProductById(id);
         if (!data) throw new Error("Produk tidak ditemukan");
 
-        // Transformasi stocks untuk memastikan field wajib ada
         const transformedStocks = Array.isArray(data.stocks)
           ? data.stocks.map((stock, index) => ({
-              jenis: stock.jenis || `Jenis-${index + 1}`, // Default jika tidak ada
-              size: stock.size || `Size-${index + 1}`, // Default jika tidak ada
+              jenis: stock.jenis || `Jenis-${index + 1}`,
+              size: stock.size || `Size-${index + 1}`,
               stock: stock.stock || 0,
-              price: stock.price || 0,
-              sku: stock.sku || `SKU-${Date.now()}-${index}`, // Default jika tidak ada
-              discount: stock.discount || 0,
+              price: stock.price || 0, // Added price
+              discount: stock.discount || 0, // Added discount
             }))
           : [];
 
@@ -205,7 +203,7 @@ const EditProduct = () => {
       if (!product.name) missingFields.push("Nama");
       if (!product.description) missingFields.push("Deskripsi");
 
-      console.log("Stocks sebelum validasi:", product.stocks); // Debugging
+      console.log("Stocks sebelum validasi:", product.stocks);
 
       if (product.type.jenis.length > 0 && product.type.size.length > 0) {
         if (product.stocks.length === 0) {
@@ -214,23 +212,16 @@ const EditProduct = () => {
           );
         }
         product.stocks.forEach((stock, index) => {
-          console.log(`Stock entry #${index + 1}:`, stock); // Debugging
-          if (!stock.jenis || !stock.size || !stock.sku) {
+          console.log(`Stock entry #${index + 1}:`, stock);
+          if (!stock.jenis || !stock.size) {
             throw new Error(
               `Stock entry #${
                 index + 1
-              } missing required fields (jenis, size, or SKU)`
+              } missing required fields (jenis or size)`
             );
           }
-          if (stock.stock < 0 || stock.price < 0) {
-            throw new Error(
-              `Stock entry #${index + 1} has invalid stock or price`
-            );
-          }
-          if (stock.discount < 0 || stock.discount > 100) {
-            throw new Error(
-              `Stock entry #${index + 1} has invalid discount (must be 0-100)`
-            );
+          if (stock.stock < 0) {
+            throw new Error(`Stock entry #${index + 1} has invalid stock`);
           }
         });
       }

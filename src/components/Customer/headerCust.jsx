@@ -1,4 +1,3 @@
-// headerCust.jsx
 import React, { useState } from "react";
 import {
   FaUserCircle,
@@ -16,6 +15,12 @@ const HeaderCust = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
+
+  // Get user role from localStorage
+  const userRole = localStorage.getItem("role");
+  const isAdmin = userRole === "admin";
+  const profileLink = isAdmin ? "/admin-dashboard" : "/profile";
+  const profileText = isAdmin ? "Dashboard" : "Profile";
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -50,7 +55,7 @@ const HeaderCust = () => {
     if (searchQuery.trim()) {
       navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
       setSearchResults([]);
-      setSearchQuery(""); // Reset input setelah submit
+      setSearchQuery(""); // Reset input after submit
     }
   };
 
@@ -79,7 +84,7 @@ const HeaderCust = () => {
                     key={product._id}
                     href={`/product/${product._id}`}
                     className="block px-4 py-2 hover:bg-gray-100 border-b last:border-b-0"
-                    onClick={() => setSearchResults([])} // Tutup dropdown saat klik
+                    onClick={() => setSearchResults([])} // Close dropdown on click
                   >
                     {product.name} - Rp{" "}
                     {product.discountedPrice.toLocaleString()}
@@ -94,8 +99,12 @@ const HeaderCust = () => {
           <a href="/cart" className="text-white hover:text-gray-300">
             <FaShoppingCart size={20} />
           </a>
-          <a href="/profile" className="text-white hover:text-gray-300">
+          <a
+            href={profileLink}
+            className="text-white hover:text-gray-300 flex items-center gap-2"
+          >
             <FaUserCircle size={20} />
+            <span className="text-sm">{profileText}</span>
           </a>
         </div>
       </div>
@@ -113,6 +122,12 @@ const HeaderCust = () => {
         </a>
         <a href="/shop" className="block py-2 text-white hover:text-gray-300">
           Toko
+        </a>
+        <a
+          href={profileLink}
+          className="block py-2 text-white hover:text-gray-300"
+        >
+          {profileText}
         </a>
       </nav>
 
@@ -177,11 +192,11 @@ const HeaderCust = () => {
             <span>Cart</span>
           </a>
           <a
-            href="/profile"
+            href={profileLink}
             className="flex items-center gap-2 text-white hover:text-gray-300"
           >
             <FaUserCircle size={20} />
-            <span>Profile</span>
+            <span>{profileText}</span>
           </a>
         </div>
       </div>
