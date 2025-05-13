@@ -26,15 +26,20 @@ const FishStore = () => {
             ? "sales"
             : sort === "terbaru"
             ? "createdAt"
-            : "price",
+            : null,
         sortOrder: sort === "harga-rendah" ? "asc" : "desc",
         search: search,
       };
+      // Jika sortBy adalah harga, jangan kirim sortBy ke backend
+      if (sort === "harga-rendah" || sort === "harga-tinggi") {
+        delete params.sortBy;
+        delete params.sortOrder;
+      }
       const response = await axios.get(`${API_URL}/api/products`, { params });
       const { products: fetchedProducts, pagination } = response.data;
 
       // Transformasi produk untuk menemukan harga terendah per jenis
-      const transformedProducts = fetchedProducts.map((product) => {
+      let transformedProducts = fetchedProducts.map((product) => {
         if (!product.stocks || product.stocks.length === 0) {
           return {
             ...product,
@@ -75,6 +80,17 @@ const FishStore = () => {
           discount: lowestPriceJenis.discount,
         };
       });
+
+      // Sort di frontend untuk harga-rendah atau harga-tinggi
+      if (sort === "harga-rendah") {
+        transformedProducts.sort(
+          (a, b) => (a.discountedPrice || 0) - (b.discountedPrice || 0)
+        );
+      } else if (sort === "harga-tinggi") {
+        transformedProducts.sort(
+          (a, b) => (b.discountedPrice || 0) - (a.discountedPrice || 0)
+        );
+      }
 
       console.log("Transformed Products:", transformedProducts);
       setProducts(transformedProducts);
