@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Breadcrumb from "../../breadcrumb/breadcrumb";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-// import defaultImage from "../../images/image1.png";
+// import defaultImage from "/images/image1.png";
 import "./ProductOverview.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";

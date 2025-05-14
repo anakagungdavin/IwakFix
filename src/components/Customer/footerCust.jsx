@@ -1,5 +1,5 @@
 import React from "react";
-import AupImage from "../../images/aup.png";
+import AupImage from "/images/aup.png";
 
 const FooterCust = () => {
   return (
@@ -11,7 +11,7 @@ const FooterCust = () => {
           <div className="text-center sm:text-left">
             <h2 className="text-2xl font-bold text-yellow-400">Siphiko</h2>
             <p className="mt-2 text-gray-300">
-              Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari <br/>
+              Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari <br />
               Kota Surakarta
             </p>
           </div>
@@ -94,7 +94,11 @@ const FooterCust = () => {
             </div>
           </div>
           <div className="flex flex-col items-center text-center space-y-3">
-            <img src={AupImage} alt="AUP" className="w-50 h-auto object-contain" />
+            <img
+              src={AupImage}
+              alt="AUP"
+              className="w-50 h-auto object-contain"
+            />
             <h3 className="text-base font-semibold text-gray-200">
               UPTD Aneka Usaha Perikanan
             </h3>
@@ -113,7 +117,7 @@ const FooterCust = () => {
 export default FooterCust;
 
 // import React from "react";
-// import AupImage from "../../images/aup.png";
+// import AupImage from "/images/aup.png";
 
 // const FooterCust = () => {
 //   return (
