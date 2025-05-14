@@ -23,6 +23,8 @@ const ProductRecommendations = () => {
             sortOrder: "desc", // Dari yang terbesar ke terkecil
           },
         });
+        // Tambahkan log untuk memeriksa struktur data
+        console.log("API Response:", response.data.products);
         setRecommendations(response.data.products);
       } catch (err) {
         setError("Gagal mengambil rekomendasi produk");
@@ -48,8 +50,11 @@ const ProductRecommendations = () => {
     window.scrollTo(0, 0);
   };
 
-  const calculateDiscount = (originalPrice, price) => {
-    return Math.round(((originalPrice - price) / originalPrice) * 100);
+  const calculateDiscount = (originalPrice, discountedPrice) => {
+    if (!originalPrice || !discountedPrice) return 0;
+    return Math.round(
+      ((originalPrice - discountedPrice) / originalPrice) * 100
+    );
   };
 
   return (
@@ -87,7 +92,8 @@ const ProductRecommendations = () => {
               <div className="text-center">
                 <div className="flex justify-center items-center gap-2">
                   <p className="text-gray-500 line-through text-sm mr-2">
-                    Rp{item.originalPrice.toLocaleString()}
+                    Rp
+                    {(item.originalPrice || 0).toLocaleString()}
                   </p>
                   <span className="text-red-500 text-sm">
                     -
@@ -99,7 +105,8 @@ const ProductRecommendations = () => {
                   </span>
                 </div>
                 <p className="text-black font-bold text-lg">
-                  Rp{item.discountedPrice.toLocaleString()}/kg
+                  Rp
+                  {(item.discountedPrice || 0).toLocaleString()}/kg
                 </p>
               </div>
             </div>

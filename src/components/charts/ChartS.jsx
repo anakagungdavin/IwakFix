@@ -122,11 +122,14 @@ const ChartS = ({
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("https://iwak.onrender.com/api/orders", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "https://iwak.onrender.com/api/orders",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const orders = response.data;
 
         // Proses data untuk 7 hari terakhir
@@ -172,7 +175,6 @@ const ChartS = ({
       curve: "smooth",
       width: 2,
       colors: ["#10B981"], // Green line for the chart
-
     },
   };
 
@@ -236,9 +238,6 @@ const ChartS = ({
             </svg>
           )}
           <span className="ml-1 text-green-500">{percent}%</span>
-
-
-
 
           <span className="ml-1">{comparedTo}</span>
         </div>
