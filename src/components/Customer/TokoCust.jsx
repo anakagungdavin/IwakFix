@@ -1,9 +1,8 @@
-// TokoCust.jsx
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const FishStore = () => {
   const [products, setProducts] = useState([]);
@@ -21,20 +20,80 @@ const FishStore = () => {
     try {
       const params = {
         page: pg,
-        limit: 20, // Ubah dari 10 menjadi 20
+        limit: 20,
         sortBy:
           sort === "terlaris"
             ? "sales"
             : sort === "terbaru"
             ? "createdAt"
-            : "price",
+            : null,
         sortOrder: sort === "harga-rendah" ? "asc" : "desc",
         search: search,
       };
+      // Jika sortBy adalah harga, jangan kirim sortBy ke backend
+      if (sort === "harga-rendah" || sort === "harga-tinggi") {
+        delete params.sortBy;
+        delete params.sortOrder;
+      }
       const response = await axios.get(`${API_URL}/api/products`, { params });
       const { products: fetchedProducts, pagination } = response.data;
 
-      setProducts(fetchedProducts);
+      // Transformasi produk untuk menemukan harga terendah per jenis
+      let transformedProducts = fetchedProducts.map((product) => {
+        if (!product.stocks || product.stocks.length === 0) {
+          return {
+            ...product,
+            originalPrice: 0,
+            discountedPrice: 0,
+            discount: 0,
+          };
+        }
+
+        // Group stocks by jenis and find the lowest discounted price for each jenis
+        const groupedByJenis = product.stocks.reduce((acc, stock) => {
+          const jenis = stock.jenis || "Unknown";
+          const discountedPrice =
+            stock.price - (stock.price * (stock.discount || 0)) / 100;
+          if (!acc[jenis] || discountedPrice < acc[jenis].discountedPrice) {
+            acc[jenis] = {
+              originalPrice: stock.price,
+              discountedPrice: discountedPrice,
+              discount: stock.discount || 0,
+            };
+          }
+          return acc;
+        }, {});
+
+        // Find the jenis with the lowest discounted price
+        const lowestPriceJenis = Object.values(groupedByJenis).reduce(
+          (lowest, current) =>
+            lowest.discountedPrice <= current.discountedPrice
+              ? lowest
+              : current,
+          Object.values(groupedByJenis)[0]
+        );
+
+        return {
+          ...product,
+          originalPrice: lowestPriceJenis.originalPrice,
+          discountedPrice: lowestPriceJenis.discountedPrice,
+          discount: lowestPriceJenis.discount,
+        };
+      });
+
+      // Sort di frontend untuk harga-rendah atau harga-tinggi
+      if (sort === "harga-rendah") {
+        transformedProducts.sort(
+          (a, b) => (a.discountedPrice || 0) - (b.discountedPrice || 0)
+        );
+      } else if (sort === "harga-tinggi") {
+        transformedProducts.sort(
+          (a, b) => (b.discountedPrice || 0) - (a.discountedPrice || 0)
+        );
+      }
+
+      console.log("Transformed Products:", transformedProducts);
+      setProducts(transformedProducts);
       setTotalPages(pagination.totalPages);
     } catch (err) {
       setError(`Gagal mengambil data produk: ${err.message}`);
@@ -54,6 +113,7 @@ const FishStore = () => {
   }, [location.search, sortBy, page]);
 
   const calculateDiscount = (originalPrice, discountedPrice) => {
+    if (!originalPrice || !discountedPrice) return 0;
     return Math.round(
       ((originalPrice - discountedPrice) / originalPrice) * 100
     );
@@ -111,44 +171,50 @@ const FishStore = () => {
 
         {!loading && !error && products.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-            {products.map((product) => (
-              <div
-                key={product._id}
-                className="bg-white p-2 sm:p-3 md:p-4 rounded-lg shadow flex flex-col justify-between cursor-pointer"
-                onClick={() => navigate(`/product/${product._id}`)}
-              >
-                <div className="w-full aspect-square overflow-hidden rounded">
-                  <img
-                    src={product.images?.[0] || "/default-fish.png"}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    onError={handleImageError}
-                    loading="lazy"
-                  />
-                </div>
-                <div className="text-center mt-2">
-                  <h3 className="text-sm sm:text-base md:text-lg font-semibold truncate">
-                    {product.name}
-                  </h3>
-                  <div className="flex justify-center items-center gap-1 sm:gap-2">
-                    <p className="text-xs sm:text-sm text-gray-400 line-through">
-                      Rp{product.originalPrice.toLocaleString()}
-                    </p>
-                    <span className="text-red-500 text-xs sm:text-sm">
-                      -
-                      {calculateDiscount(
-                        product.originalPrice,
-                        product.discountedPrice
-                      )}
-                      %
-                    </span>
+            {products.map((product) => {
+              const discountPercentage = calculateDiscount(
+                product.originalPrice,
+                product.discountedPrice
+              );
+
+              return (
+                <div
+                  key={product._id}
+                  className="bg-white p-2 sm:p-3 md:p-4 rounded-lg shadow flex flex-col justify-between cursor-pointer"
+                  onClick={() => navigate(`/product/${product._id}`)}
+                >
+                  <div className="w-full aspect-square overflow-hidden rounded">
+                    <img
+                      src={product.images?.[0] || "/default-fish.png"}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                      onError={handleImageError}
+                      loading="lazy"
+                    />
                   </div>
-                  <p className="text-sm sm:text-base md:text-lg font-bold text-[#003D47]">
-                    Rp{product.discountedPrice.toLocaleString()}/kg
-                  </p>
+                  <div className="text-center mt-2">
+                    <h3 className="text-sm sm:text-base md:text-lg font-semibold truncate">
+                      {product.name}
+                    </h3>
+                    <div className="flex justify-center items-center gap-1 sm:gap-2">
+                      {discountPercentage > 0 && (
+                        <>
+                          <p className="text-xs sm:text-sm text-gray-400 line-through">
+                            Rp{(product.originalPrice || 0).toLocaleString()}
+                          </p>
+                          <span className="text-red-500 text-xs sm:text-sm">
+                            -{discountPercentage}%
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <p className="text-sm sm:text-base md:text-lg font-bold text-[#003D47]">
+                      Rp{(product.discountedPrice || 0).toLocaleString()}/kg
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

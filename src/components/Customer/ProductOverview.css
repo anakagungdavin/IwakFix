@@ -1,0 +1,9 @@
+.quantity-input {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button {
+  display: none;
+}

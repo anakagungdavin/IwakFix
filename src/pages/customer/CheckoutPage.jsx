@@ -1,3 +1,4 @@
+// CheckoutPage.jsx (perbaikan untuk menangani data dengan lebih baik)
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import HeaderCust from "../../components/Customer/headerCust";
@@ -5,12 +6,12 @@ import FooterCust from "../../components/Customer/footerCust";
 import ChangeAddress from "../../components/Customer/ChangeAddress";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const CheckoutPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const productData = location.state || null;
+  const productData = location.state?.product || null;
   const cartData = location.state?.cart || null;
   const [cartItems, setCartItems] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -22,70 +23,29 @@ const CheckoutPage = () => {
   const [proofPayment, setProofPayment] = useState(null);
   const [proofPreview, setProofPreview] = useState(null);
 
+  const log = process.env.NODE_ENV === "development" ? console.log : () => {};
+
   // Mengatur item keranjang berdasarkan data yang diterima
   useEffect(() => {
-    if (productData && !cartData) {
-      setCartItems([{ ...productData, quantity: productData.quantity || 1 }]);
+    let items = [];
+    if (productData) {
+      log("Product Data diterima:", productData);
+      items = [productData];
     } else if (cartData) {
-      setCartItems(cartData);
+      log("Cart Data diterima:", cartData);
+      items = cartData;
+    } else {
+      const storedCart = localStorage.getItem("checkoutCart");
+      if (storedCart) {
+        items = JSON.parse(storedCart);
+      }
     }
+    setCartItems(items);
+    localStorage.setItem("checkoutCart", JSON.stringify(items));
+    log("Cart items set:", items);
   }, [productData, cartData]);
 
-  // useEffect(() => {
-  //   const fetchAddress = async () => {
-  //     setLoading(true);
-  //     setError(null);
-  //     try {
-  //       const token = localStorage.getItem("token");
-  //       if (!token) {
-  //         setError("Silakan login terlebih dahulu!");
-  //         navigate("/login");
-  //         return;
-  //       }
-
-  //       const response = await axios.get(`${API_URL}/api/users/profile`, {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       });
-
-  //       const userData = response.data.data;
-  //       const primaryAddress = userData.addresses.find(
-  //         (addr) => addr.isPrimary
-  //       );
-  //       if (primaryAddress) {
-  //         setSelectedAddress(primaryAddress);
-  //       } else if (userData.addresses.length > 0) {
-  //         setSelectedAddress(userData.addresses[0]);
-  //       } else {
-  //         setError("Tidak ada alamat tersedia. Silakan tambahkan alamat.");
-  //       }
-  //     } catch (err) {
-  //       setError("Gagal mengambil alamat. Silakan coba lagi.");
-  //       console.error("Error fetching address:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchAddress();
-  // }, [navigate]);
-
-  const handleSelectAddress = (address) => {
-    setSelectedAddress(address);
-    setShowAddressModal(false);
-    navigate("/checkout");
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    console.log("Selected File:", file); // Tambahkan log ini
-    if (file) {
-      setProofPayment(file);
-      setProofPreview(URL.createObjectURL(file));
-    }
-  };
-
-  // Mengambil alamat dari API saat komponen dimuat
+  // Mengambil alamat dari API
   useEffect(() => {
     const fetchAddress = async () => {
       setLoading(true);
@@ -105,7 +65,7 @@ const CheckoutPage = () => {
         });
 
         const userData = response.data.data;
-        console.log("User Data:", userData); // Tambahkan log ini
+        log("User Data:", userData);
         const primaryAddress = userData.addresses.find(
           (addr) => addr.isPrimary
         );
@@ -118,7 +78,7 @@ const CheckoutPage = () => {
         }
       } catch (err) {
         setError("Gagal mengambil alamat. Silakan coba lagi.");
-        console.error("Error fetching address:", err);
+        log("Error fetching address:", err.response?.data || err);
       } finally {
         setLoading(false);
       }
@@ -126,115 +86,84 @@ const CheckoutPage = () => {
 
     fetchAddress();
   }, [navigate]);
+
+  // Fungsi untuk mendapatkan detail harga berdasarkan item
+  const getPriceDetails = (item) => {
+    log("Getting price details for item:", item);
+    if (item.price && typeof item.price === "number") {
+      // Untuk productData (pembelian langsung)
+      return {
+        price: item.price || 0,
+        discount: item.discount || 0,
+      };
+    } else if (item.product?.stocks && item.size && item.jenis) {
+      // Untuk cartData (dari keranjang)
+      const sanitizedSize = item.size?.trim().toLowerCase() || "";
+      const sanitizedJenis = item.jenis?.trim().toLowerCase() || "";
+      const stockEntry = item.product.stocks.find(
+        (stock) =>
+          stock.size?.trim().toLowerCase() === sanitizedSize &&
+          stock.jenis?.trim().toLowerCase() === sanitizedJenis
+      );
+      if (stockEntry) {
+        return {
+          price: stockEntry.price || 0,
+          discount: stockEntry.discount || 0,
+        };
+      }
+    }
+    log("No valid price details found for item:", item);
+    return { price: 0, discount: 0 };
+  };
+
   // Menghitung total harga
-  const totalPriceBeforeDiscount = cartItems.reduce(
-    (total, item) =>
-      total + (item.product?.price || item.price || 0) * (item.quantity || 1),
-    0
-  );
+  const { totalPriceBeforeDiscount, totalDiscount, finalTotal } =
+    cartItems.reduce(
+      (acc, item) => {
+        const { price, discount } = getPriceDetails(item);
+        const quantity = item.quantity || 1;
+        const discountedPrice = price * (1 - discount / 100);
+        acc.totalPriceBeforeDiscount += price * quantity;
+        acc.totalDiscount += ((price * discount) / 100) * quantity;
+        acc.finalTotal += discountedPrice * quantity + 25000; // Ongkir
+        return acc;
+      },
+      { totalPriceBeforeDiscount: 0, totalDiscount: 0, finalTotal: 0 }
+    );
 
-  const totalDiscount = cartItems.reduce(
-    (total, item) =>
-      total +
-      (((item.product?.price || item.price || 0) *
-        (item.product?.discount || 0)) /
-        100) *
-        (item.quantity || 1),
-    0
-  );
+  const handleSelectAddress = (address) => {
+    setSelectedAddress(address);
+    setShowAddressModal(false);
+    const storedCart = localStorage.getItem("checkoutCart");
+    if (storedCart) {
+      setCartItems(JSON.parse(storedCart));
+    }
+  };
 
-  const finalTotal = totalPriceBeforeDiscount - totalDiscount;
-
-  // Fungsi untuk memproses pembayaran
-  // const handlePayment = async () => {
-  //   if (!selectedAddress) {
-  //     setError("Silakan pilih alamat pengiriman.");
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   setError(null);
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const shippingAddressString = `${selectedAddress.recipientName}, ${selectedAddress.phoneNumber}, ${selectedAddress.streetAddress}, ${selectedAddress.city}, ${selectedAddress.province}, ${selectedAddress.postalCode}`;
-
-  //     const response = await axios.post(
-  //       `${API_URL}/api/orders`,
-  //       {
-  //         shippingAddress: shippingAddressString,
-  //         paymentMethod,
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-
-  //     alert("Pembayaran berhasil!");
-  //     localStorage.removeItem("checkoutCart");
-  //     navigate("/customer-dashboard");
-  //     window.scrollTo(0, 0);
-  //   } catch (err) {
-  //     setError(err.response?.data?.message || "Gagal memproses pembayaran");
-  //     console.error("Payment error:", err.response ? err.response.data : err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const handlePayment = async () => {
-  //   if (!selectedAddress) {
-  //     setError("Silakan pilih alamat pengiriman.");
-  //     return;
-  //   }
-  //   if (!proofPayment) {
-  //     setError("Silakan unggah bukti pembayaran.");
-  //     return;
-  //   }
-  //   if (!paymentMethod){
-  //     setError("Silahkan pilih metode pembayaran")
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   setError(null);
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const formData = new FormData();
-  //     formData.append("shippingAddress", JSON.stringify(selectedAddress));
-  //     formData.append("paymentMethod", paymentMethod);
-  //     formData.append("proofOfPayment", proofPayment);
-
-  //     const response = await axios.post(`${API_URL}/api/orders`, formData, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-
-  //     alert("Pembayaran berhasil!");
-  //     localStorage.removeItem("checkoutCart");
-  //     navigate("/customer-dashboard");
-  //     window.scrollTo(0, 0);
-  //   } catch (err) {
-  //     setError(err.response?.data?.message || "Gagal memproses pembayaran");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    log("Selected File:", file);
+    if (file) {
+      setProofPayment(file);
+      setProofPreview(URL.createObjectURL(file));
+    }
+  };
 
   const handlePayment = async () => {
     if (!selectedAddress) {
       setError("Silakan pilih alamat pengiriman.");
       return;
     }
-    if (!proofPayment) {
-      setError("Silakan unggah bukti pembayaran.");
-      return;
-    }
     if (!paymentMethod) {
       setError("Silakan pilih metode pembayaran.");
+      return;
+    }
+    if (cartItems.length === 0) {
+      setError("Keranjang kosong. Silakan tambahkan produk.");
+      return;
+    }
+    if (paymentMethod !== "cod" && !proofPayment) {
+      setError("Silakan unggah bukti pembayaran.");
       return;
     }
 
@@ -244,58 +173,55 @@ const CheckoutPage = () => {
 
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Silakan login terlebih dahulu!");
+        navigate("/login");
+        return;
+      }
+
       const formData = new FormData();
 
       // Kirim shippingAddress sebagai objek JSON
       formData.append(
         "shippingAddress",
         JSON.stringify({
-          recipientName: selectedAddress.recipientName,
-          phoneNumber: selectedAddress.phoneNumber,
-          streetAddress: selectedAddress.streetAddress,
-          city: selectedAddress.city,
-          province: selectedAddress.province,
-          postalCode: selectedAddress.postalCode,
+          recipientName: selectedAddress.recipientName || "",
+          phoneNumber: selectedAddress.phoneNumber || "",
+          streetAddress: selectedAddress.streetAddress || "",
+          city: selectedAddress.city || "",
+          province: selectedAddress.province || "",
+          postalCode: selectedAddress.postalCode || "",
         })
       );
 
       formData.append("paymentMethod", paymentMethod);
-      formData.append("proofOfPayment", proofPayment);
-
-      if (productData && !cartData) {
-        const orderItems = [
-          {
-            product: productData.product._id,
-            quantity: productData.quantity,
-            price: productData.product.price,
-            discount: productData.product.discount || 0,
-            discountedPrice: productData.price,
-            size: productData.size,
-            color: productData.color,
-          },
-        ];
-        formData.append("items", JSON.stringify(orderItems));
-        formData.append("totalAmount", finalTotal);
-        formData.append("shippingCost", 10000); // Tambahkan ongkir default atau ambil dari state
-      } else if (cartData) {
-        const orderItems = cartData.map((item) => ({
-          product: item.product._id,
-          quantity: item.quantity,
-          price: item.product.price,
-          discount: item.product.discount || 0,
-          discountedPrice: item.price,
-          size: item.size,
-          color: item.color,
-        }));
-        formData.append("items", JSON.stringify(orderItems));
-        formData.append("totalAmount", finalTotal);
-        formData.append("shippingCost", 10000); // Tambahkan ongkir default
+      if (proofPayment) {
+        formData.append("proofOfPayment", proofPayment);
       }
 
-      // Debugging: Log FormData entries
-      for (let pair of formData.entries()) {
-        console.log(`${pair[0]}:`, pair[1]);
+      const orderItems = cartItems.map((item) => {
+        const { price, discount } = getPriceDetails(item);
+        return {
+          product: item.product?._id || item._id,
+          quantity: item.quantity || 1,
+          price: price || 0,
+          discount: discount || 0,
+          discountedPrice: price * (1 - discount / 100),
+          size: item.size || "default",
+          jenis: item.jenis || "default",
+          color: item.color || "default",
+        };
+      });
+
+      if (orderItems.length === 0) {
+        throw new Error("Tidak ada item valid untuk dipesan.");
       }
+
+      formData.append("items", JSON.stringify(orderItems));
+      formData.append("totalAmount", finalTotal);
+      formData.append("shippingCost", 25000);
+
+      log("Mengirim FormData:", [...formData.entries()]);
 
       const response = await axios.post(`${API_URL}/api/orders`, formData, {
         headers: {
@@ -304,18 +230,26 @@ const CheckoutPage = () => {
         },
       });
 
+      log("Order creation response:", response.data);
+
+      localStorage.removeItem("checkoutCart");
+      setCartItems([]);
+
       setSuccessMessage(
         "Pembayaran berhasil diproses! Menunggu verifikasi oleh admin. \nBeralih ke Dashboard dalam 5 detik..."
       );
-      localStorage.removeItem("checkoutCart");
 
       setTimeout(() => {
-        navigate("/customer-dashboard");
+        navigate("/customer-dashboard", { state: { cartCleared: true } });
         window.scrollTo(0, 0);
       }, 5000);
     } catch (err) {
-      setError(err.response?.data?.message || "Gagal memproses pembayaran");
-      console.error("Payment error:", err.response ? err.response.data : err);
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Gagal memproses pembayaran. Silakan coba lagi.";
+      setError(errorMessage);
+      log("Payment error:", err.response?.data || err);
     } finally {
       setLoading(false);
     }
@@ -399,53 +333,73 @@ const CheckoutPage = () => {
 
             <div className="bg-white p-4 mt-6 rounded-lg shadow-lg">
               {cartItems.length > 0 ? (
-                cartItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center border-b pb-4 mb-4"
-                  >
-                    <img
-                      src={item.product?.images?.[0] || item.image}
-                      alt={item.product?.name || item.name}
-                      className="w-20 h-20 mr-4"
-                    />
-                    <div className="flex-grow">
-                      <h4 className="font-bold">
-                        {item.product?.name || item.name}
-                      </h4>
-                      <p className="text-gray-500">
-                        {item.product?.description || item.description}
-                      </p>
-                      <p className="font-semibold">
-                        Rp
-                        {(
-                          (item.product?.price || item.price || 0) *
-                          (1 - (item.product?.discount || 0) / 100)
-                        ).toLocaleString()}
-                      </p>
-                      <p className="mt-2 font-bold">
-                        Warna: <span className="font-normal">{item.color}</span>
-                      </p>
-                      <p className="font-bold">
-                        Ukuran: <span className="font-normal">{item.size}</span>
-                      </p>
-                      <p className="font-bold">
-                        Jumlah:{" "}
-                        <span className="font-normal">{item.quantity}</span>
-                      </p>
+                cartItems.map((item, index) => {
+                  const { price, discount } = getPriceDetails(item);
+                  const discountedPrice = price * (1 - discount / 100);
+                  log("Rendering item:", item);
+                  return (
+                    <div
+                      key={`${item.product?._id || item._id}-${
+                        item.size
+                      }-${index}`}
+                      className="flex items-center border-b pb-4 mb-4"
+                    >
+                      <img
+                        src={item.image || item.product?.images?.[0]}
+                        alt={item.product?.name || item.name || "Produk"}
+                        className="w-20 h-20 mr-4 object-cover"
+                        onError={(e) =>
+                          (e.target.src = "/path/to/default-image.png")
+                        } // Ganti dengan path gambar default
+                      />
+                      <div className="flex-grow">
+                        <h4 className="font-bold">
+                          {item.product?.name ||
+                            item.name ||
+                            "Nama Produk Tidak Tersedia"}
+                        </h4>
+                        <p className="text-gray-500">
+                          {item.product?.description ||
+                            item.description ||
+                            "Deskripsi Tidak Tersedia"}
+                        </p>
+                        <p className="font-semibold">
+                          Rp{(discountedPrice || 0).toLocaleString()}
+                          {discount > 0 && (
+                            <span className="text-sm text-gray-500 line-through ml-2">
+                              Rp{(price || 0).toLocaleString()}
+                            </span>
+                          )}
+                        </p>
+                        <p className="mt-2 font-bold">
+                          Jenis:{" "}
+                          <span className="font-normal">
+                            {item.jenis || "Tidak Tersedia"}
+                          </span>
+                        </p>
+                        <p className="font-bold">
+                          Ukuran:{" "}
+                          <span className="font-normal">
+                            {item.size || "Tidak Tersedia"}
+                          </span>
+                        </p>
+                        <p className="font-bold">
+                          Jumlah:{" "}
+                          <span className="font-normal">
+                            {item.quantity || "Tidak Tersedia"}
+                          </span>
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className="text-gray-500 text-center">Keranjang kosong.</p>
               )}
             </div>
 
             <div className="bg-gray-100 p-4 rounded-lg mt-6">
-              {/* <h3 className="font-bold mb-2">Metode Pembayaran</h3> */}
-              <div className="grid grid-cols-2 gap-6 bg-white p-6 rounded-lg shadow-lg">
-                {/* <div className="flex flex-col space-y-2 border-b pb-4"> */}
-                {/* Kolom Kiri: Pilihan Metode Pembayaran */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-lg shadow-lg">
                 <div>
                   <h3 className="font-bold text-lg mb-2">Metode Pembayaran</h3>
                   <select
@@ -454,23 +408,18 @@ const CheckoutPage = () => {
                     className="w-full p-2 border rounded-md"
                   >
                     <option value="">Pilih Metode Pembayaran</option>
-                    <option value="Mandiri">Bank Mandiri</option>
-                    <option value="BCA">BCA</option>
-                    <option value="QRIS">QRIS</option>
+                    <option value="bank_jateng">Bank Jateng</option>
+                    <option value="cod">COD</option>
+                    <option value="qris">QRIS</option>
                   </select>
 
-                  {/* Informasi Nomor Rekening atau QRIS */}
-                  {paymentMethod === "Mandiri" && (
+                  {paymentMethod === "bank_jateng" && (
                     <p className="mt-3 text-blue-600 font-semibold">
-                      Nomor Rekening Mandiri: 123-456-7890 a/n IWAK Store
+                      Nomor Rekening Bank Jateng: 123-456-7890 a/n IWAK Store
                     </p>
                   )}
-                  {paymentMethod === "BCA" && (
-                    <p className="mt-3 text-blue-600 font-semibold">
-                      Nomor Rekening BCA: 098-765-4321 a/n IWAK Store
-                    </p>
-                  )}
-                  {paymentMethod === "QRIS" && (
+
+                  {paymentMethod === "qris" && (
                     <div className="mt-3">
                       <p className="text-blue-600 font-semibold">
                         Silakan scan QRIS:
@@ -484,7 +433,6 @@ const CheckoutPage = () => {
                   )}
                 </div>
 
-                {/* Kolom Kanan: Upload Bukti Pembayaran */}
                 <div>
                   <h3 className="font-bold">Unggah Bukti Pembayaran</h3>
                   <input
@@ -492,6 +440,7 @@ const CheckoutPage = () => {
                     accept="image/*"
                     onChange={handleFileChange}
                     className="w-full p-2 border rounded-md mt-2"
+                    disabled={paymentMethod === "cod"} // Nonaktifkan jika COD
                   />
 
                   {proofPreview && (
@@ -508,39 +457,17 @@ const CheckoutPage = () => {
                   )}
                 </div>
               </div>
-              {/* <div className="flex flex-col space-y-2 border-b pb-4">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="BCA Virtual Account"
-                    checked={paymentMethod === "BCA Virtual Account"}
-                    onChange={() => setPaymentMethod("BCA Virtual Account")}
-                    className="mr-2"
-                  />
-                  BCA Virtual Account
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="QRIS"
-                    checked={paymentMethod === "QRIS"}
-                    onChange={() => setPaymentMethod("QRIS")}
-                    className="mr-2"
-                  />
-                  QRIS
-                </label>
-              </div> */}
-              {error && <p className="text-red-500 text-center">{error}</p>}
 
               <h3 className="font-bold mt-4">Ringkasan</h3>
               <p className="flex justify-between">
-                Items ({cartItems.length}): Rp
-                {totalPriceBeforeDiscount.toLocaleString()}
+                <span>Items ({cartItems.length})</span>
+                <span>Rp{totalPriceBeforeDiscount.toLocaleString()}</span>
               </p>
               <p className="flex justify-between text-red-500">
                 Discounts: <span>-Rp{totalDiscount.toLocaleString()}</span>
+              </p>
+              <p className="flex justify-between">
+                Ongkir: <span>Rp 25.000</span>
               </p>
               <p className="font-bold text-lg mt-2 flex justify-between">
                 Total: <span>Rp{finalTotal.toLocaleString()}</span>

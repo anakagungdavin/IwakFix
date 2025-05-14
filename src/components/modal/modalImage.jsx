@@ -33,6 +33,19 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
     ? `${shippingAddress.recipientName}, ${shippingAddress.phoneNumber}, ${shippingAddress.streetAddress}, ${shippingAddress.city}, ${shippingAddress.province}, ${shippingAddress.postalCode}`
     : "Alamat tidak tersedia";
 
+  const formatPaymentMethod = (method) => {
+    switch (method) {
+      case "bank_jateng":
+        return "Bank Jateng";
+      case "cod":
+        return "Bayar di Tempat (COD)";
+      case "qris":
+        return "QRIS";
+      default:
+        return method;
+    }
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
       <div className="bg-white p-6 rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -73,7 +86,8 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
                 <strong>Alamat Pengiriman:</strong> {shippingAddressString}
               </p>
               <p>
-                <strong>Metode Pembayaran:</strong> {paymentMethod}
+                <strong>Metode Pembayaran:</strong>{" "}
+                {formatPaymentMethod(paymentMethod)}
               </p>
             </div>
           </div>

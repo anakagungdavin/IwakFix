@@ -247,7 +247,7 @@ const DashboardCust = () => {
       <div className="pt-16 md:pt-20 lg:pt-24 max-w-6xl mx-auto px-4 md:px-6 lg:px-12">
         <ProductRecommendations />
       </div>
-      <CustomerReviews />
+      {/* <CustomerReviews /> */}
       {/* Footer */}
       <FooterCust />
     </div>

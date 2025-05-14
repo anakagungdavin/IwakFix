@@ -38,7 +38,7 @@ const Alamat = ({ userData }) => {
         throw new Error("No authentication token found");
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
       const response = await fetch(
         `${apiUrl}/api/users/address/${selectedAddress._id}`,
         {
@@ -94,10 +94,12 @@ const Alamat = ({ userData }) => {
               className="flex flex-col md:flex-row md:justify-between md:items-center p-3 md:p-4 bg-white rounded-lg shadow-md border"
             >
               <div className="mb-2 md:mb-0">
-                <h3 className="font-semibold text-gray-800 text-sm md:text-base"> 
+                <h3 className="font-semibold text-gray-800 text-sm md:text-base">
                   {address.recipientName}
                 </h3>
-                <p className="text-gray-500 text-xs md:text-sm">{address.streetAddress}</p>
+                <p className="text-gray-500 text-xs md:text-sm">
+                  {address.streetAddress}
+                </p>
               </div>
               <div className="flex gap-2 justify-end md:justify-start">
                 <button
