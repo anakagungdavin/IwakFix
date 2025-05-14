@@ -71,7 +71,7 @@ const fishTypes = [
 ];
 
 const fullText =
-  "Temukan Bibit Ikan Terbaik dan Siap Kirim Ke Seluruh Indonesia!";
+  "Temukan Bibit Ikan Terbaik";
 const typingSpeed = 50; // Speed of typing effect (ms per character)
 
 const DashboardCust = () => {
@@ -118,11 +118,7 @@ const DashboardCust = () => {
               transition={{ delay: 1, duration: 0.8 }}
               className="mt-4 text-base md:text-lg"
             >
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-              vel magna luctus, cursus velit a, accumsan metus. Suspendisse
-              accumsan erat gravida eleifend fermentum. Integer malesuada lorem
-              in enim mollis, in pretium nisi consectetur. Aenean vitae accumsan
-              ligula.
+              Kami menyediakan berbagai jenis bibit ikan unggulan dengan kualitas terjamin. Dapatkan bibit sehat, siap tebar, dan dikirim langsung ke lokasi Anda dengan cepat dan aman. Percayakan kebutuhan bibit ikan Anda kepada kami untuk hasil panen yang lebih optimal!
             </motion.p>
           </div>
 

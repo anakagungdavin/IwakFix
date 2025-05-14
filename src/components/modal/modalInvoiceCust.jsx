@@ -335,7 +335,7 @@ const CustReportModal = ({ onClose }) => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/orders/all",
+          "https://iwak.onrender.com/api/orders/all",
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://iwak.onrender.com/api";
 
 // Sign Up
 export const signUp = async (userData) => {
