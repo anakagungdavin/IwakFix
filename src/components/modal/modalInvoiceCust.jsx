@@ -128,104 +128,6 @@ const styles = StyleSheet.create({
   },
 });
 
-// const MyDocument = ({ startDate, endDate, orders }) => {
-//   // Convert input dates to Date objects for precise filtering
-//   const start = new Date(startDate);
-//   start.setHours(0, 0, 0, 0); // Set to start of day
-
-//   const end = new Date(endDate);
-//   end.setHours(23, 59, 59, 999); // Set to end of day
-
-//   const filteredOrders = orders.filter((order) => {
-//     const orderDate = new Date(order.createdAt);
-//     return orderDate >= start && orderDate <= end;
-//   });
-
-//   const totalInvoice = filteredOrders.reduce((sum, order) => {
-//     return (
-//       sum +
-//       order.items.reduce(
-//         (itemSum, item) => itemSum + item.quantity * item.price,
-//         0
-//       )
-//     );
-//   }, 0);
-
-//   return (
-//     <Document>
-//       <Page size="A4" style={styles.page}>
-//         {/* Header */}
-//         <View style={styles.header}>
-//           <View style={styles.headerTop}>
-//             <View style={styles.companyInfo}>
-//               <Text style={styles.logoPlaceholder}>IWAK.</Text>
-//               <Text>Jl. Contoh No. 123</Text>
-//               <Text>Indonesia</Text>
-//               <Text>Email: contoh@email.com</Text>
-//               <Text>Telp: +62 123 456 7890</Text>
-//             </View>
-//             <View style={styles.invoiceInfo}>
-//               <Text>Nomor Invoice: INV-{new Date().getTime()}</Text>
-//               <Text>Tanggal Cetak: {getFormattedDate(new Date())}</Text>
-//             </View>
-//           </View>
-//         </View>
-
-//         {/* Judul */}
-//         <Text style={styles.title}>Sejarah Pembelian Bibit Ikan</Text>
-//         <Text style={styles.subtitle}>
-//           Periode: {getFormattedDate(startDate)} - {getFormattedDate(endDate)}
-//         </Text>
-
-//         {/* Tabel */}
-//         <View style={styles.table}>
-//           <View style={[styles.tableRow, styles.tableHeader]}>
-//             <Text style={styles.tableCell}>Tanggal</Text>
-//             <Text style={styles.tableCell}>Item</Text>
-//             <Text style={styles.tableCell}>Jumlah</Text>
-//             <Text style={styles.tableCell}>Harga Satuan</Text>
-//             <Text style={styles.tableCellLast}>Total</Text>
-//           </View>
-//           {filteredOrders.flatMap((order) =>
-//             order.items.map((item, index) => (
-//               <View key={`${order._id}-${index}`} style={styles.tableRow}>
-//                 <Text style={styles.tableCell}>
-//                   {getFormattedDate(order.createdAt)}
-//                 </Text>
-//                 <Text style={styles.tableCell}>
-//                   {item.product?.name || "Unknown Product"}
-//                 </Text>
-//                 <Text style={styles.tableCell}>{item.quantity}</Text>
-//                 <Text style={styles.tableCell}>
-//                   Rp {item.price.toLocaleString("id-ID")}
-//                 </Text>
-//                 <Text style={styles.tableCellLast}>
-//                   Rp {(item.quantity * item.price).toLocaleString("id-ID")}
-//                 </Text>
-//               </View>
-//             ))
-//           )}
-//         </View>
-
-//         {/* Total */}
-//         <View style={styles.totalSection}>
-//           <View style={styles.totalRow}>
-//             <Text style={styles.totalLabel}>Total Penjualan:</Text>
-//             <Text style={styles.totalValue}>
-//               Rp {totalInvoice.toLocaleString("id-ID")}
-//             </Text>
-//           </View>
-//         </View>
-
-//         {/* Footer */}
-//         <Text style={styles.footer}>
-//           Dokumen ini dicetak secara otomatis oleh sistem IWAK.
-//         </Text>
-//       </Page>
-//     </Document>
-//   );
-// };
-
 const MyDocument = ({ startDate, endDate, orders }) => {
   const start = new Date(startDate);
   start.setHours(0, 0, 0, 0);
@@ -257,11 +159,12 @@ const MyDocument = ({ startDate, endDate, orders }) => {
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <View style={styles.companyInfo}>
-              <Text style={styles.logoPlaceholder}>IWAK.</Text>
-              <Text>Jl. Contoh No. 123</Text>
-              <Text>Indonesia</Text>
-              <Text>Email: contoh@email.com</Text>
-              <Text>Telp: +62 123 456 7890</Text>
+              <Text style={styles.logoPlaceholder}>UPTD Aneka Usaha</Text>
+              <Text>
+                Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari, Kota
+                Surakarta
+              </Text>
+              <Text>Telp: 085713561686</Text>
             </View>
             <View style={styles.invoiceInfo}>
               <Text>Nomor Invoice: INV-{new Date().getTime()}</Text>
@@ -313,10 +216,6 @@ const MyDocument = ({ startDate, endDate, orders }) => {
             </Text>
           </View>
         </View>
-
-        <Text style={styles.footer}>
-          Dokumen ini dicetak secara otomatis oleh sistem IWAK.
-        </Text>
       </Page>
     </Document>
   );

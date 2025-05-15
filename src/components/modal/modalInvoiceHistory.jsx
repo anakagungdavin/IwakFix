@@ -151,32 +151,22 @@ const MyDocument = ({ startDate, endDate, orders }) => {
     );
   }, 0);
 
-  // Using recipient and address from first customer's first order (if available)
-  const recipient =
-    filteredOrders.length > 0 ? filteredOrders[0].recipient || "-" : "-";
-  const customerAddress =
-    filteredOrders.length > 0 ? filteredOrders[0].address || "-" : "-";
-  const phone =
-    filteredOrders.length > 0 ? filteredOrders[0].phone || "-" : "-";
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <View style={styles.companyInfo}>
-              <Text style={styles.logoPlaceholder}>IWAK.</Text>
-              <Text>Jl. Contoh No. 123</Text>
-              <Text>Indonesia</Text>
-              <Text>Email: contoh@email.com</Text>
-              <Text>Telp: +62 123 456 7890</Text>
+              <Text style={styles.logoPlaceholder}>UPTD Aneka Usaha</Text>
+              <Text>
+                Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari, Kota
+                Surakarta
+              </Text>
+              <Text>Telp: 085713561686</Text>
             </View>
             <View style={styles.invoiceInfo}>
               <Text>Nomor Invoice: INV-{new Date().getTime()}</Text>
               <Text>Tanggal Cetak: {getFormattedDate(new Date())}</Text>
-              <Text>Nama Penerima: {recipient}</Text>
-              <Text>Telepon: {phone}</Text>
-              <Text>Alamat: {customerAddress}</Text>
             </View>
           </View>
         </View>
@@ -189,8 +179,6 @@ const MyDocument = ({ startDate, endDate, orders }) => {
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
             <Text style={styles.tableCell}>Tanggal</Text>
-            <Text style={styles.tableCell}>Nama Penerima</Text>
-            <Text style={styles.tableCell}>Alamat</Text>
             <Text style={styles.tableCell}>Item</Text>
             <Text style={styles.tableCell}>Jumlah</Text>
             <Text style={styles.tableCell}>Harga Satuan</Text>
@@ -202,8 +190,6 @@ const MyDocument = ({ startDate, endDate, orders }) => {
                 <Text style={styles.tableCell}>
                   {getFormattedDate(order.createdAt)}
                 </Text>
-                <Text style={styles.tableCell}>{order.recipient || "-"}</Text>
-                <Text style={styles.tableCell}>{order.address || "-"}</Text>
                 <Text style={styles.tableCell}>
                   {item.product?.name || "Unknown Product"}
                 </Text>
@@ -227,10 +213,6 @@ const MyDocument = ({ startDate, endDate, orders }) => {
             </Text>
           </View>
         </View>
-
-        <Text style={styles.footer}>
-          Dokumen ini dicetak secara otomatis oleh sistem IWAK.
-        </Text>
       </Page>
     </Document>
   );
@@ -253,25 +235,27 @@ const generateExcelData = (startDate, endDate, orders) => {
   const excelData = [];
 
   // Add headers
-  excelData.push(["IWAK. - Laporan Penjualan Ikan", "", "", "", "", "", ""]);
-
+  excelData.push(["UPTD Aneka Usaha - Laporan Penjualan Ikan", "", "", "", ""]);
+  excelData.push([
+    "Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari, Kota Surakarta",
+    "",
+    "",
+    "",
+    "",
+  ]);
+  excelData.push(["Telp: 085713561686", "", "", "", ""]);
   excelData.push([
     `Periode: ${getFormattedDate(startDate)} - ${getFormattedDate(endDate)}`,
     "",
     "",
     "",
     "",
-    "",
-    "",
   ]);
-
   excelData.push([""]); // Empty row for spacing
 
   // Add table headers
   excelData.push([
     "Tanggal",
-    "Nama Penerima",
-    "Alamat",
     "Item",
     "Jumlah",
     "Harga Satuan (Rp)",
@@ -283,8 +267,6 @@ const generateExcelData = (startDate, endDate, orders) => {
     order.items.forEach((item) => {
       excelData.push([
         getFormattedDate(order.createdAt),
-        order.recipient || "-",
-        order.address || "-",
         item.product?.name || "Unknown Product",
         item.quantity,
         item.price,
@@ -305,7 +287,7 @@ const generateExcelData = (startDate, endDate, orders) => {
   }, 0);
 
   excelData.push([""]); // Empty row for spacing
-  excelData.push(["", "", "", "", "", "Total Penjualan:", totalInvoice]);
+  excelData.push(["", "", "", "Total Penjualan:", totalInvoice]);
 
   return excelData;
 };
@@ -348,23 +330,7 @@ const SalesReportModal = ({ onClose }) => {
             },
           }
         );
-        // Map the response to include recipient and address properties similar to ModalConfig
-        // Replace lines 445-450 with this
-        const mappedOrders = response.data.map((order) => ({
-          ...order,
-          recipient:
-            order.shippingAddress?.recipientName ||
-            order.customerName ||
-            order.recipient ||
-            "-",
-          phone: order.shippingAddress?.phoneNumber || order.phone || "-",
-          address: order.shippingAddress
-            ? `${order.shippingAddress.streetAddress}, ${order.shippingAddress.city}, ${order.shippingAddress.province} ${order.shippingAddress.postalCode}`
-            : order.address || "-",
-        }));
-
-        console.log("Order data sample:", mappedOrders[0]);
-        setOrders(mappedOrders);
+        setOrders(response.data);
         setLoading(false);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch orders");
@@ -558,18 +524,6 @@ const SalesReportModal = ({ onClose }) => {
                       scope="col"
                       className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                     >
-                      Nama Penerima
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      Alamat
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
                       Item
                     </th>
                     <th
@@ -611,12 +565,6 @@ const SalesReportModal = ({ onClose }) => {
                         >
                           <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
                             {getFormattedDate(order.createdAt)}
-                          </td>
-                          <td className="px-3 py-2 whitespace-pre-wrap text-sm text-gray-900">
-                            {order.recipient || "-"}
-                          </td>
-                          <td className="px-3 py-2 whitespace-pre-wrap text-sm text-gray-900">
-                            {order.address || "-"}
                           </td>
                           <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
                             {item.product?.name || "Unknown Product"}

@@ -4,7 +4,7 @@ import { FiTrash2 } from "react-icons/fi";
 import HeaderCust from "../../components/Customer/headerCust";
 import FooterCust from "../../components/Customer/footerCust";
 import axios from "axios";
-// import defaultImage from "/images/image1.png";
+import defaultImage from "/src/images/image1.png";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
@@ -46,9 +46,8 @@ const CartPage = () => {
       }
     };
 
-    // Periksa apakah kembali dari checkout dan keranjang sudah dibersihkan
     if (location.state?.cartCleared) {
-      setCartItems([]); // Kosongkan state jika cartCleared true
+      setCartItems([]);
       log("Cart cleared due to cartCleared state:", location.state);
     } else {
       fetchCart();
@@ -56,8 +55,11 @@ const CartPage = () => {
   }, [navigate, location]);
 
   const getPriceDetails = (product, jenis, size) => {
-    if (!product?.stocks || product.stocks.length === 0) {
-      log("No stocks available for product:", product?._id || "unknown");
+    if (!product || !product.stocks || product.stocks.length === 0) {
+      log(
+        "No product or stocks available for product:",
+        product?._id || "unknown"
+      );
       return {
         price: 0,
         discount: 0,
@@ -96,6 +98,7 @@ const CartPage = () => {
 
   const handleQuantityChange = async (index, change) => {
     const item = cartItems[index];
+    if (!item.product) return; // Skip if product is null
     const { stock } = getPriceDetails(item.product, item.jenis, item.size);
     const newQuantity = Math.max(1, Math.min(item.quantity + change, stock));
 
@@ -131,6 +134,10 @@ const CartPage = () => {
 
   const handleDelete = async (index) => {
     const item = cartItems[index];
+    if (!item.product) {
+      setCartItems((prevItems) => prevItems.filter((_, i) => i !== index));
+      return;
+    }
     try {
       const token = localStorage.getItem("token");
       const response = await axios.delete(
@@ -156,6 +163,7 @@ const CartPage = () => {
 
   const handleJenisChange = async (index, newJenis) => {
     const item = cartItems[index];
+    if (!item.product) return;
     const { stock } = getPriceDetails(item.product, newJenis, item.size);
     if (stock === 0) {
       setError(`Stok untuk jenis ${newJenis} tidak tersedia`);
@@ -207,6 +215,7 @@ const CartPage = () => {
 
   const handleSizeChange = async (index, newSize) => {
     const item = cartItems[index];
+    if (!item.product) return;
     const { stock } = getPriceDetails(item.product, item.jenis, newSize);
     if (stock === 0) {
       setError(`Stok untuk ukuran ${newSize} tidak tersedia`);
@@ -258,13 +267,17 @@ const CartPage = () => {
   };
 
   const handleCheckout = () => {
-    if (cartItems.length === 0) return;
-    navigate("/checkout", { state: { cart: cartItems } });
+    if (cartItems.length === 0 || cartItems.every((item) => !item.product))
+      return;
+    navigate("/checkout", {
+      state: { cart: cartItems.filter((item) => item.product) },
+    });
   };
 
   const { totalPriceBeforeDiscount, totalDiscount, finalTotal } =
     cartItems.reduce(
       (acc, item) => {
+        if (!item.product) return acc; // Skip invalid items
         const { price, discount } = getPriceDetails(
           item.product,
           item.jenis,
@@ -297,6 +310,36 @@ const CartPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 bg-white p-4 sm:p-6 rounded-lg shadow-md">
               {cartItems.map((item, index) => {
+                if (!item.product) {
+                  return (
+                    <div
+                      key={`${item._id}-${item.jenis}-${item.size}`}
+                      className="flex flex-col sm:flex-row items-center border-b py-4 last:border-b-0"
+                    >
+                      <img
+                        src={defaultImage}
+                        alt="Produk Tidak Tersedia"
+                        className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-md mb-3 sm:mb-0 sm:mr-4"
+                      />
+                      <div className="flex-grow text-center sm:text-left">
+                        <h4 className="text-lg font-semibold text-red-500">
+                          Produk Tidak Tersedia
+                        </h4>
+                        <p className="text-gray-500 text-sm">
+                          Item ini mungkin telah dihapus atau tidak valid.
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <button
+                          className="text-red-500 hover:text-red-700 mt-3 sm:mt-0"
+                          onClick={() => handleDelete(index)}
+                        >
+                          <FiTrash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
                 const { price, discount, image } = getPriceDetails(
                   item.product,
                   item.jenis,
@@ -406,7 +449,9 @@ const CartPage = () => {
                 Ringkasan
               </h3>
               <div className="flex justify-between text-gray-600 mb-2">
-                <span>Items ({cartItems.length})</span>
+                <span>
+                  Items ({cartItems.filter((item) => item.product).length})
+                </span>
                 <span>Rp{totalPriceBeforeDiscount.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-gray-600 mb-4">
@@ -422,9 +467,13 @@ const CartPage = () => {
               <button
                 className="mt-4 w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition"
                 onClick={handleCheckout}
-                disabled={cartItems.length === 0}
+                disabled={
+                  cartItems.length === 0 ||
+                  cartItems.every((item) => !item.product)
+                }
               >
-                Proses Pembayaran ({cartItems.length})
+                Proses Pembayaran (
+                {cartItems.filter((item) => item.product).length})
               </button>
             </div>
           </div>
@@ -432,7 +481,7 @@ const CartPage = () => {
           !loading && (
             <div className="flex flex-col items-center text-center bg-white rounded-md mt-20 p-6">
               <img
-                src="src/images/20943865.jpg"
+                src="/images/20943865.jpg"
                 alt="Keranjang Kosong"
                 className="w-48 h-48 sm:w-64 sm:h-64 object-cover"
               />
