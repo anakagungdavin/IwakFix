@@ -11,7 +11,7 @@ import HeaderCust from "../../components/Customer/headerCust";
 import FooterCust from "../../components/Customer/footerCust";
 
 const AboutPage = () => {
-  const images = ["/public/images/uptd1.jpeg", "/public/images/uptd2.jpeg"];
+  const images = ["/images/uptd1.jpeg", "/images/uptd2.jpeg"];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -34,7 +34,7 @@ const AboutPage = () => {
           {/* Left Image  */}
           <div className="lg:w-1/2 flex justify-center">
             {/* <img
-              src="/public/images/Rectangle 1.png"
+              src="/images/Rectangle 1.png"
               alt="About Iwak"
               className="max-w-full h-auto rounded-lg shadow-lg"
             /> */}

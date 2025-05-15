@@ -3,6 +3,8 @@ import React from "react";
 const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
   if (!isOpen || !orderDetails) return null;
 
+  console.log("Modal Order Details:", orderDetails);
+
   const {
     orderId,
     orderDate,
@@ -16,9 +18,9 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
     discount,
     totalAmount,
     status,
+    proofOfPayment,
   } = orderDetails;
 
-  // Status color classes
   const getStatusColorClass = (status) => {
     if (status === "Delivered" || status === "Paid") return "text-[#1A9882]";
     if (status === "Pending" || status === "Processing")
@@ -36,7 +38,6 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
         className="bg-white rounded-2xl shadow-lg w-11/12 max-w-xl p-6 relative max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button positioned absolutely in the top-right corner */}
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl font-bold z-10"
           onClick={onClose}
@@ -45,13 +46,11 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
         </button>
 
         <div className="space-y-4">
-          {/* Header with Order Details and Date */}
           <div>
             <h2 className="text-lg font-semibold">Order Details</h2>
             <span className="text-sm text-gray-500">{orderDate}</span>
           </div>
 
-          {/* Status Badge - Positioned below header with enough space */}
           <div className="inline-block px-3 py-1 rounded-full bg-gray-100">
             <span
               className={`text-sm font-medium ${getStatusColorClass(status)}`}
@@ -60,7 +59,6 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
             </span>
           </div>
 
-          {/* Products List */}
           <div className="border rounded-lg p-4 space-y-3 max-h-64 overflow-y-auto">
             <h3 className="font-medium text-gray-700">Produk</h3>
             {products &&
@@ -98,7 +96,6 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
               ))}
           </div>
 
-          {/* Shipping Information */}
           <div>
             <h3 className="font-semibold">Shipping Information</h3>
             <p className="text-sm">
@@ -108,7 +105,6 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
             <p className="text-sm text-gray-500">{address}</p>
           </div>
 
-          {/* Payment Details */}
           <div>
             <h3 className="font-semibold">Payment Details</h3>
             <div className="space-y-1">
@@ -135,15 +131,28 @@ const ModalConfig = ({ isOpen, onClose, orderDetails }) => {
             </div>
           </div>
 
-          {/* Order ID */}
-          <div className="text-xs text-gray-500">Order ID: {orderId}</div>
+          {proofOfPayment ? (
+            <div className="mt-4">
+              <h3 className="font-semibold">Bukti Pembayaran</h3>
+              <div className="relative mt-2">
+                <img
+                  src={proofOfPayment}
+                  alt="Bukti Pembayaran"
+                  className="w-full h-auto max-h-64 object-contain rounded-md border"
+                  onError={(e) => console.log("Image load error:", e)}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4">
+              <h3 className="font-semibold">Bukti Pembayaran</h3>
+              <p className="text-sm text-gray-500">
+                Tidak ada bukti pembayaran.
+              </p>
+            </div>
+          )}
 
-          {/* <button
-            className="bg-[#f3f3c9] text-[#EB3D4D] rounded-md px-4 py-2 w-full hover:bg-yellow-600"
-            onClick={onClose}
-          >
-            Close
-          </button> */}
+          <div className="text-xs text-gray-500">Order ID: {orderId}</div>
         </div>
       </div>
     </div>

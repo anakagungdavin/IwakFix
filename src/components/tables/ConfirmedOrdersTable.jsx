@@ -6,45 +6,51 @@ import TransactionDetailModal from "../modal/modalDetailTransaksi";
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
 const ConfirmedOrdersTable = () => {
+  const [orders, setOrders] = useState([]);
   const [confirmedOrders, setConfirmedOrders] = useState([]);
+  const [shippedOrders, setShippedOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [resiNumbers, setResiNumbers] = useState({});
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [shippingMethod, setShippingMethod] = useState({}); // "resi" or "COD"
+  const [shippingMethod, setShippingMethod] = useState({});
   const [codImages, setCodImages] = useState({});
   const [previewImage, setPreviewImage] = useState(null);
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetchConfirmedOrders();
+    fetchOrders();
   }, []);
 
-  const fetchConfirmedOrders = async () => {
+  const fetchOrders = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/orders/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const filteredOrders = response.data.filter(
+      const allOrders = response.data;
+      setOrders(allOrders);
+
+      const filteredConfirmedOrders = allOrders.filter(
         (order) => order.status === "Paid"
       );
+      const filteredShippedOrders = allOrders.filter(
+        (order) => order.status === "Shipped"
+      );
 
-      // Initialize shipping method state for each order
       const initialShippingMethods = {};
-      filteredOrders.forEach((order) => {
+      filteredConfirmedOrders.forEach((order) => {
         initialShippingMethods[order._id] = "resi";
       });
 
       setShippingMethod(initialShippingMethods);
-      setConfirmedOrders(filteredOrders);
+      setConfirmedOrders(filteredConfirmedOrders);
+      setShippedOrders(filteredShippedOrders);
       setLoading(false);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to fetch confirmed orders"
-      );
+      setError(err.response?.data?.message || "Failed to fetch orders");
       setLoading(false);
     }
   };
@@ -88,7 +94,6 @@ const ConfirmedOrdersTable = () => {
   const handleShipOrder = async (orderId) => {
     const method = shippingMethod[orderId];
 
-    // Validate based on shipping method
     if (method === "resi") {
       const resiNumber = resiNumbers[orderId];
       if (!resiNumber) {
@@ -97,7 +102,6 @@ const ConfirmedOrdersTable = () => {
       }
 
       try {
-        // Send update request for tracking number
         await axios.put(
           `${API_URL}/api/orders/${orderId}/status`,
           {
@@ -108,7 +112,6 @@ const ConfirmedOrdersTable = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        // Update orders after success
         updateOrdersAfterShipping(orderId, "Shipped", resiNumber);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to ship order");
@@ -121,22 +124,31 @@ const ConfirmedOrdersTable = () => {
       }
 
       try {
-        // Create form data to send image
         const formData = new FormData();
         formData.append("status", "Shipped");
         formData.append("shippingMethod", "COD");
         formData.append("codProof", codImage.file);
 
-        // Send update request with COD proof
-        await axios.put(`${API_URL}/api/orders/${orderId}/status`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const response = await axios.put(
+          `${API_URL}/api/orders/${orderId}/status`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
 
-        // Update orders after success
-        updateOrdersAfterShipping(orderId, "Shipped", null, "COD");
+        const updatedOrder = response.data;
+        console.log("Response from update:", response.data);
+        updateOrdersAfterShipping(
+          orderId,
+          "Shipped",
+          null,
+          "COD",
+          updatedOrder.codProof || updatedOrder.proofOfPayment
+        );
       } catch (err) {
         setError(err.response?.data?.message || "Failed to confirm COD order");
       }
@@ -152,47 +164,97 @@ const ConfirmedOrdersTable = () => {
     orderId,
     status,
     trackingNumber = null,
-    shippingMethodValue = null
+    shippingMethodValue = null,
+    proofUrl = null
   ) => {
-    // Update orders list
-    const updatedOrders = confirmedOrders.map((order) =>
+    const updatedOrders = orders.map((order) =>
       order._id === orderId
         ? {
             ...order,
             status: status,
             trackingNumber: trackingNumber,
             shippingMethod: shippingMethodValue,
+            proofOfPayment: proofUrl || order.proofOfPayment,
+            codProof: proofUrl || order.codProof,
           }
         : order
     );
 
+    setOrders(updatedOrders);
     setConfirmedOrders(
       updatedOrders.filter((order) => order.status === "Paid")
     );
+    setShippedOrders(
+      updatedOrders.filter((order) => order.status === "Shipped")
+    );
 
-    // Reset states
     setResiNumbers((prev) => ({ ...prev, [orderId]: "" }));
 
     if (codImages[orderId]) {
       removeCodImage(orderId);
     }
 
-    // Find updated order for modal
     const updatedOrder = updatedOrders.find((order) => order._id === orderId);
     setSelectedOrder(updatedOrder);
     setIsModalOpen(true);
   };
 
   const handleViewDetails = (order) => {
-    setSelectedOrder(order);
+    // Struktur ulang order untuk memastikan semua data yang dibutuhkan oleh ModalConfig ada
+    const formattedOrder = {
+      orderId: order._id,
+      orderDate: new Date(order.createdAt).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+      products: order.items.map((item) => {
+        const product = item.product || {};
+        return {
+          id: product._id || item.product,
+          name: product.name || "Unnamed Product",
+          quantity: item.quantity || 0,
+          price: item.price || product.price || 0,
+          discountedPrice: item.discountedPrice || product.price || 0,
+          formattedPrice: `Rp ${(
+            item.price ||
+            product.price ||
+            0
+          ).toLocaleString("id-ID")}`,
+          image:
+            product.images && product.images.length > 0
+              ? product.images[0]
+              : null,
+        };
+      }),
+      recipient: order.shippingAddress?.recipientName || "N/A",
+      phone: order.shippingAddress?.phoneNumber || "N/A",
+      address: order.shippingAddress
+        ? `${order.shippingAddress.streetAddress}, ${order.shippingAddress.city}, ${order.shippingAddress.province}, ${order.shippingAddress.postalCode}`
+        : "N/A",
+      paymentMethod: order.paymentMethod || "N/A",
+      itemsTotal: `Rp ${(
+        order.totalAmount - (order.shippingCost || 0)
+      ).toLocaleString("id-ID")}`,
+      shippingCost: `Rp ${(order.shippingCost || 0).toLocaleString("id-ID")}`,
+      discount: order.discount
+        ? `Rp -${order.discount.toLocaleString("id-ID")}`
+        : "Rp 0",
+      totalAmount: `Rp ${(order.totalAmount || 0).toLocaleString("id-ID")}`,
+      status: order.status || "N/A",
+      proofOfPayment: order.proofOfPayment || order.codProof || null,
+    };
+
+    setSelectedOrder(formattedOrder);
+    console.log("Selected Order:", formattedOrder); // Pastikan log ini dieksekusi
     setIsModalOpen(true);
   };
 
-  const openImagePreview = (imageUrl) => {
+  const openImageProof = (imageUrl) => {
     setPreviewImage(imageUrl);
   };
 
-  const closeImagePreview = () => {
+  const closeImageProof = () => {
     setPreviewImage(null);
   };
 
@@ -205,37 +267,29 @@ const ConfirmedOrdersTable = () => {
     });
   };
 
-  // Helper function to safely get product names
   const getProductNames = (items) => {
     if (!items || !Array.isArray(items)) return "No products";
-
     return items
-      .map((item) => {
-        // Safely check if product exists and has a name
-        if (item && item.product && item.product.name) {
-          return item.product.name;
-        }
-        return "Unnamed product";
-      })
+      .map(
+        (item) =>
+          (item && item.product && item.product.name) || "Unnamed product"
+      )
       .join(", ");
   };
 
-  // Helper function to safely get total quantity
   const getTotalQuantity = (items) => {
     if (!items || !Array.isArray(items)) return 0;
-
-    return items.reduce((sum, item) => {
-      // Safely add quantity if it exists
-      return (
-        sum + (item && typeof item.quantity === "number" ? item.quantity : 0)
-      );
-    }, 0);
+    return items.reduce(
+      (sum, item) =>
+        sum + (item && typeof item.quantity === "number" ? item.quantity : 0),
+      0
+    );
   };
 
   if (loading)
     return (
       <div className="flex justify-center items-center p-4">
-        <p>Loading confirmed orders...</p>
+        <p>Loading orders...</p>
       </div>
     );
   if (error)
@@ -254,7 +308,7 @@ const ConfirmedOrdersTable = () => {
           Tidak ada pesanan yang menunggu pengiriman.
         </p>
       ) : (
-        <div className="relative bg-white rounded-lg shadow-sm">
+        <div className="relative bg-white rounded-lg shadow-sm mb-8">
           <div className="rounded-lg overflow-x-auto w-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <table className="w-full text-left text-gray-700 min-w-[640px]">
               <thead>
@@ -340,9 +394,7 @@ const ConfirmedOrdersTable = () => {
                                   alt="Bukti COD"
                                   className="h-full w-full object-cover cursor-pointer"
                                   onClick={() =>
-                                    openImagePreview(
-                                      codImages[order._id].preview
-                                    )
+                                    openImageProof(codImages[order._id].preview)
                                   }
                                 />
                                 <button
@@ -403,7 +455,73 @@ const ConfirmedOrdersTable = () => {
         </div>
       )}
 
-      {/* Modal untuk menampilkan detail transaksi */}
+      <h2 className="text-lg font-semibold mb-4">Pesanan yang Sudah Dikirim</h2>
+      {shippedOrders.length === 0 ? (
+        <p className="text-center text-gray-500 py-6">
+          Tidak ada pesanan yang sudah dikirim.
+        </p>
+      ) : (
+        <div className="relative bg-white rounded-lg shadow-sm">
+          <div className="rounded-lg overflow-x-auto w-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <table className="w-full text-left text-gray-700 min-w-[640px]">
+              <thead>
+                <tr className="bg-gray-200 text-gray-600 text-xs sm:text-sm">
+                  <th className="py-3 px-2 sm:p-4">ID</th>
+                  <th className="py-3 px-2 sm:p-4">TANGGAL</th>
+                  <th className="py-3 px-2 sm:p-4">PRODUK</th>
+                  <th className="py-3 px-2 sm:p-4">JUMLAH</th>
+                  <th className="py-3 px-2 sm:p-4">TOTAL HARGA</th>
+                  <th className="py-3 px-2 sm:p-4">METODE PENGIRIMAN</th>
+                  <th className="py-3 px-2 sm:p-4">NOMOR RESI</th>
+                  <th className="py-3 px-2 sm:p-4 text-center">DETAIL</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shippedOrders.map((order) => (
+                  <tr
+                    key={order._id}
+                    className="text-xs sm:text-sm hover:bg-gray-100 border-b border-gray-100"
+                  >
+                    <td className="py-3 px-2 sm:p-4">{order._id || "N/A"}</td>
+                    <td className="py-3 px-2 sm:p-4">
+                      {order.createdAt ? formatDate(order.createdAt) : "N/A"}
+                    </td>
+                    <td className="py-3 px-2 sm:p-4">
+                      {getProductNames(order.items)}
+                    </td>
+                    <td className="py-3 px-2 sm:p-4">
+                      {getTotalQuantity(order.items)}
+                    </td>
+                    <td className="py-3 px-2 sm:p-4 whitespace-nowrap">
+                      Rp {(order.totalAmount || 0).toLocaleString("id-ID")}
+                    </td>
+                    <td className="py-3 px-2 sm:p-4">
+                      {order.shippingMethod || "N/A"}
+                    </td>
+                    <td className="py-3 px-2 sm:p-4">
+                      {order.trackingNumber || "N/A"}
+                    </td>
+                    <td className="py-3 px-2 sm:p-4 text-center">
+                      <button
+                        onClick={() => {
+                          console.log("Button clicked for order:", order._id); // Tambah log untuk debug
+                          handleViewDetails(order);
+                        }}
+                        className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50"
+                        title="Lihat Detail Transaksi"
+                        aria-label="Lihat Detail Transaksi"
+                      >
+                        <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5 text-[#003D47]" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {isModalOpen && (
         <TransactionDetailModal
           isOpen={isModalOpen}
@@ -412,16 +530,15 @@ const ConfirmedOrdersTable = () => {
         />
       )}
 
-      {/* Modal for image preview */}
       {previewImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
-          onClick={closeImagePreview}
+          onClick={closeImageProof}
         >
           <div className="relative max-w-2xl max-h-[80vh]">
             <button
               className="absolute -top-10 right-0 text-white bg-red-500 rounded-full p-2"
-              onClick={closeImagePreview}
+              onClick={closeImageProof}
             >
               <XMarkIcon className="h-5 w-5" />
             </button>

@@ -40,6 +40,7 @@ const TableHistory = () => {
   }, []);
 
   const openModal = (order) => {
+    console.log("Opening modal for order:", order._id); // Debug: Konfirmasi fungsi dipanggil
     const originalTotal = order.items.reduce(
       (sum, item) => sum + (item.quantity || 0) * (item.price || 0),
       0
@@ -88,15 +89,17 @@ const TableHistory = () => {
       ),
       recipient: order.user?.name || "Unknown",
       phone: order.user?.phoneNumber || "N/A",
-      address: formatShippingAddress(order.shippingAddress), // Menggunakan string hasil konversi
+      address: formatShippingAddress(order.shippingAddress),
       paymentMethod: order.paymentMethod || "Belum Ditentukan",
       itemsTotal: `Rp ${originalTotal.toLocaleString("id-ID")}`,
-      shippingCost: "Rp 0",
+      shippingCost: "Rp 0", // Perbaiki: Gunakan order.shippingCost jika tersedia
       discount: `Rp ${totalDiscount.toLocaleString("id-ID")}`,
       totalAmount: `Rp ${order.totalAmount.toLocaleString("id-ID")}`,
       status: order.status || "Pending",
+      proofOfPayment: order.proofOfPayment || order.codProof || null, // Tambahkan proofOfPayment
     };
 
+    console.log("Order Details for Modal:", orderDetails); // Debug: Periksa isi orderDetails
     setSelectedOrder(orderDetails);
     setIsOpen(true);
   };
@@ -268,7 +271,10 @@ const TableHistory = () => {
                 </td>
                 <td
                   className="p-4 text-blue-500 cursor-pointer hover:underline"
-                  onClick={() => openModal(order)}
+                  onClick={() => {
+                    console.log("Clicked Lihat Details for order:", order._id); // Debug: Konfirmasi klik
+                    openModal(order);
+                  }}
                 >
                   Lihat Details
                 </td>

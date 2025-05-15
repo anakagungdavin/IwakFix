@@ -11,7 +11,7 @@ const fishTypes = [
   {
     id: 1,
     name: "Lele",
-    image: ["/public/images/Rectangle 1.png"],
+    image: ["/images/Rectangle 1.png"],
     nutrition: {
       short: ["Protein 18g Calories 120"],
       detailed: {
@@ -26,7 +26,7 @@ const fishTypes = [
   {
     id: 2,
     name: "Nila",
-    image: ["/public/images/nila.png"],
+    image: ["/images/nila.png"],
     nutrition: {
       short: ["Protein 20g Calories 96"],
       detailed: {
@@ -41,7 +41,7 @@ const fishTypes = [
   {
     id: 3,
     name: "Mas",
-    image: ["/public/images/mas.png"],
+    image: ["/images/mas.png"],
     nutrition: {
       short: ["Protein 16g Calories 135"],
       detailed: {
@@ -56,7 +56,7 @@ const fishTypes = [
   {
     id: 4,
     name: "Bawal",
-    image: ["/public/images/bawal.png"],
+    image: ["/images/bawal.png"],
     nutrition: {
       short: ["Protein 19g Calories 110"],
       detailed: {
@@ -133,7 +133,7 @@ const DashboardCust = () => {
             className="w-full lg:w-1/2 flex justify-center lg:justify-end"
           >
             <img
-              src="/public/images/Rectangle 1.png"
+              src="/images/Rectangle 1.png"
               alt="Bibit Ikan"
               className="max-w-full h-auto drop-shadow-lg"
             />

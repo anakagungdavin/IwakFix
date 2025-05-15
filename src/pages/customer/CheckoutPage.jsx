@@ -1,4 +1,3 @@
-// CheckoutPage.jsx (perbaikan untuk menangani data dengan lebih baik)
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import HeaderCust from "../../components/Customer/headerCust";
@@ -195,7 +194,7 @@ const CheckoutPage = () => {
       );
 
       formData.append("paymentMethod", paymentMethod);
-      if (proofPayment) {
+      if (paymentMethod !== "cod" && proofPayment) {
         formData.append("proofOfPayment", proofPayment);
       }
 
@@ -433,29 +432,31 @@ const CheckoutPage = () => {
                   )}
                 </div>
 
-                <div>
-                  <h3 className="font-bold">Unggah Bukti Pembayaran</h3>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="w-full p-2 border rounded-md mt-2"
-                    disabled={paymentMethod === "cod"} // Nonaktifkan jika COD
-                  />
+                {/* Hanya tampilkan "Unggah Bukti Pembayaran" jika metode bukan COD */}
+                {paymentMethod !== "cod" && (
+                  <div>
+                    <h3 className="font-bold">Unggah Bukti Pembayaran</h3>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="w-full p-2 border rounded-md mt-2"
+                    />
 
-                  {proofPreview && (
-                    <div className="mt-4">
-                      <h4 className="font-semibold">
-                        Preview Bukti Pembayaran:
-                      </h4>
-                      <img
-                        src={proofPreview}
-                        alt="Bukti Pembayaran"
-                        className="w-48 h-auto mt-2 border rounded-md"
-                      />
-                    </div>
-                  )}
-                </div>
+                    {proofPreview && (
+                      <div className="mt-4">
+                        <h4 className="font-semibold">
+                          Preview Bukti Pembayaran:
+                        </h4>
+                        <img
+                          src={proofPreview}
+                          alt="Bukti Pembayaran"
+                          className="w-48 h-auto mt-2 border rounded-md"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <h3 className="font-bold mt-4">Ringkasan</h3>
