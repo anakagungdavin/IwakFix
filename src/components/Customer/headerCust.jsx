@@ -134,11 +134,26 @@ const HeaderCust = () => {
       {/* Desktop View */}
       <div className="hidden sm:flex items-center justify-between">
         <div className="flex items-center">
-          <div className="text-xl font-bold mr-8">
+          {/* <div className="text-xl font-bold mr-8">
             <a href="/customer-dashboard" className="flex items-center">
               Siphiko
             </a>
-          </div>
+          </div> */}
+          <div className="mr-8">
+  <a href="/customer-dashboard" className="flex items-center gap-2">
+    <img
+      src="/images/logo/pemkot.png"
+      alt="Pemkot Logo"
+      className="h-8 w-auto"
+    />
+    <img
+      src="/images/logo/Slice 1.png"
+      alt="IWAK Logo"
+      className="h-8 w-auto"
+    />
+  </a>
+</div>
+
           <nav className="flex items-center space-x-6">
             <a
               href="/customer-dashboard"

@@ -11,7 +11,7 @@ const fishTypes = [
   {
     id: 1,
     name: "Lele",
-    image: ["/images/Rectangle 1.png"],
+    image: ["/images/lele.jpeg"],
     nutrition: {
       short: ["Protein 18g Calories 120"],
       detailed: {
@@ -26,7 +26,7 @@ const fishTypes = [
   {
     id: 2,
     name: "Nila",
-    image: ["/images/nila.png"],
+    image: ["/images/nila.jpeg"],
     nutrition: {
       short: ["Protein 20g Calories 96"],
       detailed: {
@@ -41,7 +41,7 @@ const fishTypes = [
   {
     id: 3,
     name: "Mas",
-    image: ["/images/mas.png"],
+    image: ["/images/mas.jpeg"],
     nutrition: {
       short: ["Protein 16g Calories 135"],
       detailed: {
@@ -55,8 +55,8 @@ const fishTypes = [
   },
   {
     id: 4,
-    name: "Bawal",
-    image: ["/images/bawal.png"],
+    name: "Gurame",
+    image: ["/images/gurame.jpeg"],
     nutrition: {
       short: ["Protein 19g Calories 110"],
       detailed: {
