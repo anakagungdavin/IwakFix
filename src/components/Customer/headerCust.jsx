@@ -96,9 +96,11 @@ const HeaderCust = () => {
         </div>
 
         <div className="flex gap-4 items-center">
-          <a href="/cart" className="text-white hover:text-gray-300">
-            <FaShoppingCart size={20} />
-          </a>
+          {!isAdmin && (
+            <a href="/cart" className="text-white hover:text-gray-300">
+              <FaShoppingCart size={20} />
+            </a>
+          )}
           <a
             href={profileLink}
             className="text-white hover:text-gray-300 flex items-center gap-2"
@@ -134,25 +136,20 @@ const HeaderCust = () => {
       {/* Desktop View */}
       <div className="hidden sm:flex items-center justify-between">
         <div className="flex items-center">
-          {/* <div className="text-xl font-bold mr-8">
-            <a href="/customer-dashboard" className="flex items-center">
-              Siphiko
-            </a>
-          </div> */}
           <div className="mr-8">
-  <a href="/customer-dashboard" className="flex items-center gap-2">
-    <img
-      src="/images/logo/pemkot.png"
-      alt="Pemkot Logo"
-      className="h-8 w-auto"
-    />
-    <img
-      src="/images/logo/Slice 1.png"
-      alt="IWAK Logo"
-      className="h-8 w-auto"
-    />
-  </a>
-</div>
+            <a href="/customer-dashboard" className="flex items-center gap-2">
+              <img
+                src="/images/logo/pemkot.png"
+                alt="Pemkot Logo"
+                className="h-8 w-auto"
+              />
+              <img
+                src="/images/logo/Slice 1.png"
+                alt="IWAK Logo"
+                className="h-8 w-auto"
+              />
+            </a>
+          </div>
 
           <nav className="flex items-center space-x-6">
             <a
@@ -199,13 +196,15 @@ const HeaderCust = () => {
         </div>
 
         <div className="flex gap-6 items-center">
-          <a
-            href="/cart"
-            className="flex items-center gap-2 text-white hover:text-gray-300"
-          >
-            <FaShoppingCart size={20} />
-            <span>Cart</span>
-          </a>
+          {!isAdmin && (
+            <a
+              href="/cart"
+              className="flex items-center gap-2 text-white hover:text-gray-300"
+            >
+              <FaShoppingCart size={20} />
+              <span>Cart</span>
+            </a>
+          )}
           <a
             href={profileLink}
             className="flex items-center gap-2 text-white hover:text-gray-300"

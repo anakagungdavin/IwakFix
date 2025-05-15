@@ -55,7 +55,7 @@ const fishTypes = [
   },
   {
     id: 4,
-    name: "Gurame",
+    name: "Gurami",
     image: ["/images/gurame.jpeg"],
     nutrition: {
       short: ["Protein 19g Calories 110"],

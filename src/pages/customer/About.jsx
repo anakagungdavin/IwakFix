@@ -33,11 +33,6 @@ const AboutPage = () => {
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center">
           {/* Left Image  */}
           <div className="lg:w-1/2 flex justify-center">
-            {/* <img
-              src="/images/Rectangle 1.png"
-              alt="About Iwak"
-              className="max-w-full h-auto rounded-lg shadow-lg"
-            /> */}
             <img
               src={images[currentImageIndex]}
               alt="About Iwak"
@@ -50,7 +45,7 @@ const AboutPage = () => {
             <h1 className="text-4xl lg:text-5xl font-bold text-yellow-400 leading-tight">
               Tentang Kami
             </h1>
-            <p className="mt-4 text-lg">
+            <p className="mt-4 text-lg text-justify">
               UPTD Aneka Usaha Perikanan merupakan Unit Pelaksana Teknis Daerah
               yang berada di lingkup Dinas Ketahanan Pangan dan Pertanian Kota
               Surakarta. UPTD Aneka Usaha Perikanan atau yang disingkat UPTD AUP
@@ -66,24 +61,6 @@ const AboutPage = () => {
               untuk memenuhi permintaan pasar dan tetap menjamin kualitas benih
               kami
             </p>
-            {/* <p className="mt-4 text-lg">
-              Selamat datang di iwak., platform e-commerce terpercaya yang
-              menyediakan bibit ikan air tawar berkualitas unggul untuk
-              mendukung kesuksesan peternak dan pecinta budidaya ikan di seluruh
-              Indonesia. Kami berkomitmen untuk menyediakan bibit ikan segar,
-              sehat, dan cepat tumbuh yang dipilih langsung dari indukan
-              terbaik. Dengan pengalaman dan dedikasi tinggi, kami memastikan
-              bahwa setiap produk yang Anda terima telah melalui proses seleksi
-              dan perawatan terbaik.
-            </p> */}
-            {/* <p className="mt-4 text-lg">
-              Di iwak., kami percaya bahwa kesuksesan Anda adalah prioritas
-              kami. Dengan layanan pengiriman yang aman dan cepat, serta
-              dukungan pelanggan yang siap membantu, kami hadir untuk menjadi
-              mitra terpercaya dalam perjalanan budidaya Anda. Mari bersama-sama
-              menciptakan hasil panen melimpah dan masa depan yang lebih cerah
-              untuk perikanan Indonesia!
-            </p> */}
           </div>
         </div>
       </section>
@@ -124,45 +101,6 @@ const AboutPage = () => {
               <p className="text-gray-600">Senin-Kamis: 8:00 - 15:00</p>
               <p className="text-gray-600">Jumat: 8:00 - 13:00</p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="bg-[#FAF3EA] py-12">
-        <div className="max-w-6xl mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            {/* High Quality */}
-            <div className="flex flex-col items-center">
-              <TrophyIcon className="h-10 w-10 text-[#003D47]" />
-              <h3 className="text-lg font-semibold mt-3">High Quality</h3>
-              {/* <p className="text-gray-600 text-sm">
-                Crafted from top materials
-              </p> */}
-            </div>
-
-            {/* Warranty Protection */}
-            <div className="flex flex-col items-center">
-              <ShieldCheckIcon className="h-10 w-10 text-[#003D47]" />
-              <h3 className="text-lg font-semibold mt-3">
-                Warranty Protection
-              </h3>
-              {/* <p className="text-gray-600 text-sm">Over 2 years</p> */}
-            </div>
-
-            {/* Free Shipping */}
-            <div className="flex flex-col items-center">
-              <TruckIcon className="h-10 w-10 text-[#003D47]" />
-              <h3 className="text-lg font-semibold mt-3">Free Shipping</h3>
-              {/* <p className="text-gray-600 text-sm">Order over $150</p> */}
-            </div>
-
-            {/* 24/7 Support */}
-            {/* <div className="flex flex-col items-center">
-              <TruckIcon className="h-10 w-10 text-[#003D47]" />
-              <h3 className="text-lg font-semibold mt-3">24 / 7 Support</h3> */}
-            {/* <p className="text-gray-600 text-sm">Dedicated support</p> */}
-            {/* </div> */}
           </div>
         </div>
       </section>
