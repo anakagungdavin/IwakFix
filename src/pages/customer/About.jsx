@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
   MapPinIcon,
   PhoneIcon,
@@ -10,17 +10,13 @@ import {
 import HeaderCust from "../../components/Customer/headerCust";
 import FooterCust from "../../components/Customer/footerCust";
 
-
 const AboutPage = () => {
-  const images = [
-    "/src/images/uptd1.jpeg",
-    "/src/images/uptd2.jpeg",
-  ];
+  const images = ["/public/images/uptd1.jpeg", "/public/images/uptd2.jpeg"];
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000); 
+    }, 5000);
 
     return () => clearInterval(interval); // Bersihkan timer saat komponen unmount
   }, []);
@@ -38,7 +34,7 @@ const AboutPage = () => {
           {/* Left Image  */}
           <div className="lg:w-1/2 flex justify-center">
             {/* <img
-              src="/src/images/Rectangle 1.png"
+              src="/public/images/Rectangle 1.png"
               alt="About Iwak"
               className="max-w-full h-auto rounded-lg shadow-lg"
             /> */}
@@ -55,7 +51,20 @@ const AboutPage = () => {
               Tentang Kami
             </h1>
             <p className="mt-4 text-lg">
-            UPTD Aneka Usaha Perikanan merupakan Unit Pelaksana Teknis Daerah yang berada di lingkup Dinas Ketahanan Pangan dan Pertanian Kota Surakarta. UPTD Aneka Usaha Perikanan atau yang disingkat UPTD AUP berlokasi di Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari, Kota Surakarta. Salah satu tugas UPTD AUP adalah menyediakan pasokan benih ikan yang berkualitas untuk keperluan budidaya masyarakat terutama di Kota Surakarta dan sekitarnya. Untuk saat ini jenis ikan yang dibudidayakan di UPTD AUP adalah ikan lele dan ikan nila. Jenis ikan lele yang kami budidayakan yaitu jenis lele mutiara dan lele sangkuriang. Untuk ikan nila yang kami budidayakan yaitu jenis ikan nila merah larasati. Kedepan kami akan terus menambah jenis ikan yang dibudidayakan untuk memenuhi permintaan pasar dan tetap menjamin kualitas benih kami
+              UPTD Aneka Usaha Perikanan merupakan Unit Pelaksana Teknis Daerah
+              yang berada di lingkup Dinas Ketahanan Pangan dan Pertanian Kota
+              Surakarta. UPTD Aneka Usaha Perikanan atau yang disingkat UPTD AUP
+              berlokasi di Jalan Pleret Raya, Kelurahan Sumber, Kecamatan
+              Banjarsari, Kota Surakarta. Salah satu tugas UPTD AUP adalah
+              menyediakan pasokan benih ikan yang berkualitas untuk keperluan
+              budidaya masyarakat terutama di Kota Surakarta dan sekitarnya.
+              Untuk saat ini jenis ikan yang dibudidayakan di UPTD AUP adalah
+              ikan lele dan ikan nila. Jenis ikan lele yang kami budidayakan
+              yaitu jenis lele mutiara dan lele sangkuriang. Untuk ikan nila
+              yang kami budidayakan yaitu jenis ikan nila merah larasati.
+              Kedepan kami akan terus menambah jenis ikan yang dibudidayakan
+              untuk memenuhi permintaan pasar dan tetap menjamin kualitas benih
+              kami
             </p>
             {/* <p className="mt-4 text-lg">
               Selamat datang di iwak., platform e-commerce terpercaya yang
@@ -96,7 +105,8 @@ const AboutPage = () => {
               <MapPinIcon className="h-10 w-10 text-[#003D47]" />
               <h3 className="text-xl font-semibold mt-3">Alamat</h3>
               <p className="text-gray-600">
-                Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari, Kota Surakarta
+                Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari, Kota
+                Surakarta
               </p>
             </div>
 
@@ -152,7 +162,7 @@ const AboutPage = () => {
             {/* <div className="flex flex-col items-center">
               <TruckIcon className="h-10 w-10 text-[#003D47]" />
               <h3 className="text-lg font-semibold mt-3">24 / 7 Support</h3> */}
-              {/* <p className="text-gray-600 text-sm">Dedicated support</p> */}
+            {/* <p className="text-gray-600 text-sm">Dedicated support</p> */}
             {/* </div> */}
           </div>
         </div>

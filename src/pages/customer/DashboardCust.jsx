@@ -11,7 +11,7 @@ const fishTypes = [
   {
     id: 1,
     name: "Lele",
-    image: ["/src/images/Rectangle 1.png"],
+    image: ["/public/images/Rectangle 1.png"],
     nutrition: {
       short: ["Protein 18g Calories 120"],
       detailed: {
@@ -26,7 +26,7 @@ const fishTypes = [
   {
     id: 2,
     name: "Nila",
-    image: ["/src/images/nila.png"],
+    image: ["/public/images/nila.png"],
     nutrition: {
       short: ["Protein 20g Calories 96"],
       detailed: {
@@ -41,7 +41,7 @@ const fishTypes = [
   {
     id: 3,
     name: "Mas",
-    image: ["/src/images/mas.png"],
+    image: ["/public/images/mas.png"],
     nutrition: {
       short: ["Protein 16g Calories 135"],
       detailed: {
@@ -56,7 +56,7 @@ const fishTypes = [
   {
     id: 4,
     name: "Bawal",
-    image: ["/src/images/bawal.png"],
+    image: ["/public/images/bawal.png"],
     nutrition: {
       short: ["Protein 19g Calories 110"],
       detailed: {
@@ -70,8 +70,7 @@ const fishTypes = [
   },
 ];
 
-const fullText =
-  "Temukan Bibit Ikan Terbaik";
+const fullText = "Temukan Bibit Ikan Terbaik";
 const typingSpeed = 50; // Speed of typing effect (ms per character)
 
 const DashboardCust = () => {
@@ -118,7 +117,11 @@ const DashboardCust = () => {
               transition={{ delay: 1, duration: 0.8 }}
               className="mt-4 text-base md:text-lg"
             >
-              Kami menyediakan berbagai jenis bibit ikan unggulan dengan kualitas terjamin. Dapatkan bibit sehat, siap tebar, dan dikirim langsung ke lokasi Anda dengan cepat dan aman. Percayakan kebutuhan bibit ikan Anda kepada kami untuk hasil panen yang lebih optimal!
+              Kami menyediakan berbagai jenis bibit ikan unggulan dengan
+              kualitas terjamin. Dapatkan bibit sehat, siap tebar, dan dikirim
+              langsung ke lokasi Anda dengan cepat dan aman. Percayakan
+              kebutuhan bibit ikan Anda kepada kami untuk hasil panen yang lebih
+              optimal!
             </motion.p>
           </div>
 
@@ -130,7 +133,7 @@ const DashboardCust = () => {
             className="w-full lg:w-1/2 flex justify-center lg:justify-end"
           >
             <img
-              src="/src/images/Rectangle 1.png"
+              src="/public/images/Rectangle 1.png"
               alt="Bibit Ikan"
               className="max-w-full h-auto drop-shadow-lg"
             />
