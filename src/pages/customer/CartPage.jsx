@@ -4,7 +4,7 @@ import { FiTrash2 } from "react-icons/fi";
 import HeaderCust from "../../components/Customer/headerCust";
 import FooterCust from "../../components/Customer/footerCust";
 import axios from "axios";
-import defaultImage from "/src/images/image1.png";
+import defaultImage from "/src/images/Image1.png";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
