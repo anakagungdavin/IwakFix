@@ -106,11 +106,12 @@ const DashboardCust = () => {
           className="h-34 md:h-36 mb-6"
         />
         <div className="text-center">
-          <h2 className="text-lg md:text-xl font-semibold text-yellow-400">
-            Siphiko: Sistem Informasi Penyediaan Benih Ikan Secaran Online
-          </h2>
-          <p className="text-sm md:text-base text-gray-200">
+          <p className="text-base md:text-lg text-gray-200">
             Dinas Ketahanan Pangan dan Pertanian Kota Surakarta
+          </p>
+
+          <p className="text-sm md:text-lg text-gray-200">
+            UPTD Aneka Usaha Perikanan
           </p>
         </div>
       </div>
@@ -158,10 +159,7 @@ const DashboardCust = () => {
           </motion.div>
         </motion.div>
       </section>
-      {/* Fish Types Section (Floating Cards) */}
-      {/* Fish Types Section - 2x2 Grid */}
       {/* Fish Types Section - Responsive Layout */}
-      {/*Then modify the card section in the return statement*/}
       <div className="relative max-w-6xl mx-auto px-4 md:px-6 lg:px-12 -mt-12 z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 lg:gap-6 px-2 md:px-0">
           {fishTypes.map((fish) => (
