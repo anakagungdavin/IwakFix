@@ -90,14 +90,14 @@ const AboutPage = () => {
             {/* Telepon */}
             <div className="flex flex-col items-center">
               <PhoneIcon className="h-10 w-10 text-[#003D47]" />
-              <h3 className="text-xl font-semibold mt-3">Telephone</h3>
+              <h3 className="text-xl font-semibold mt-3">Telepon</h3>
               <p className="text-gray-600">Mobile: 085713561686</p>
             </div>
 
             {/* Jam Kerja */}
             <div className="flex flex-col items-center">
               <ClockIcon className="h-10 w-10 text-[#003D47]" />
-              <h3 className="text-xl font-semibold mt-3">Jam Kerja</h3>
+              <h3 className="text-xl font-semibold mt-3">Jam Pelayanan</h3>
               <p className="text-gray-600">Senin-Kamis: 8:00 - 15:00</p>
               <p className="text-gray-600">Jumat: 8:00 - 13:00</p>
             </div>

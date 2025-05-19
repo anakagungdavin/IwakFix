@@ -14,8 +14,12 @@ const FooterCust = () => {
               Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari <br />
               Kota Surakarta
             </p>
+            <p className="text-white">
+              <span className="font-semibold">Jam Layanan:</span> Senin-Kamis:
+              8:00 - 15:00, Jumat: 8:00 - 13:00
+            </p>
+            <p className="mt-2 text-gray-300">Telepon: (0271)716461</p>
           </div>
-
           {/* Middle Section - Links */}
           <div className="text-center sm:text-left">
             <h3 className="text-lg font-semibold text-gray-200">Links</h3>
@@ -40,7 +44,6 @@ const FooterCust = () => {
               </li>
             </ul>
           </div>
-
           {/* Right Section - Image and Text */}
           <div className="flex flex-col items-center text-center space-y-3">
             <img
@@ -54,7 +57,6 @@ const FooterCust = () => {
           </div>
         </div>
       </div>
-
       {/* Bottom Copyright Section */}
       <div className="mt-6 border-t border-gray-600 pt-4 text-center text-gray-400">
         <p>© 2025 Siphiko. All rights reserved.</p>

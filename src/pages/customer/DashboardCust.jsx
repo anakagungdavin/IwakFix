@@ -97,8 +97,26 @@ const DashboardCust = () => {
       <div className="sticky top-0 z-50 bg-white shadow-md">
         <HeaderCust />
       </div>
+
+      {/* Logo and Siphiko Banner */}
+      <div className="bg-[#003D47] text-white py-4 pb-0 flex flex-col items-center justify-center">
+        <img
+          src="/images/logo/Slice 1.png"
+          alt="Siphiko Logo"
+          className="h-34 md:h-36 mb-6"
+        />
+        <div className="text-center">
+          <h2 className="text-lg md:text-xl font-semibold text-yellow-400">
+            Siphiko: Sistem Informasi Penyediaan Benih Ikan Secaran Online
+          </h2>
+          <p className="text-sm md:text-base text-gray-200">
+            Dinas Ketahanan Pangan dan Pertanian Kota Surakarta
+          </p>
+        </div>
+      </div>
+
       {/* Hero Section */}
-      <section className="relative bg-[#003D47] text-white py-16 md:py-20 lg:py-24 px-4 md:px-6 lg:px-12 rounded-br-[50px] md:rounded-br-[75px] lg:rounded-br-[100px] overflow-hidden">
+      <section className="relative bg-[#003D47] text-white pt-8 md:pt-10 lg:pt-12 pb-16 md:pb-20 lg:pb-24 px-4 md:px-6 lg:px-12 rounded-br-[50px] md:rounded-br-[75px] lg:rounded-br-[100px] overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
