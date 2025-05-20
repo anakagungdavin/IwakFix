@@ -15,7 +15,7 @@ const FooterCust = () => {
               Kota Surakarta
             </p>
             <p className="text-white">
-              <span className="font-semibold">Jam Pelayanan:</span> <br />
+              <span className="font-semibold">Waktu Pelayanan:</span> <br />
               Senin-Kamis: 8:00 - 15:00 <br />
               Jumat: 8:00 - 13:00
             </p>

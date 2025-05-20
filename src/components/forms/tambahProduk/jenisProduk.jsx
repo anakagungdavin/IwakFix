@@ -18,6 +18,7 @@ const JenisProduk = ({
           stock: stock._doc ? stock._doc.stock : stock.stock,
           price: stock._doc ? stock._doc.price : stock.price,
           discount: stock._doc ? stock._doc.discount : stock.discount,
+          satuan: stock._doc ? stock._doc.satuan : (stock.satuan || 'kg'),
         }))
       : []
   );
@@ -35,6 +36,7 @@ const JenisProduk = ({
           stock: stock._doc ? stock._doc.stock : stock.stock,
           price: stock._doc ? stock._doc.price : stock.price,
           discount: stock._doc ? stock._doc.discount : stock.discount,
+          satuan: stock._doc ? stock._doc.satuan : (stock.satuan || 'kg'),
         }))
       : [];
     setStocks(transformedStocks);
@@ -137,6 +139,7 @@ const JenisProduk = ({
         stock: field === "stock" ? newValue : 0,
         price: field === "price" ? newValue : 0,
         discount: field === "discount" ? newValue : 0,
+        satuan: field === "satuan" ? newValue : 'kg',
       });
     }
 
@@ -255,6 +258,7 @@ const JenisProduk = ({
                     <tr className="bg-gray-100">
                       <th className="py-2 px-4 border">Ukuran</th>
                       <th className="py-2 px-4 border">Stok</th>
+                      <th className="py-2 px-4 border">Satuan</th>
                       <th className="py-2 px-4 border">Harga</th>
                       <th className="py-2 px-4 border">Diskon (%)</th>
                     </tr>
@@ -269,18 +273,23 @@ const JenisProduk = ({
                             className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500"
                             value={getStockValue(selectedJenis, size, "stock")}
                             onChange={(e) => {
-                              console.log(
-                                "Input stok berubah:",
-                                e.target.value
-                              );
-                              handleStockChange(
-                                selectedJenis,
-                                size,
-                                "stock",
-                                e.target.value
-                              );
+                              console.log("Input stok berubah:", e.target.value);
+                              handleStockChange(selectedJenis, size, "stock", e.target.value);
                             }}
                           />
+                        </td>
+                        <td className="py-2 px-4 border">
+                          <select
+                            className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500"
+                            value={getStockValue(selectedJenis, size, "satuan")}
+                            onChange={(e) => {
+                              console.log("Input satuan berubah:", e.target.value);
+                              handleStockChange(selectedJenis, size, "satuan", e.target.value);
+                            }}
+                          >
+                            <option value="kg">Kilogram (kg)</option>
+                            <option value="ekor">Ekor</option>
+                          </select>
                         </td>
                         <td className="py-2 px-4 border">
                           <input
@@ -288,16 +297,8 @@ const JenisProduk = ({
                             className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500"
                             value={getStockValue(selectedJenis, size, "price")}
                             onChange={(e) => {
-                              console.log(
-                                "Input harga berubah:",
-                                e.target.value
-                              );
-                              handleStockChange(
-                                selectedJenis,
-                                size,
-                                "price",
-                                e.target.value
-                              );
+                              console.log("Input harga berubah:", e.target.value);
+                              handleStockChange(selectedJenis, size, "price", e.target.value);
                             }}
                           />
                         </td>
@@ -305,22 +306,10 @@ const JenisProduk = ({
                           <input
                             type="number"
                             className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500"
-                            value={getStockValue(
-                              selectedJenis,
-                              size,
-                              "discount"
-                            )}
+                            value={getStockValue(selectedJenis, size, "discount")}
                             onChange={(e) => {
-                              console.log(
-                                "Input diskon berubah:",
-                                e.target.value
-                              );
-                              handleStockChange(
-                                selectedJenis,
-                                size,
-                                "discount",
-                                e.target.value
-                              );
+                              console.log("Input diskon berubah:", e.target.value);
+                              handleStockChange(selectedJenis, size, "discount", e.target.value);
                             }}
                             min="0"
                             max="100"

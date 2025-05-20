@@ -70,7 +70,7 @@ const fishTypes = [
   },
 ];
 
-const fullText = "Temukan Bibit Ikan Terbaik";
+const fullText = "Temukan benih Ikan Terbaik dan berkualitas hanya di sini!";
 const typingSpeed = 50; // Speed of typing effect (ms per character)
 
 const DashboardCust = () => {
@@ -99,66 +99,68 @@ const DashboardCust = () => {
       </div>
 
       {/* Logo and Siphiko Banner */}
-      <div className="bg-[#003D47] text-white py-4 pb-0 flex flex-col items-center justify-center">
-        <img
-          src="/images/logo/Slice 1.png"
-          alt="Siphiko Logo"
-          className="h-34 md:h-36 mb-6"
-        />
-        <div className="text-center">
-          <p className="text-base md:text-lg text-gray-200">
-            Dinas Ketahanan Pangan dan Pertanian Kota Surakarta
-          </p>
-
-          <p className="text-sm md:text-lg text-gray-200">
-            UPTD Aneka Usaha Perikanan
-          </p>
-        </div>
-      </div>
+      <div className="bg-[#003D47] text-white py-4 pb-0 px-4 md:px-6 lg:px-12">
+  <div className="max-w-6xl mx-auto flex flex-col items-start">
+    <img
+      src="/images/logo/Slice 1-fix.png"
+      alt="Siphiko Logo"
+      className="w-[290px] h-[153px] object-contain mb-4"
+    />
+    <p className="text-base md:text-lg text-white font-bold text-left">
+      Dinas Ketahanan Pangan dan Pertanian Kota Surakarta
+    </p>
+    <p className="text-sm md:text-lg text-white font-normal text-left">
+      UPTD Aneka Usaha Perikanan
+    </p>
+  </div>
+</div>
 
       {/* Hero Section */}
-      <section className="relative bg-[#003D47] text-white pt-8 md:pt-10 lg:pt-12 pb-16 md:pb-20 lg:pb-24 px-4 md:px-6 lg:px-12 rounded-br-[50px] md:rounded-br-[75px] lg:rounded-br-[100px] overflow-hidden">
+      <section className="relative bg-[#003D47] text-white pt-10 pb-20 px-4 md:px-6 lg:px-12 rounded-br-[80px] overflow-hidden">
+        {/* Background Ikan Kanan */}
+        <img
+          src="/images/fish.png"
+          alt="fish background"
+          className="absolute top-0 right-0 w-[900px] opacity-45 pointer-events-none select-none"
+        />
+
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center"
+          className="max-w-6xl mx-auto relative z-10"
         >
-          {/* Left Text Content */}
-          <div className="w-full lg:w-1/2 mb-8 lg:mb-0">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-yellow-400 leading-tight">
-              {fullText.substring(0, textIndex)}
-              {showCursor && <span className="animate-blink">|</span>}
+          <div className="text-left md:max-w-2xl">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-yellow-400 leading-snug">
+              Temukan Benih Ikan Terbaik<br /> dan Berkualitas Hanya di Sini!
             </h1>
-            <motion.p
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1, duration: 0.8 }}
-              className="mt-4 text-base md:text-lg"
-            >
-              Kami menyediakan berbagai jenis bibit ikan unggulan dengan
-              kualitas terjamin. Dapatkan bibit sehat, siap tebar, dan dikirim
-              langsung ke lokasi Anda dengan cepat dan aman. Percayakan
-              kebutuhan bibit ikan Anda kepada kami untuk hasil panen yang lebih
-              optimal!
-            </motion.p>
+            <p className="mt-4 text-white text-base md:text-lg font-light">
+              Kami menyediakan berbagai jenis bibit ikan unggulan dengan kualitas terjamin.
+              Dapatkan bibit sehat, siap tebar, dan dikirim langsung ke lokasi Anda dengan cepat dan aman.
+              Percayakan kebutuhan bibit ikan Anda kepada kami untuk hasil panen yang lebih optimal!
+            </p>
           </div>
 
-          {/* Right Image */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="w-full lg:w-1/2 flex justify-center lg:justify-end"
-          >
-            <img
-              src="/images/Rectangle 1.png"
-              alt="Bibit Ikan"
-              className="max-w-full h-auto drop-shadow-lg"
-            />
-          </motion.div>
+          {/* Fish Types Grid (tetap dipakai) */}
+          {/* <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+            {fishTypes.map((fish) => (
+              <div
+                key={fish.id}
+                onClick={() => navigate(`/product/${fish.id}`, { state: { fish } })}
+                className="bg-[#80B3BB] p-4 rounded-xl cursor-pointer text-center shadow-lg hover:shadow-xl transition"
+              >
+                <img
+                  src={fish.image}
+                  alt={fish.name}
+                  className="w-full h-32 object-cover rounded-md mb-2"
+                />
+                <p className="font-semibold text-white">{fish.name}</p>
+              </div>
+            ))}
+          </div> */}
         </motion.div>
       </section>
+
       {/* Fish Types Section - Responsive Layout */}
       <div className="relative max-w-6xl mx-auto px-4 md:px-6 lg:px-12 -mt-12 z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 lg:gap-6 px-2 md:px-0">
