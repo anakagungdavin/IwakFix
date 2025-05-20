@@ -54,12 +54,14 @@ const EditProduct = () => {
         if (!data) throw new Error("Produk tidak ditemukan");
 
         const transformedStocks = Array.isArray(data.stocks)
-          ? data.stocks.map((stock, index) => ({
+          ? data.stocks.map((stock) => ({
+              _id: stock._id || undefined,
               jenis: stock.jenis || `Jenis-${index + 1}`,
               size: stock.size || `Size-${index + 1}`,
               stock: stock.stock || 0,
-              price: stock.price || 0, // Added price
-              discount: stock.discount || 0, // Added discount
+              price: stock.price || 0,
+              discount: stock.discount || 0,
+              satuan: stock.satuan || "kg", // Sertakan satuan dari database
             }))
           : [];
 
@@ -213,11 +215,11 @@ const EditProduct = () => {
         }
         product.stocks.forEach((stock, index) => {
           console.log(`Stock entry #${index + 1}:`, stock);
-          if (!stock.jenis || !stock.size) {
+          if (!stock.jenis || !stock.size || !stock.satuan) {
             throw new Error(
               `Stock entry #${
                 index + 1
-              } missing required fields (jenis or size)`
+              } missing required fields (jenis, size, or satuan)`
             );
           }
           if (stock.stock < 0) {

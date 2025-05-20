@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const FishStore = () => {
   const [products, setProducts] = useState([]);
@@ -30,7 +30,6 @@ const FishStore = () => {
         sortOrder: sort === "harga-rendah" ? "asc" : "desc",
         search: search,
       };
-      // Jika sortBy adalah harga, jangan kirim sortBy ke backend
       if (sort === "harga-rendah" || sort === "harga-tinggi") {
         delete params.sortBy;
         delete params.sortOrder;
@@ -38,7 +37,6 @@ const FishStore = () => {
       const response = await axios.get(`${API_URL}/api/products`, { params });
       const { products: fetchedProducts, pagination } = response.data;
 
-      // Transformasi produk untuk menemukan harga terendah per jenis
       let transformedProducts = fetchedProducts.map((product) => {
         if (!product.stocks || product.stocks.length === 0) {
           return {
@@ -46,42 +44,54 @@ const FishStore = () => {
             originalPrice: 0,
             discountedPrice: 0,
             discount: 0,
+            satuan: "kg",
           };
         }
 
-        // Group stocks by jenis and find the lowest discounted price for each jenis
         const groupedByJenis = product.stocks.reduce((acc, stock) => {
           const jenis = stock.jenis || "Unknown";
           const discountedPrice =
             stock.price - (stock.price * (stock.discount || 0)) / 100;
+
           if (!acc[jenis] || discountedPrice < acc[jenis].discountedPrice) {
             acc[jenis] = {
               originalPrice: stock.price,
               discountedPrice: discountedPrice,
               discount: stock.discount || 0,
+              satuan: stock.satuan || "kg",
             };
           }
           return acc;
         }, {});
 
-        // Find the jenis with the lowest discounted price
-        const lowestPriceJenis = Object.values(groupedByJenis).reduce(
+        const jenisEntries = Object.values(groupedByJenis);
+        if (jenisEntries.length === 0) {
+          return {
+            ...product,
+            originalPrice: 0,
+            discountedPrice: 0,
+            discount: 0,
+            satuan: "kg",
+          };
+        }
+
+        const lowestPriceJenisEntry = jenisEntries.reduce(
           (lowest, current) =>
             lowest.discountedPrice <= current.discountedPrice
               ? lowest
               : current,
-          Object.values(groupedByJenis)[0]
+          jenisEntries[0]
         );
 
         return {
           ...product,
-          originalPrice: lowestPriceJenis.originalPrice,
-          discountedPrice: lowestPriceJenis.discountedPrice,
-          discount: lowestPriceJenis.discount,
+          originalPrice: lowestPriceJenisEntry.originalPrice,
+          discountedPrice: lowestPriceJenisEntry.discountedPrice,
+          discount: lowestPriceJenisEntry.discount,
+          satuan: lowestPriceJenisEntry.satuan,
         };
       });
 
-      // Sort di frontend untuk harga-rendah atau harga-tinggi
       if (sort === "harga-rendah") {
         transformedProducts.sort(
           (a, b) => (a.discountedPrice || 0) - (b.discountedPrice || 0)
@@ -122,6 +132,12 @@ const FishStore = () => {
   const handleImageError = (e) => {
     e.target.onerror = null;
     e.target.src = "/default-fish.png";
+  };
+
+  // Helper function untuk format harga
+  const formatPrice = (price) => {
+    if (typeof price !== "number") return "0";
+    return price.toLocaleString("id-ID"); // Menggunakan locale Indonesia
   };
 
   return (
@@ -200,7 +216,8 @@ const FishStore = () => {
                       {discountPercentage > 0 && (
                         <>
                           <p className="text-xs sm:text-sm text-gray-400 line-through">
-                            Rp{(product.originalPrice || 0).toLocaleString()}
+                            Rp{formatPrice(product.originalPrice)}{" "}
+                            {/* <-- PERUBAHAN DI SINI */}
                           </p>
                           <span className="text-red-500 text-xs sm:text-sm">
                             -{discountPercentage}%
@@ -209,7 +226,8 @@ const FishStore = () => {
                       )}
                     </div>
                     <p className="text-sm sm:text-base md:text-lg font-bold text-[#003D47]">
-                      Rp{(product.discountedPrice || 0).toLocaleString()}/kg
+                      Rp{formatPrice(product.discountedPrice)}/
+                      {product.satuan || "kg"}
                     </p>
                   </div>
                 </div>

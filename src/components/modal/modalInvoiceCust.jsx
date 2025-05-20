@@ -270,7 +270,7 @@ const CustReportModal = ({ isOpen, onClose }) => {
       try {
         setLoading(true);
         const response = await axios.get(
-          "https://iwak.onrender.com/api/orders/all",
+          "http://localhost:5000/api/orders/all",
           {
             headers: {
               Authorization: `Bearer ${token}`,
