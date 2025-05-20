@@ -144,7 +144,7 @@ const HeaderCust = () => {
                 className="h-8 w-auto"
               />
               <img
-                src="/images/logo/Slice 1.png"
+                src="/images/logo/Slice 1-fix.png"
                 alt="IWAK Logo"
                 className="h-8 w-auto"
               />
