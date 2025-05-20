@@ -252,10 +252,13 @@ const TransactionList = () => {
             clipRule="evenodd"
           />
         </svg>
-        Download Sejarah Transaksi
+        Download Riwayat Transaksi
       </button>
       {isReportModalOpen && (
-        <CustReportModal isOpen={isReportModalOpen} onClose={toggleModal} />
+        <CustReportModal
+          isOpen={isReportModalOpen}
+          onClose={toggleModalReport}
+        />
       )}
       <div className="mt-4 md:mt-6 space-y-3 md:space-y-4">
         {filteredTransactions.length > 0 ? (

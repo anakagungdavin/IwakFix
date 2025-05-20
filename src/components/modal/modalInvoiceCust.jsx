@@ -128,6 +128,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// Modified MyDocument component with improved customer name handling
 const MyDocument = ({ startDate, endDate, orders }) => {
   const start = new Date(startDate);
   start.setHours(0, 0, 0, 0);
@@ -150,8 +151,24 @@ const MyDocument = ({ startDate, endDate, orders }) => {
     );
   }, 0);
 
-  const customerName =
-    filteredOrders.length > 0 ? filteredOrders[0].customerName : "-";
+  // Fix: Properly check if customerName exists in the filtered orders
+  // Use a more robust approach to get customer name
+  let customerName = "-";
+
+  if (filteredOrders.length > 0) {
+    // Check if customerName exists directly on the order
+    if (filteredOrders[0].customerName) {
+      customerName = filteredOrders[0].customerName;
+    }
+    // Check if there's a customer object with a name property
+    else if (filteredOrders[0].customer && filteredOrders[0].customer.name) {
+      customerName = filteredOrders[0].customer.name;
+    }
+    // Try to find customer name in any other potential location
+    else if (filteredOrders[0].user && filteredOrders[0].user.name) {
+      customerName = filteredOrders[0].user.name;
+    }
+  }
 
   return (
     <Document>
@@ -174,7 +191,7 @@ const MyDocument = ({ startDate, endDate, orders }) => {
           </View>
         </View>
 
-        <Text style={styles.title}>Sejarah Pembelian Bibit Ikan</Text>
+        <Text style={styles.title}>Riwayat Transaksi Bibit Ikan</Text>
         <Text style={styles.subtitle}>
           Periode: {getFormattedDate(startDate)} - {getFormattedDate(endDate)}
         </Text>
@@ -187,24 +204,40 @@ const MyDocument = ({ startDate, endDate, orders }) => {
             <Text style={styles.tableCell}>Harga Satuan</Text>
             <Text style={styles.tableCellLast}>Total</Text>
           </View>
-          {filteredOrders.flatMap((order) =>
-            order.items.map((item, index) => (
-              <View key={`${order._id}-${index}`} style={styles.tableRow}>
-                <Text style={styles.tableCell}>
-                  {getFormattedDate(order.createdAt)}
-                </Text>
-                <Text style={styles.tableCell}>
-                  {item.product?.name || "Unknown Product"}
-                </Text>
-                <Text style={styles.tableCell}>{item.quantity}</Text>
-                <Text style={styles.tableCell}>
-                  Rp {item.price.toLocaleString("id-ID")}
-                </Text>
-                <Text style={styles.tableCellLast}>
-                  Rp {(item.quantity * item.price).toLocaleString("id-ID")}
-                </Text>
-              </View>
-            ))
+          {filteredOrders.length > 0 ? (
+            filteredOrders.flatMap((order) =>
+              order.items && order.items.length > 0 ? (
+                order.items.map((item, index) => (
+                  <View key={`${order._id}-${index}`} style={styles.tableRow}>
+                    <Text style={styles.tableCell}>
+                      {getFormattedDate(order.createdAt)}
+                    </Text>
+                    <Text style={styles.tableCell}>
+                      {item.product?.name || "Unknown Product"}
+                    </Text>
+                    <Text style={styles.tableCell}>{item.quantity}</Text>
+                    <Text style={styles.tableCell}>
+                      Rp {item.price.toLocaleString("id-ID")}
+                    </Text>
+                    <Text style={styles.tableCellLast}>
+                      Rp {(item.quantity * item.price).toLocaleString("id-ID")}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <View key={order._id} style={styles.tableRow}>
+                  <Text style={styles.tableCellLast}>
+                    No items in this order
+                  </Text>
+                </View>
+              )
+            )
+          ) : (
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCellLast}>
+                No orders found in this period
+              </Text>
+            </View>
           )}
         </View>
 
@@ -221,7 +254,7 @@ const MyDocument = ({ startDate, endDate, orders }) => {
   );
 };
 
-const CustReportModal = ({ onClose }) => {
+const CustReportModal = ({ isOpen, onClose }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [orders, setOrders] = useState([]);
@@ -232,7 +265,10 @@ const CustReportModal = ({ onClose }) => {
 
   useEffect(() => {
     const fetchOrders = async () => {
+      if (!isOpen) return; // Only fetch when modal is open
+
       try {
+        setLoading(true);
         const response = await axios.get(
           "https://iwak.onrender.com/api/orders/all",
           {
@@ -241,25 +277,58 @@ const CustReportModal = ({ onClose }) => {
             },
           }
         );
+
+        // Log the first order to help with debugging
+        if (response.data && response.data.length > 0) {
+          console.log("First order data:", response.data[0]);
+        }
+
         setOrders(response.data);
         setLoading(false);
       } catch (err) {
+        console.error("Error fetching orders:", err);
         setError(err.response?.data?.message || "Failed to fetch orders");
         setLoading(false);
       }
     };
-    fetchOrders();
-  }, [token]);
 
-  if (loading) return <p>Loading orders...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+    fetchOrders();
+  }, [token, isOpen]);
+
+  // Add this check - if not open, don't render anything
+  if (!isOpen) return null;
+
+  if (loading)
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <p>Loading orders...</p>
+        </div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <p className="text-red-500">{error}</p>
+          <button
+            onClick={onClose}
+            className="mt-4 px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-4xl relative">
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold p-2"
+          aria-label="Close"
         >
           ✖
         </button>
@@ -295,7 +364,7 @@ const CustReportModal = ({ onClose }) => {
         </p>
 
         <div className="flex justify-center mt-6">
-          {startDate && endDate && (
+          {startDate && endDate ? (
             <PDFDownloadLink
               document={
                 <MyDocument
@@ -304,14 +373,21 @@ const CustReportModal = ({ onClose }) => {
                   orders={orders}
                 />
               }
-              fileName="Laporan_Penjualan_Ikan.pdf"
+              fileName="Riwayat_Transaksi_Ikan.pdf"
             >
               {({ loading }) => (
-                <button className="bg-[#E9FAF7] text-[#1A9882] px-6 py-2 rounded-lg shadow-lg hover:bg-blue-700">
+                <button className="bg-[#003D47] hover:bg-[#002A33] text-white px-6 py-2 rounded-lg shadow-lg transition duration-200">
                   {loading ? "Membuat PDF..." : "Download PDF"}
                 </button>
               )}
             </PDFDownloadLink>
+          ) : (
+            <button
+              className="bg-gray-300 text-gray-500 px-6 py-2 rounded-lg shadow-lg cursor-not-allowed"
+              disabled
+            >
+              Download PDF
+            </button>
           )}
         </div>
       </div>
