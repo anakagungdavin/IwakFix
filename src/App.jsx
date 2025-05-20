@@ -1,4 +1,3 @@
-
 // // import { RouterProvider } from "react-router-dom";
 // // import router from "./routes/Routes";
 
@@ -8,7 +7,7 @@
 
 // // export default App;
 
-// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"; 
+// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 // import SignInPage from "./pages/auth/signInPage";
 // import SignUpPage from "./pages/auth/signUpPage";
 // import Dashboard from "./pages/Dashboard";
@@ -30,7 +29,7 @@
 //       <Routes>
 //         {/* Redirect ke /login jika belum login */}
 //         <Route path="/" element={<Navigate to="/login" />} />
-        
+
 //         {/* Halaman Auth */}
 //         <Route path="/login" element={<SignInPage />} />
 //         <Route path="/register" element={<SignUpPage />} />
@@ -58,7 +57,7 @@
 
 // export default App;
 
-// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"; 
+// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 // import SignInPage from "./pages/auth/signInPage";
 // import SignUpPage from "./pages/auth/signUpPage";
 // import Dashboard from "./pages/Dashboard";
@@ -132,9 +131,16 @@
 // }
 
 // export default App;
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"; 
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import SignInPage from "./pages/auth/signInPage";
 import SignUpPage from "./pages/auth/signUpPage";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./routes/PrivateRoutes";
 import ProductManagement from "./pages/productmanage/ProductManagement";
@@ -167,6 +173,8 @@ function App() {
         {/* Halaman Auth */}
         <Route path="/login" element={<SignInPage />} />
         <Route path="/register" element={<SignUpPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* Customer Dashboard bisa diakses siapa saja */}
         <Route path="/customer-dashboard" element={<DashboardCust />} />
@@ -180,7 +188,10 @@ function App() {
             <Route path="/admin-dashboard" element={<Dashboard />} />
             <Route path="/product-management" element={<ProductManagement />} />
             <Route path="/product-management/add" element={<AddProduct />} />
-            <Route path="/product-management/edit/:id" element={<EditProduct />} />
+            <Route
+              path="/product-management/edit/:id"
+              element={<EditProduct />}
+            />
             <Route path="/product-management/view" element={<ViewProduct />} />
             <Route path="/riwayat-transaksi" element={<HistoryPage />} />
             <Route path="/customers" element={<UserList />} />

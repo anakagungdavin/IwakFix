@@ -131,6 +131,14 @@ const SignIn = () => {
                   Sign Up
                 </Link>
               </p>
+              <p className="mt-2">
+                <Link
+                  to="/forgot-password"
+                  className="cursor-pointer text-[#003D47]"
+                >
+                  Lupa Password?
+                </Link>
+              </p>
             </div>
           </form>
         </div>
