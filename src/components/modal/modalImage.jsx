@@ -14,13 +14,6 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
     proofOfPayment,
   } = orderData;
 
-  const totalQuantity = items.reduce(
-    (sum, item) => sum + (item.quantity || 0),
-    0
-  );
-  const productNames = items
-    .map((item) => item.product?.name || "Unknown Product")
-    .join(", ");
   const formatDate = (dateString) =>
     new Date(dateString).toLocaleDateString("id-ID", {
       day: "numeric",
@@ -28,7 +21,6 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
       year: "numeric",
     });
 
-  // Konversi shippingAddress menjadi string
   const shippingAddressString = shippingAddress
     ? `${shippingAddress.recipientName}, ${shippingAddress.phoneNumber}, ${shippingAddress.streetAddress}, ${shippingAddress.city}, ${shippingAddress.province}, ${shippingAddress.postalCode}`
     : "Alamat tidak tersedia";
@@ -59,7 +51,6 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
           </button>
         </div>
 
-        {/* Detail Pembayaran */}
         <div className="mb-4 text-sm text-gray-700">
           <h4 className="font-semibold text-gray-900 mb-2">Detail Pesanan</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -71,10 +62,15 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
                 <strong>Tanggal:</strong> {formatDate(createdAt)}
               </p>
               <p>
-                <strong>Produk:</strong> {productNames}
-              </p>
-              <p>
-                <strong>Jumlah:</strong> {totalQuantity}
+                <strong>Produk:</strong>
+                <ul className="list-disc pl-5">
+                  {items.map((item, index) => (
+                    <li key={index}>
+                      {item.product?.name || "Unknown Product"} -{" "}
+                      {item.quantity.toLocaleString("id-ID")} {item.satuan}
+                    </li>
+                  ))}
+                </ul>
               </p>
             </div>
             <div>
@@ -93,7 +89,6 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
           </div>
         </div>
 
-        {/* Bukti Pembayaran */}
         <div className="mb-6">
           <h4 className="font-semibold text-gray-900 mb-2">
             Gambar Bukti Pembayaran
@@ -111,7 +106,6 @@ const ModalImage = ({ isOpen, onClose, orderData, onApprove, onReject }) => {
           )}
         </div>
 
-        {/* Tombol Aksi */}
         <div className="flex justify-center space-x-4">
           <button
             onClick={() => onApprove(_id)}

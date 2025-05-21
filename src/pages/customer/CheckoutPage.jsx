@@ -24,7 +24,6 @@ const CheckoutPage = () => {
 
   const log = process.env.NODE_ENV === "development" ? console.log : () => {};
 
-  // Mengatur item keranjang berdasarkan data yang diterima
   useEffect(() => {
     let items = [];
     if (productData) {
@@ -44,7 +43,6 @@ const CheckoutPage = () => {
     log("Cart items set:", items);
   }, [productData, cartData]);
 
-  // Mengambil alamat dari API
   useEffect(() => {
     const fetchAddress = async () => {
       setLoading(true);
@@ -86,14 +84,14 @@ const CheckoutPage = () => {
     fetchAddress();
   }, [navigate]);
 
-  // Fungsi untuk mendapatkan detail harga berdasarkan item
   const getPriceDetails = (item) => {
     log("Getting price details for item:", item);
-    if (item.price && typeof item.price === "number") {
+    if (item.price && typeof item.price === "number" && item.satuan) {
       // Untuk productData (pembelian langsung)
       return {
         price: item.price || 0,
         discount: item.discount || 0,
+        satuan: item.satuan || "kg",
       };
     } else if (item.product?.stocks && item.size && item.jenis) {
       // Untuk cartData (dari keranjang)
@@ -108,14 +106,14 @@ const CheckoutPage = () => {
         return {
           price: stockEntry.price || 0,
           discount: stockEntry.discount || 0,
+          satuan: stockEntry.satuan || "kg",
         };
       }
     }
     log("No valid price details found for item:", item);
-    return { price: 0, discount: 0 };
+    return { price: 0, discount: 0, satuan: "kg" };
   };
 
-  // Menghitung total harga
   const { totalPriceBeforeDiscount, totalDiscount, finalTotal } =
     cartItems.reduce(
       (acc, item) => {
@@ -180,7 +178,6 @@ const CheckoutPage = () => {
 
       const formData = new FormData();
 
-      // Kirim shippingAddress sebagai objek JSON
       formData.append(
         "shippingAddress",
         JSON.stringify({
@@ -199,7 +196,7 @@ const CheckoutPage = () => {
       }
 
       const orderItems = cartItems.map((item) => {
-        const { price, discount } = getPriceDetails(item);
+        const { price, discount, satuan } = getPriceDetails(item);
         return {
           product: item.product?._id || item._id,
           quantity: item.quantity || 1,
@@ -209,6 +206,7 @@ const CheckoutPage = () => {
           size: item.size || "default",
           jenis: item.jenis || "default",
           color: item.color || "default",
+          satuan: satuan || "kg",
         };
       });
 
@@ -333,7 +331,7 @@ const CheckoutPage = () => {
             <div className="bg-white p-4 mt-6 rounded-lg shadow-lg">
               {cartItems.length > 0 ? (
                 cartItems.map((item, index) => {
-                  const { price, discount } = getPriceDetails(item);
+                  const { price, discount, satuan } = getPriceDetails(item);
                   const discountedPrice = price * (1 - discount / 100);
                   log("Rendering item:", item);
                   return (
@@ -349,7 +347,7 @@ const CheckoutPage = () => {
                         className="w-20 h-20 mr-4 object-cover"
                         onError={(e) =>
                           (e.target.src = "/path/to/default-image.png")
-                        } // Ganti dengan path gambar default
+                        }
                       />
                       <div className="flex-grow">
                         <h4 className="font-bold">
@@ -363,10 +361,10 @@ const CheckoutPage = () => {
                             "Deskripsi Tidak Tersedia"}
                         </p>
                         <p className="font-semibold">
-                          Rp{(discountedPrice || 0).toLocaleString()}
+                          Rp{discountedPrice.toLocaleString("id-ID")}/{satuan}
                           {discount > 0 && (
                             <span className="text-sm text-gray-500 line-through ml-2">
-                              Rp{(price || 0).toLocaleString()}
+                              Rp{price.toLocaleString("id-ID")}/{satuan}
                             </span>
                           )}
                         </p>
@@ -385,7 +383,11 @@ const CheckoutPage = () => {
                         <p className="font-bold">
                           Jumlah:{" "}
                           <span className="font-normal">
-                            {item.quantity || "Tidak Tersedia"}
+                            {item.quantity
+                              ? `${item.quantity.toLocaleString(
+                                  "id-ID"
+                                )} ${satuan}`
+                              : "Tidak Tersedia"}
                           </span>
                         </p>
                       </div>
@@ -432,7 +434,6 @@ const CheckoutPage = () => {
                   )}
                 </div>
 
-                {/* Hanya tampilkan "Unggah Bukti Pembayaran" jika metode bukan COD */}
                 {paymentMethod !== "cod" && (
                   <div>
                     <h3 className="font-bold">Unggah Bukti Pembayaran</h3>
@@ -462,16 +463,19 @@ const CheckoutPage = () => {
               <h3 className="font-bold mt-4">Ringkasan</h3>
               <p className="flex justify-between">
                 <span>Items ({cartItems.length})</span>
-                <span>Rp{totalPriceBeforeDiscount.toLocaleString()}</span>
+                <span>
+                  Rp{totalPriceBeforeDiscount.toLocaleString("id-ID")}
+                </span>
               </p>
               <p className="flex justify-between text-red-500">
-                Discounts: <span>-Rp{totalDiscount.toLocaleString()}</span>
+                Discounts:{" "}
+                <span>-Rp{totalDiscount.toLocaleString("id-ID")}</span>
               </p>
               <p className="flex justify-between">
-                Ongkir: <span>Rp 25.000</span>
+                Ongkir: <span>Rp25.000</span>
               </p>
               <p className="font-bold text-lg mt-2 flex justify-between">
-                Total: <span>Rp{finalTotal.toLocaleString()}</span>
+                Total: <span>Rp{finalTotal.toLocaleString("id-ID")}</span>
               </p>
               <button
                 className={`mt-4 w-full bg-blue-600 text-white py-2 rounded-lg ${

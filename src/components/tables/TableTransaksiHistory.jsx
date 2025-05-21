@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // Import useMemo
 import axios from "axios";
-import ModalConfig from "../modal/ModalConfig";
+import ModalConfig from "../modal/ModalConfig"; // Pastikan path ini benar
 
 const TableHistory = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,13 +11,15 @@ const TableHistory = () => {
 
   // Sorting states
   const [sortConfig, setSortConfig] = useState({
-    key: null,
-    direction: "asc",
+    key: "date", // Default sort by date
+    direction: "desc", // Default descending (terbaru dulu)
   });
 
   const token = localStorage.getItem("token");
 
   const fetchAllOrders = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const apiUrl =
         import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
@@ -26,81 +28,35 @@ const TableHistory = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      setOrders(response.data);
-      setLoading(false);
+      // Pastikan data yang diterima adalah array
+      setOrders(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch orders");
+      setError(
+        err.response?.data?.message || "Gagal mengambil riwayat pesanan"
+      );
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAllOrders();
-  }, []);
+    if (token) {
+      fetchAllOrders();
+    } else {
+      setError("Token autentikasi tidak ditemukan.");
+      setLoading(false);
+    }
+  }, [token]); // Tambahkan token sebagai dependency
 
   const openModal = (order) => {
-    console.log("Opening modal for order:", order._id); // Debug: Konfirmasi fungsi dipanggil
-    const originalTotal = order.items.reduce(
-      (sum, item) => sum + (item.quantity || 0) * (item.price || 0),
-      0
-    );
+    // Langsung gunakan objek 'order' dari state/hasil sorting.
+    // ModalConfig sudah diatur untuk menerima 'transaction' prop dengan struktur ini.
+    // Pastikan 'order' ini berisi 'items' dengan 'product' yang terpopulate,
+    // dan setiap 'item' memiliki 'jenis', 'size', 'satuan'.
+    // Backend (/api/orders/all) seharusnya sudah menyediakan ini.
 
-    const totalDiscount = originalTotal - order.totalAmount;
-
-    const products = order.items.map((item) => ({
-      id: item.product?._id || item._id,
-      name: item.product?.name || "Unknown Product",
-      image: item.product?.images?.[0] || "",
-      quantity: item.quantity || 0,
-      price: item.price || 0,
-      discountedPrice: item.discountedPrice || item.price,
-      formattedPrice: `Rp ${(item.discountedPrice || item.price).toLocaleString(
-        "id-ID"
-      )}`,
-    }));
-
-    // Konversi shippingAddress menjadi string
-    const formatShippingAddress = (address) => {
-      if (!address) return "Alamat tidak tersedia";
-      return (
-        [
-          address.streetAddress,
-          address.city,
-          address.province,
-          address.postalCode,
-        ]
-          .filter(Boolean)
-          .join(", ") || "Alamat tidak tersedia"
-      );
-    };
-
-    const orderDetails = {
-      orderId: order._id,
-      orderDate: new Date(order.createdAt).toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }),
-      products: products,
-      totalQuantity: order.items.reduce(
-        (sum, item) => sum + (item.quantity || 0),
-        0
-      ),
-      recipient: order.user?.name || "Unknown",
-      phone: order.user?.phoneNumber || "N/A",
-      address: formatShippingAddress(order.shippingAddress),
-      paymentMethod: order.paymentMethod || "Belum Ditentukan",
-      itemsTotal: `Rp ${originalTotal.toLocaleString("id-ID")}`,
-      shippingCost: "Rp 0", // Perbaiki: Gunakan order.shippingCost jika tersedia
-      discount: `Rp ${totalDiscount.toLocaleString("id-ID")}`,
-      totalAmount: `Rp ${order.totalAmount.toLocaleString("id-ID")}`,
-      status: order.status || "Pending",
-      proofOfPayment: order.proofOfPayment || order.codProof || null, // Tambahkan proofOfPayment
-    };
-
-    console.log("Order Details for Modal:", orderDetails); // Debug: Periksa isi orderDetails
-    setSelectedOrder(orderDetails);
+    // console.log("Data order yang akan dikirim ke modal:", order); // Untuk debugging
+    setSelectedOrder(order);
     setIsOpen(true);
   };
 
@@ -110,24 +66,40 @@ const TableHistory = () => {
   };
 
   // Sorting function
-  const sortedOrders = React.useMemo(() => {
+  const sortedOrders = useMemo(() => {
     let sortableOrders = [...orders];
     if (sortConfig.key !== null) {
       sortableOrders.sort((a, b) => {
         let valueA, valueB;
 
+        // Handle null or undefined values for sorting gracefully
+        const getValue = (obj, path) => {
+          const keys = path.split(".");
+          let current = obj;
+          for (let key of keys) {
+            if (current === null || typeof current === "undefined")
+              return undefined;
+            current = current[key];
+          }
+          return current;
+        };
+
         switch (sortConfig.key) {
+          case "id":
+            valueA = a._id;
+            valueB = b._id;
+            break;
           case "customer":
-            valueA = a.user?.name || "Unknown";
-            valueB = b.user?.name || "Unknown";
+            valueA = getValue(a, "user.name") || "Unknown";
+            valueB = getValue(b, "user.name") || "Unknown";
             break;
           case "date":
-            valueA = new Date(a.createdAt);
-            valueB = new Date(b.createdAt);
+            valueA = new Date(a.createdAt || 0); // Fallback jika createdAt tidak ada
+            valueB = new Date(b.createdAt || 0);
             break;
           case "total":
-            valueA = a.totalAmount;
-            valueB = b.totalAmount;
+            valueA = a.totalAmount || 0;
+            valueB = b.totalAmount || 0;
             break;
           case "paymentMethod":
             valueA = a.paymentMethod || "N/A";
@@ -141,6 +113,12 @@ const TableHistory = () => {
             return 0;
         }
 
+        // Type-aware comparison
+        if (typeof valueA === "string" && typeof valueB === "string") {
+          valueA = valueA.toLowerCase();
+          valueB = valueB.toLowerCase();
+        }
+
         if (valueA < valueB) return sortConfig.direction === "asc" ? -1 : 1;
         if (valueA > valueB) return sortConfig.direction === "asc" ? 1 : -1;
         return 0;
@@ -149,145 +127,136 @@ const TableHistory = () => {
     return sortableOrders;
   }, [orders, sortConfig]);
 
-  // Sort request handler
   const requestSort = (key) => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
       direction = "desc";
+    } else if (sortConfig.key === key && sortConfig.direction === "desc") {
+      // Optional: Cycle back to no sort or remove key
+      // setSortConfig({ key: null, direction: "asc" });
+      // return;
+      direction = "asc"; // Atau reset ke asc
     }
     setSortConfig({ key, direction });
   };
 
-  // Sort icon component
-  const SortIcon = ({ isActive, direction }) => {
-    if (!isActive) return <span className="ml-1 text-gray-300">↕</span>;
-    return direction === "asc" ? (
+  const SortIcon = ({ columnKey }) => {
+    if (sortConfig.key !== columnKey) {
+      return <span className="ml-1 text-gray-300">↕</span>;
+    }
+    return sortConfig.direction === "asc" ? (
       <span className="ml-1 text-gray-600">↑</span>
     ) : (
       <span className="ml-1 text-gray-600">↓</span>
     );
   };
 
-  if (loading) return <p className="p-6">Loading...</p>;
-  if (error) return <p className="p-6 text-red-500">{error}</p>;
+  const getStatusColorClass = (status) => {
+    if (!status) return "text-gray-500";
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus === "delivered" || lowerStatus === "paid")
+      return "text-green-600 bg-green-100";
+    if (lowerStatus === "pending" || lowerStatus === "processing")
+      return "text-yellow-600 bg-yellow-100";
+    if (lowerStatus === "shipped") return "text-blue-600 bg-blue-100";
+    if (lowerStatus === "cancelled") return "text-red-600 bg-red-100";
+    return "text-gray-700 bg-gray-100";
+  };
+
+  if (loading)
+    return <p className="p-6 text-center">Memuat riwayat transaksi...</p>;
+  if (error)
+    return <p className="p-6 text-red-500 text-center">Error: {error}</p>;
 
   return (
-    <div className="overflow-x-auto p-6">
-      <table className="w-full border-collapse text-left text-gray-700">
-        <thead>
-          <tr className="border-b border-gray-300 text-gray-500 text-sm">
-            <th className="p-4">ID</th>
-            <th
-              className="p-4 cursor-pointer hover:bg-gray-100"
-              onClick={() => requestSort("customer")}
-            >
-              CUSTOMER
-              <SortIcon
-                isActive={sortConfig.key === "customer"}
-                direction={sortConfig.direction}
-              />
-            </th>
-            <th
-              className="p-4 cursor-pointer hover:bg-gray-100"
-              onClick={() => requestSort("date")}
-            >
-              TANGGAL
-              <SortIcon
-                isActive={sortConfig.key === "date"}
-                direction={sortConfig.direction}
-              />
-            </th>
-            <th
-              className="p-4 cursor-pointer hover:bg-gray-100"
-              onClick={() => requestSort("total")}
-            >
-              TOTAL
-              <SortIcon
-                isActive={sortConfig.key === "total"}
-                direction={sortConfig.direction}
-              />
-            </th>
-            <th
-              className="p-4 cursor-pointer hover:bg-gray-100"
-              onClick={() => requestSort("paymentMethod")}
-            >
-              METODE BAYAR
-              <SortIcon
-                isActive={sortConfig.key === "paymentMethod"}
-                direction={sortConfig.direction}
-              />
-            </th>
-            <th
-              className="p-4 cursor-pointer hover:bg-gray-100"
-              onClick={() => requestSort("status")}
-            >
-              STATUS
-              <SortIcon
-                isActive={sortConfig.key === "status"}
-                direction={sortConfig.direction}
-              />
-            </th>
-            <th className="p-4">ACTION</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedOrders.length === 0 ? (
-            <tr>
-              <td colSpan="7" className="p-4 text-center text-gray-500">
-                Tidak ada riwayat transaksi
-              </td>
-            </tr>
-          ) : (
-            sortedOrders.map((order) => (
-              <tr key={order._id} className="border-b border-gray-200 text-sm">
-                <td className="p-4">{order._id}</td>
-                <td className="p-4">{order.user?.name || "Unknown"}</td>
-                <td className="p-4">
-                  {new Date(order.createdAt).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </td>
-                <td className="p-4">
-                  Rp {order.totalAmount.toLocaleString("id-ID")}
-                </td>
-                <td className="p-4">{order.paymentMethod || "N/A"}</td>
-                <td className="p-4">
-                  <span
-                    className={
-                      order.status === "Delivered" || order.status === "Paid"
-                        ? "text-[#1A9882]"
-                        : order.status === "Pending" ||
-                          order.status === "Processing"
-                        ? "text-[#F86624]"
-                        : order.status === "Cancelled"
-                        ? "text-[#EB3D4D]"
-                        : ""
-                    }
-                  >
-                    {order.status}
-                  </span>
-                </td>
-                <td
-                  className="p-4 text-blue-500 cursor-pointer hover:underline"
-                  onClick={() => {
-                    console.log("Clicked Lihat Details for order:", order._id); // Debug: Konfirmasi klik
-                    openModal(order);
-                  }}
+    <div className="overflow-x-auto p-4 sm:p-6 bg-white shadow-md rounded-lg">
+      <h2 className="text-xl font-semibold text-gray-700 mb-4">
+        Riwayat Semua Transaksi
+      </h2>
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <table className="w-full min-w-[800px] border-collapse text-left text-gray-700">
+          <thead>
+            <tr className="border-b-2 border-gray-300 bg-gray-50 text-gray-600 text-xs sm:text-sm uppercase tracking-wider">
+              {[
+                { label: "ID", key: "id" },
+                { label: "Customer", key: "customer" },
+                { label: "Tanggal", key: "date" },
+                { label: "Total", key: "total" },
+                { label: "Metode Bayar", key: "paymentMethod" },
+                { label: "Status", key: "status" },
+              ].map((col) => (
+                <th
+                  key={col.key}
+                  className="p-3 sm:p-4 cursor-pointer hover:bg-gray-200 transition-colors duration-150"
+                  onClick={() => requestSort(col.key)}
                 >
-                  Lihat Details
+                  {col.label}
+                  <SortIcon columnKey={col.key} />
+                </th>
+              ))}
+              <th className="p-3 sm:p-4">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedOrders.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="p-4 text-center text-gray-500">
+                  Tidak ada riwayat transaksi ditemukan.
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              sortedOrders.map((order) => (
+                <tr
+                  key={order._id}
+                  className="border-b border-gray-200 text-sm hover:bg-gray-50 transition-colors duration-150"
+                >
+                  <td className="p-3 sm:p-4 whitespace-nowrap">
+                    {order._id.slice(-8)}
+                  </td>{" "}
+                  {/* Tampilkan 8 digit terakhir ID */}
+                  <td className="p-3 sm:p-4">
+                    {order.user?.name || "Tidak diketahui"}
+                  </td>
+                  <td className="p-3 sm:p-4 whitespace-nowrap">
+                    {new Date(order.createdAt).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </td>
+                  <td className="p-3 sm:p-4 whitespace-nowrap">
+                    Rp {(order.totalAmount || 0).toLocaleString("id-ID")}
+                  </td>
+                  <td className="p-3 sm:p-4">{order.paymentMethod || "N/A"}</td>
+                  <td className="p-3 sm:p-4">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColorClass(
+                        order.status
+                      )}`}
+                    >
+                      {order.status || "N/A"}
+                    </span>
+                  </td>
+                  <td className="p-3 sm:p-4">
+                    <button
+                      className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                      onClick={() => openModal(order)}
+                    >
+                      Lihat Detail
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
+      {/* Menggunakan 'transaction' prop untuk ModalConfig */}
       <ModalConfig
         isOpen={isOpen}
         onClose={closeModal}
-        orderDetails={selectedOrder}
+        transaction={selectedOrder}
       />
     </div>
   );

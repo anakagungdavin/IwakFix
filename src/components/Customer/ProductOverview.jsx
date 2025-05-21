@@ -84,7 +84,7 @@ const ProductOverview = () => {
 
     if (!product?.stocks || product.stocks.length === 0) {
       log("Stocks tidak ada atau kosong:", product?.stocks);
-      return { stock: 0, price: 0, discount: 0 };
+      return { stock: 0, price: 0, discount: 0, satuan: "kg" };
     }
 
     const sanitizedJenis = jenis?.trim().toLowerCase();
@@ -92,7 +92,7 @@ const ProductOverview = () => {
 
     if (!sanitizedJenis || !sanitizedSize) {
       log("Invalid jenis or size:", { sanitizedJenis, sanitizedSize });
-      return { stock: 0, price: 0, discount: 0 };
+      return { stock: 0, price: 0, discount: 0, satuan: "kg" };
     }
 
     const stockEntry = product.stocks.find(
@@ -107,13 +107,14 @@ const ProductOverview = () => {
       log(
         `No stock found for jenis: ${sanitizedJenis}, size: ${sanitizedSize}`
       );
-      return { stock: 0, price: 0, discount: 0 };
+      return { stock: 0, price: 0, discount: 0, satuan: "kg" };
     }
 
     return {
       stock: stockEntry.stock || 0,
       price: stockEntry.price || 0,
       discount: stockEntry.discount || 0,
+      satuan: stockEntry.satuan || "kg",
     };
   };
 
@@ -121,10 +122,10 @@ const ProductOverview = () => {
     if (selectedJenis && selectedSize) {
       return getStockDetailsForCombination(selectedJenis, selectedSize);
     }
-    return { stock: 0, price: 0, discount: 0 };
+    return { stock: 0, price: 0, discount: 0, satuan: "kg" };
   }, [selectedJenis, selectedSize, product?.stocks]);
 
-  const { stock, price: originalPrice, discount } = stockDetails;
+  const { stock, price: originalPrice, discount, satuan } = stockDetails;
   const discountedPrice = originalPrice - (originalPrice * discount) / 100;
 
   const handleQuantityChange = (value) => {
@@ -172,23 +173,23 @@ const ProductOverview = () => {
         return;
       }
 
-      // Struktur data yang dikirim harus sesuai dengan ekspektasi CheckoutPage.jsx
       const buyNowData = {
         product: {
           _id: id,
           name: productData.name,
           description: productData.description,
           images: productData.images,
-          stocks: productData.stocks, // Sertakan stocks untuk kalkulasi harga
+          stocks: productData.stocks,
         },
         jenis: selectedJenis,
         size: selectedSize,
         quantity: quantity,
-        price: selectedStock.price, // Harga asli dari stock
-        discount: selectedStock.discount || 0, // Diskon dari stock
+        price: selectedStock.price,
+        discount: selectedStock.discount || 0,
         discountedPrice:
-          selectedStock.price * (1 - (selectedStock.discount || 0) / 100), // Harga setelah diskon
-        image: productData.images?.[0] || defaultImage, // Gambar utama
+          selectedStock.price * (1 - (selectedStock.discount || 0) / 100),
+        satuan: selectedStock.satuan || "kg",
+        image: productData.images?.[0] || defaultImage,
       };
 
       log("BuyNow Data:", buyNowData);
@@ -256,6 +257,7 @@ const ProductOverview = () => {
         quantity: parseInt(quantity),
         jenis: selectedJenis.trim(),
         size: selectedSize.trim(),
+        satuan: selectedStock.satuan || "kg",
       };
       log("Cart payload:", payload);
 
@@ -336,10 +338,10 @@ const ProductOverview = () => {
                     {discount > 0 ? (
                       <>
                         <p className="text-2xl font-bold text-[#003D47]">
-                          Rp{discountedPrice.toLocaleString()}/kg
+                          Rp{discountedPrice.toLocaleString("id-ID")}/{satuan}
                         </p>
                         <p className="text-base text-gray-400 line-through">
-                          Rp{originalPrice.toLocaleString()}/kg
+                          Rp{originalPrice.toLocaleString("id-ID")}/{satuan}
                         </p>
                         <span className="text-red-500 text-base">
                           -{discount}%
@@ -347,7 +349,7 @@ const ProductOverview = () => {
                       </>
                     ) : (
                       <p className="text-2xl font-bold text-[#003D47]">
-                        Rp{originalPrice.toLocaleString()}/kg
+                        Rp{originalPrice.toLocaleString("id-ID")}/{satuan}
                       </p>
                     )}
                   </div>
@@ -428,7 +430,7 @@ const ProductOverview = () => {
                     Stok Tersedia:{" "}
                     <b>
                       {selectedJenis && selectedSize
-                        ? stock
+                        ? `${stock.toLocaleString("id-ID")} ${satuan}`
                         : "Pilih jenis dan ukuran"}
                     </b>
                   </span>
