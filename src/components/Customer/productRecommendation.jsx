@@ -10,7 +10,12 @@ const ProductRecommendations = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Ambil 3 produk terlaris dari API
+  // Helper function untuk format harga
+  const formatPrice = (price) => {
+    if (typeof price !== "number") return "0";
+    return price.toLocaleString("id-ID"); // Menggunakan locale Indonesia
+  };
+
   useEffect(() => {
     const fetchRecommendations = async () => {
       setLoading(true);
@@ -18,56 +23,75 @@ const ProductRecommendations = () => {
       try {
         const response = await axios.get(`${API_URL}/api/products`, {
           params: {
-            limit: 3,
+            limit: 3, // Ambil 3 produk terlaris atau sesuai kebutuhan
             sortBy: "sales",
             sortOrder: "desc",
           },
         });
-        console.log("API Response:", response.data.products);
+        // console.log("API Response Products:", response.data.products);
 
-        // Transformasi produk untuk menemukan harga terendah per jenis, sama seperti TokoCust.jsx
         let transformedProducts = response.data.products.map((product) => {
+          // 1. Handle jika tidak ada stocks atau stocks kosong
           if (!product.stocks || product.stocks.length === 0) {
             return {
               ...product,
               originalPrice: 0,
               discountedPrice: 0,
               discount: 0,
+              satuan: "kg", // Default satuan jika tidak ada stock
             };
           }
 
-          // Group stocks by jenis and find the lowest discounted price for each jenis
+          // 2. Group stocks by jenis, find lowest discounted price, and get satuan
           const groupedByJenis = product.stocks.reduce((acc, stock) => {
-            const jenis = stock.jenis || "Unknown";
+            const jenis = stock.jenis || "Unknown"; // Default jenis jika tidak ada
             const discountedPrice =
               stock.price - (stock.price * (stock.discount || 0)) / 100;
+
             if (!acc[jenis] || discountedPrice < acc[jenis].discountedPrice) {
               acc[jenis] = {
                 originalPrice: stock.price,
                 discountedPrice: discountedPrice,
                 discount: stock.discount || 0,
+                satuan: stock.satuan || "kg", // Ambil satuan dari stock, fallback ke "kg"
               };
             }
             return acc;
           }, {});
 
-          // Find the jenis with the lowest discounted price
-          const lowestPriceJenis = Object.values(groupedByJenis).reduce(
+          // 3. Handle jika setelah grouping tidak ada jenis yang valid
+          const jenisEntries = Object.values(groupedByJenis);
+          if (jenisEntries.length === 0) {
+            // Ini seharusnya tidak terjadi jika product.stocks tidak kosong,
+            // tapi sebagai pengaman
+            return {
+              ...product,
+              originalPrice: 0,
+              discountedPrice: 0,
+              discount: 0,
+              satuan: "kg",
+            };
+          }
+
+          // 4. Find the jenis entry with the lowest discounted price
+          const lowestPriceJenisEntry = jenisEntries.reduce(
             (lowest, current) =>
               lowest.discountedPrice <= current.discountedPrice
                 ? lowest
                 : current,
-            Object.values(groupedByJenis)[0]
+            jenisEntries[0] // Inisialisasi dengan entri pertama
           );
 
+          // 5. Return produk yang sudah ditransformasi dengan satuan yang benar
           return {
             ...product,
-            originalPrice: lowestPriceJenis.originalPrice,
-            discountedPrice: lowestPriceJenis.discountedPrice,
-            discount: lowestPriceJenis.discount,
+            originalPrice: lowestPriceJenisEntry.originalPrice,
+            discountedPrice: lowestPriceJenisEntry.discountedPrice,
+            discount: lowestPriceJenisEntry.discount,
+            satuan: lowestPriceJenisEntry.satuan, // Gunakan satuan dari entri termurah
           };
         });
-
+        // console.log("Transformed Recommendations:", transformedProducts);
         setRecommendations(transformedProducts);
       } catch (err) {
         setError("Gagal mengambil rekomendasi produk");
@@ -94,7 +118,7 @@ const ProductRecommendations = () => {
   };
 
   const calculateDiscount = (originalPrice, discountedPrice) => {
-    if (!originalPrice || !discountedPrice) return 0;
+    if (!originalPrice || !discountedPrice || originalPrice === 0) return 0;
     return Math.round(
       ((originalPrice - discountedPrice) / originalPrice) * 100
     );
@@ -106,19 +130,17 @@ const ProductRecommendations = () => {
   };
 
   return (
-    <div className="container mx-auto px-4">
+    <div className="container mx-auto px-4 py-8">
       <h3 className="text-blue-600 text-sm text-center mb-1">
         Temukan bibit ikanmu.
       </h3>
-      <h3 className="text-lg font-bold text-center mb-4">
+      <h3 className="text-2xl font-bold text-center mb-6">
         Bibit Ikan Terfavorit
       </h3>
 
-      {/* Loading/Error State */}
       {loading && <p className="text-center">Memuat rekomendasi...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
-      {/* Produk */}
       {!loading && !error && recommendations.length > 0 && (
         <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 md:gap-6">
           {recommendations.map((item) => {
@@ -129,36 +151,41 @@ const ProductRecommendations = () => {
             return (
               <div
                 key={item._id}
-                className="relative bg-white p-4 rounded-2xl shadow-lg hover:shadow-xl w-full sm:w-64 cursor-pointer mb-4 sm:mb-0"
+                className="bg-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 w-full sm:w-64 md:w-72 cursor-pointer flex flex-col justify-between"
                 onClick={() => handleNavigate(item._id)}
               >
-                <div className="relative">
-                  <img
-                    src={item.images?.[0] || "/default-fish.png"}
-                    alt={item.name}
-                    className="w-full h-40 object-contain mx-auto"
-                    onError={handleImageError}
-                    loading="lazy"
-                  />
+                <div>
+                  <div className="relative w-full h-40 sm:h-48 mb-3 rounded overflow-hidden">
+                    <img
+                      src={item.images?.[0] || "/default-fish.png"}
+                      alt={item.name}
+                      className="w-full h-full object-cover" // Ganti object-contain ke object-cover untuk mengisi area
+                      onError={handleImageError}
+                      loading="lazy"
+                    />
+                  </div>
+                  <h4 className="font-bold text-center text-lg truncate mb-1">
+                    {item.name}
+                  </h4>
                 </div>
-                <h4 className="font-bold mt-2 text-center text-lg">
-                  {item.name}
-                </h4>
-                <div className="text-center">
-                  <div className="flex justify-center items-center gap-2">
-                    {discountPercentage > 0 && (
+                <div className="text-center mt-auto">
+                  <div className="flex justify-center items-baseline gap-2 min-h-[20px]">
+                    {" "}
+                    {/* Beri tinggi minimum */}
+                    {discountPercentage > 0 && item.originalPrice > 0 && (
                       <>
                         <p className="text-gray-500 line-through text-sm">
-                          Rp{(item.originalPrice || 0).toLocaleString()}
+                          Rp{formatPrice(item.originalPrice)}
                         </p>
-                        <span className="text-red-500 text-sm">
-                          -{discountPercentage}%
+                        <span className="text-red-500 text-xs bg-red-100 px-1 rounded">
+                          {discountPercentage}%
                         </span>
                       </>
                     )}
                   </div>
                   <p className="text-[#003D47] font-bold text-lg">
-                    Rp{(item.discountedPrice || 0).toLocaleString()}/kg
+                    Rp{formatPrice(item.discountedPrice)}/{item.satuan || "kg"}{" "}
+                    {/* Menggunakan item.satuan dengan fallback ke 'kg' */}
                   </p>
                 </div>
               </div>
@@ -167,13 +194,18 @@ const ProductRecommendations = () => {
         </div>
       )}
 
-      {/* Show More */}
-      <div className="text-center mt-4">
+      {!loading && !error && recommendations.length === 0 && (
+        <p className="text-center text-gray-600">
+          Belum ada rekomendasi produk saat ini.
+        </p>
+      )}
+
+      <div className="text-center mt-8">
         <button
-          className="border px-6 py-2 rounded-lg hover:bg-gray-200 transition"
+          className="border border-gray-300 px-6 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-200"
           onClick={handleShowMore}
         >
-          Show More
+          Lihat Semua Produk
         </button>
       </div>
     </div>
