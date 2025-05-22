@@ -226,7 +226,7 @@ const FishStore = () => {
           </div>
           {!loading && !error && (
             <span className="text-gray-600 text-sm sm:text-base mt-2 sm:mt-0">
-              Menampilkan {products.length} dari total (backend) hasil
+              Menampilkan {products.length} hasil
               {location.search &&
                 ` untuk "${new URLSearchParams(location.search).get(
                   "search"
