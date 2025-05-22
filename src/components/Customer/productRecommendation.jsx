@@ -23,7 +23,7 @@ const ProductRecommendations = () => {
       try {
         const response = await axios.get(`${API_URL}/api/products`, {
           params: {
-            limit: 3, // Ambil 3 produk terlaris atau sesuai kebutuhan
+            limit: 4, // <--- PERUBAHAN DI SINI: dari 3 menjadi 4
             sortBy: "sales",
             sortOrder: "desc",
           },
@@ -142,7 +142,9 @@ const ProductRecommendations = () => {
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {!loading && !error && recommendations.length > 0 && (
-        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          {" "}
+          {/* Adjusted grid for 4 items */}
           {recommendations.map((item) => {
             const discountPercentage = calculateDiscount(
               item.originalPrice,
@@ -151,30 +153,34 @@ const ProductRecommendations = () => {
             return (
               <div
                 key={item._id}
-                className="bg-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 w-full sm:w-64 md:w-72 cursor-pointer flex flex-col justify-between"
+                className="bg-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 w-full cursor-pointer flex flex-col justify-between"
                 onClick={() => handleNavigate(item._id)}
               >
                 <div>
-                  <div className="relative w-full h-40 sm:h-48 mb-3 rounded overflow-hidden">
+                  <div className="relative w-full h-36 sm:h-40 md:h-48 mb-3 rounded overflow-hidden">
+                    {" "}
+                    {/* Adjusted height slightly for consistency */}
                     <img
                       src={item.images?.[0] || "/default-fish.png"}
                       alt={item.name}
-                      className="w-full h-full object-cover" // Ganti object-contain ke object-cover untuk mengisi area
+                      className="w-full h-full object-cover"
                       onError={handleImageError}
                       loading="lazy"
                     />
                   </div>
-                  <h4 className="font-bold text-center text-lg truncate mb-1">
+                  <h4 className="font-bold text-center text-base md:text-lg truncate mb-1">
+                    {" "}
+                    {/* Adjusted text size */}
                     {item.name}
                   </h4>
                 </div>
                 <div className="text-center mt-auto">
                   <div className="flex justify-center items-baseline gap-2 min-h-[20px]">
-                    {" "}
-                    {/* Beri tinggi minimum */}
                     {discountPercentage > 0 && item.originalPrice > 0 && (
                       <>
-                        <p className="text-gray-500 line-through text-sm">
+                        <p className="text-gray-500 line-through text-xs sm:text-sm">
+                          {" "}
+                          {/* Adjusted text size */}
                           Rp{formatPrice(item.originalPrice)}
                         </p>
                         <span className="text-red-500 text-xs bg-red-100 px-1 rounded">
@@ -183,9 +189,10 @@ const ProductRecommendations = () => {
                       </>
                     )}
                   </div>
-                  <p className="text-[#003D47] font-bold text-lg">
-                    Rp{formatPrice(item.discountedPrice)}/{item.satuan || "kg"}{" "}
-                    {/* Menggunakan item.satuan dengan fallback ke 'kg' */}
+                  <p className="text-[#003D47] font-bold text-sm sm:text-base md:text-lg">
+                    {" "}
+                    {/* Adjusted text size */}
+                    Rp{formatPrice(item.discountedPrice)}/{item.satuan || "kg"}
                   </p>
                 </div>
               </div>
