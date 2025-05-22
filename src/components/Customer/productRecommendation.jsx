@@ -220,9 +220,9 @@ const ProductRecommendations = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h3 className="text-blue-600 text-sm text-center mb-1">
+      {/* <h3 className="text-blue-600 text-sm text-center mb-1">
         Temukan bibit ikanmu.
-      </h3>
+      </h3> */}
       <h3 className="text-2xl font-bold text-center mb-6">
         Bibit Ikan Terfavorit
       </h3>

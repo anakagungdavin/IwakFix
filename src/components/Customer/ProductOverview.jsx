@@ -7,6 +7,30 @@ import "./ProductOverview.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
+// Simple SVG Spinner component
+const Spinner = () => (
+  <svg
+    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    ></circle>
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+    ></path>
+  </svg>
+);
+
 const ProductOverview = () => {
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
@@ -15,6 +39,7 @@ const ProductOverview = () => {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isAddingToCart, setIsAddingToCart] = useState(false); // State untuk loading tombol keranjang
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -29,7 +54,7 @@ const ProductOverview = () => {
         const fetchedProduct = response.data;
         log("Full product data:", JSON.stringify(fetchedProduct, null, 2));
         setProduct(fetchedProduct);
-        setSelectedImage(fetchedProduct.images?.[0] || defaultImage);
+        setSelectedImage(fetchedProduct.images?.[0] /*|| defaultImage*/);
 
         const availableJenis = [
           ...new Set(
@@ -140,6 +165,7 @@ const ProductOverview = () => {
   };
 
   const handleBuyNow = async () => {
+    // ... (fungsi handleBuyNow tetap sama)
     if (!selectedJenis || !selectedSize) {
       setError("Pilih jenis dan ukuran terlebih dahulu!");
       return;
@@ -189,7 +215,7 @@ const ProductOverview = () => {
         discountedPrice:
           selectedStock.price * (1 - (selectedStock.discount || 0) / 100),
         satuan: selectedStock.satuan || "kg",
-        image: productData.images?.[0] || defaultImage,
+        image: productData.images?.[0] /*|| defaultImage*/,
       };
 
       log("BuyNow Data:", buyNowData);
@@ -221,15 +247,18 @@ const ProductOverview = () => {
       return;
     }
 
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Silakan login terlebih dahulu!");
-        navigate("/login");
-        log("No token found");
-        return;
-      }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Silakan login terlebih dahulu!");
+      navigate("/login");
+      log("No token found");
+      return;
+    }
 
+    setIsAddingToCart(true); // Mulai loading
+    setError(null); // Reset error sebelumnya
+
+    try {
       const selectedStock = product.stocks.find(
         (stock) =>
           stock.jenis?.trim().toLowerCase() ===
@@ -240,7 +269,7 @@ const ProductOverview = () => {
       if (!selectedStock) {
         setError("Kombinasi jenis dan ukuran tidak ditemukan!");
         log("No stock entry found for:", { selectedJenis, selectedSize });
-        return;
+        return; // Jangan lupa return di sini agar finally dijalankan setelah error state di set
       }
 
       if (quantity > selectedStock.stock) {
@@ -249,7 +278,7 @@ const ProductOverview = () => {
           quantity,
           stock: selectedStock.stock,
         });
-        return;
+        return; // Jangan lupa return
       }
 
       const payload = {
@@ -267,7 +296,6 @@ const ProductOverview = () => {
         },
       });
 
-      setError(null);
       alert("Produk berhasil ditambahkan ke keranjang!");
       log("Cart updated:", response.data);
     } catch (err) {
@@ -277,6 +305,8 @@ const ProductOverview = () => {
         "Gagal menambahkan produk ke keranjang";
       setError(errorMsg);
       log("Add to cart error:", err.response?.data || err);
+    } finally {
+      setIsAddingToCart(false); // Selesai loading, baik sukses maupun gagal
     }
   };
 
@@ -307,7 +337,7 @@ const ProductOverview = () => {
           <div className="flex pb-10 gap-6 border-b justify-center">
             <div className="w-1/2">
               <img
-                src={selectedImage}
+                src={selectedImage || "/images/placeholder.png"}
                 alt={product.name}
                 className="w-full h-80 object-cover rounded-lg"
               />
@@ -361,7 +391,7 @@ const ProductOverview = () => {
               </div>
               <div className="mt-4">
                 <label className="block font-semibold">Jenis</label>
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {availableJenis.map((jenis) => (
                     <button
                       key={jenis}
@@ -382,7 +412,7 @@ const ProductOverview = () => {
               </div>
               <div className="mt-4">
                 <label className="block font-semibold">Ukuran</label>
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {availableSizes.map((size) => (
                     <button
                       key={size}
@@ -438,18 +468,27 @@ const ProductOverview = () => {
               </div>
               <div className="mt-4 flex flex-grow gap-4 w-[325px]">
                 <button
-                  className="border-2 border-[#003D47] text-black px-6 py-2 rounded-lg w-full"
+                  className="border-2 border-[#003D47] text-black px-6 py-2 rounded-lg w-full cursor-pointer"
                   onClick={handleBuyNow}
-                  disabled={!selectedJenis || !selectedSize}
+                  disabled={!selectedJenis || !selectedSize || isAddingToCart} // Disable saat loading juga
                 >
                   Beli
                 </button>
                 <button
-                  className="bg-[#003D47] text-white px-6 py-2 rounded-lg w-full"
+                  className={`bg-[#003D47] text-white px-6 py-2 rounded-lg w-full cursor-pointer flex items-center justify-center ${
+                    isAddingToCart ? "opacity-70" : ""
+                  }`}
                   onClick={handleAddToCart}
-                  disabled={!selectedJenis || !selectedSize}
+                  disabled={!selectedJenis || !selectedSize || isAddingToCart}
                 >
-                  + Keranjang
+                  {isAddingToCart ? (
+                    <>
+                      <Spinner />
+                      <span>Menambahkan...</span>
+                    </>
+                  ) : (
+                    <span>+ Keranjang</span>
+                  )}
                 </button>
               </div>
             </div>
