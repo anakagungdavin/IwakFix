@@ -2,109 +2,198 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com"; // Sesuaikan dengan URL API Anda
+
+// Komponen Placeholder untuk animasi loading
+const ProductCardSkeleton = () => (
+  <div className="bg-white p-4 rounded-2xl shadow-lg w-full animate-pulse">
+    <div className="relative w-full h-36 sm:h-40 md:h-48 mb-3 rounded overflow-hidden bg-gray-300"></div>
+    <div className="h-6 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
+    <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto mb-1"></div>
+    <div className="h-6 bg-gray-300 rounded w-1/3 mx-auto"></div>
+  </div>
+);
 
 const ProductRecommendations = () => {
   const [recommendations, setRecommendations] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   // Helper function untuk format harga
   const formatPrice = (price) => {
-    if (typeof price !== "number") return "0";
+    if (typeof price !== "number" || isNaN(price)) return "0";
     return price.toLocaleString("id-ID"); // Menggunakan locale Indonesia
   };
 
+  // Helper function untuk transformasi produk (harga, satuan)
+  const transformProductData = (product) => {
+    if (!product) return null; // Handle jika produk null
+
+    if (!product.stocks || product.stocks.length === 0) {
+      return {
+        ...product,
+        originalPrice: 0,
+        discountedPrice: 0,
+        discount: 0,
+        satuan: "kg", // Default satuan jika tidak ada stock
+      };
+    }
+
+    // Group stocks by jenis, find lowest discounted price, and get satuan
+    const groupedByJenis = product.stocks.reduce((acc, stock) => {
+      const jenis = stock.jenis || "Unknown"; // Default jenis jika tidak ada
+      const discountedPrice =
+        stock.price - (stock.price * (stock.discount || 0)) / 100;
+
+      if (!acc[jenis] || discountedPrice < acc[jenis].discountedPrice) {
+        acc[jenis] = {
+          originalPrice: stock.price,
+          discountedPrice: discountedPrice,
+          discount: stock.discount || 0,
+          satuan: stock.satuan || "kg", // Ambil satuan dari stock, fallback ke "kg"
+        };
+      }
+      return acc;
+    }, {});
+
+    const jenisEntries = Object.values(groupedByJenis);
+    if (jenisEntries.length === 0) {
+      return {
+        ...product,
+        originalPrice: 0,
+        discountedPrice: 0,
+        discount: 0,
+        satuan: "kg",
+      };
+    }
+
+    const lowestPriceJenisEntry = jenisEntries.reduce(
+      (lowest, current) =>
+        lowest.discountedPrice <= current.discountedPrice ? lowest : current,
+      jenisEntries[0] // Inisialisasi dengan entri pertama
+    );
+
+    return {
+      ...product,
+      originalPrice: lowestPriceJenisEntry.originalPrice,
+      discountedPrice: lowestPriceJenisEntry.discountedPrice,
+      discount: lowestPriceJenisEntry.discount,
+      satuan: lowestPriceJenisEntry.satuan, // Gunakan satuan dari entri termurah
+    };
+  };
+
   useEffect(() => {
-    const fetchRecommendations = async () => {
+    const fetchOrderedRecommendations = async () => {
       setLoading(true);
       setError(null);
-      try {
-        const response = await axios.get(`${API_URL}/api/products`, {
-          params: {
-            limit: 4, // <--- PERUBAHAN DI SINI: dari 3 menjadi 4
-            sortBy: "sales",
-            sortOrder: "desc",
-          },
-        });
-        // console.log("API Response Products:", response.data.products);
 
-        let transformedProducts = response.data.products.map((product) => {
-          // 1. Handle jika tidak ada stocks atau stocks kosong
-          if (!product.stocks || product.stocks.length === 0) {
-            return {
-              ...product,
-              originalPrice: 0,
-              discountedPrice: 0,
-              discount: 0,
-              satuan: "kg", // Default satuan jika tidak ada stock
-            };
-          }
+      // Urutan prioritas yang diinginkan: Lele, Nila, Mas, Gurame
+      // PERHATIKAN URUTAN INI JIKA ANDA INGIN MENGUBAHNYA
+      const fishOrderPriority = [
+        { id: "lele", searchKeywords: ["lele"] },
+        { id: "nila", searchKeywords: ["nila"] },
+        { id: "mas", searchKeywords: ["mas", "ikan mas"] },
+        { id: "gurame", searchKeywords: ["gurameh", "gurami"] },
+      ];
 
-          // 2. Group stocks by jenis, find lowest discounted price, and get satuan
-          const groupedByJenis = product.stocks.reduce((acc, stock) => {
-            const jenis = stock.jenis || "Unknown"; // Default jenis jika tidak ada
-            const discountedPrice =
-              stock.price - (stock.price * (stock.discount || 0)) / 100;
+      const orderedResults = new Array(4).fill(null); // Array untuk 4 produk, diisi null awalnya
+      const fetchedProductIds = new Set(); // Untuk melacak ID produk yang sudah diambil
 
-            if (!acc[jenis] || discountedPrice < acc[jenis].discountedPrice) {
-              acc[jenis] = {
-                originalPrice: stock.price,
-                discountedPrice: discountedPrice,
-                discount: stock.discount || 0,
-                satuan: stock.satuan || "kg", // Ambil satuan dari stock, fallback ke "kg"
-              };
+      // Fungsi untuk fetch produk terlaris berdasarkan keyword
+      const fetchTopProductByKeywords = async (keywords) => {
+        for (const term of keywords) {
+          try {
+            const response = await axios.get(`${API_URL}/api/products`, {
+              params: {
+                search: term,
+                sortBy: "sales",
+                sortOrder: "desc",
+                limit: 1,
+              },
+            });
+            if (response.data.products && response.data.products.length > 0) {
+              return response.data.products[0]; // Return produk jika ditemukan
             }
-            return acc;
-          }, {});
-
-          // 3. Handle jika setelah grouping tidak ada jenis yang valid
-          const jenisEntries = Object.values(groupedByJenis);
-          if (jenisEntries.length === 0) {
-            // Ini seharusnya tidak terjadi jika product.stocks tidak kosong,
-            // tapi sebagai pengaman
-            return {
-              ...product,
-              originalPrice: 0,
-              discountedPrice: 0,
-              discount: 0,
-              satuan: "kg",
-            };
+          } catch (err) {
+            console.warn(
+              `Error fetching product for keyword "${term}":`,
+              err.message
+            );
           }
+        }
+        return null;
+      };
 
-          // 4. Find the jenis entry with the lowest discounted price
-          const lowestPriceJenisEntry = jenisEntries.reduce(
-            (lowest, current) =>
-              lowest.discountedPrice <= current.discountedPrice
-                ? lowest
-                : current,
-            jenisEntries[0] // Inisialisasi dengan entri pertama
-          );
-
-          // 5. Return produk yang sudah ditransformasi dengan satuan yang benar
-          return {
-            ...product,
-            originalPrice: lowestPriceJenisEntry.originalPrice,
-            discountedPrice: lowestPriceJenisEntry.discountedPrice,
-            discount: lowestPriceJenisEntry.discount,
-            satuan: lowestPriceJenisEntry.satuan, // Gunakan satuan dari entri termurah
-          };
-        });
-        // console.log("Transformed Recommendations:", transformedProducts);
-        setRecommendations(transformedProducts);
-      } catch (err) {
-        setError("Gagal mengambil rekomendasi produk");
-        console.error(
-          "Fetch recommendations error:",
-          err.response ? err.response.data : err
+      try {
+        // 1. Panggilan Paralel untuk Ikan Prioritas
+        const priorityPromises = fishOrderPriority.map((fish) =>
+          fetchTopProductByKeywords(fish.searchKeywords)
         );
+        const priorityProductsResults = await Promise.all(priorityPromises);
+
+        // Isi slot berdasarkan hasil panggilan paralel
+        priorityProductsResults.forEach((product, index) => {
+          if (product && !fetchedProductIds.has(product._id)) {
+            orderedResults[index] = product;
+            fetchedProductIds.add(product._id);
+          }
+        });
+
+        // 2. Jika masih ada slot kosong, isi dengan produk terlaris umum (fallback)
+        let currentProductCount = orderedResults.filter(
+          (p) => p !== null
+        ).length;
+        if (currentProductCount < 4) {
+          const neededForFallback = 4 - currentProductCount;
+          if (neededForFallback > 0) {
+            const generalResponse = await axios.get(`${API_URL}/api/products`, {
+              params: {
+                limit: neededForFallback + fetchedProductIds.size + 10,
+                sortBy: "sales",
+                sortOrder: "desc",
+              },
+            });
+
+            const generalProducts = generalResponse.data.products;
+            let generalProductIndex = 0;
+
+            for (let i = 0; i < orderedResults.length; i++) {
+              if (orderedResults[i] === null) {
+                while (generalProductIndex < generalProducts.length) {
+                  const fallbackProduct = generalProducts[generalProductIndex];
+                  generalProductIndex++;
+                  if (
+                    fallbackProduct &&
+                    !fetchedProductIds.has(fallbackProduct._id)
+                  ) {
+                    orderedResults[i] = fallbackProduct;
+                    fetchedProductIds.add(fallbackProduct._id);
+                    break;
+                  }
+                }
+              }
+              if (orderedResults.filter((p) => p !== null).length >= 4) break;
+            }
+          }
+        }
+
+        // 3. Transformasi produk yang berhasil dikumpulkan
+        const finalProducts = orderedResults
+          .filter((p) => p !== null)
+          .map(transformProductData)
+          .filter((p) => p !== null);
+
+        setRecommendations(finalProducts);
+      } catch (err) {
+        console.error("Error fetching recommendations:", err);
+        setError("Gagal memuat rekomendasi produk. Silakan coba lagi nanti.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRecommendations();
+    fetchOrderedRecommendations();
   }, []);
 
   const handleShowMore = () => {
@@ -118,7 +207,7 @@ const ProductRecommendations = () => {
   };
 
   const calculateDiscount = (originalPrice, discountedPrice) => {
-    if (!originalPrice || !discountedPrice || originalPrice === 0) return 0;
+    if (!originalPrice || originalPrice === 0 || !discountedPrice) return 0;
     return Math.round(
       ((originalPrice - discountedPrice) / originalPrice) * 100
     );
@@ -138,14 +227,27 @@ const ProductRecommendations = () => {
         Bibit Ikan Terfavorit
       </h3>
 
-      {loading && <p className="text-center">Memuat rekomendasi...</p>}
-      {error && <p className="text-center text-red-500">{error}</p>}
+      {/* Tampilan Loading */}
+      {loading && (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 py-10">
+          {/* Buat 4 skeleton card */}
+          {[...Array(4)].map((_, index) => (
+            <ProductCardSkeleton key={index} />
+          ))}
+        </div>
+      )}
 
+      {/* Tampilan Error */}
+      {!loading && error && (
+        <p className="text-center text-red-500 py-10">{error}</p>
+      )}
+
+      {/* Tampilan Rekomendasi Produk */}
       {!loading && !error && recommendations.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {" "}
-          {/* Adjusted grid for 4 items */}
           {recommendations.map((item) => {
+            if (!item || !item._id) return null;
+
             const discountPercentage = calculateDiscount(
               item.originalPrice,
               item.discountedPrice
@@ -158,8 +260,6 @@ const ProductRecommendations = () => {
               >
                 <div>
                   <div className="relative w-full h-36 sm:h-40 md:h-48 mb-3 rounded overflow-hidden">
-                    {" "}
-                    {/* Adjusted height slightly for consistency */}
                     <img
                       src={item.images?.[0] || "/default-fish.png"}
                       alt={item.name}
@@ -169,8 +269,6 @@ const ProductRecommendations = () => {
                     />
                   </div>
                   <h4 className="font-bold text-center text-base md:text-lg truncate mb-1">
-                    {" "}
-                    {/* Adjusted text size */}
                     {item.name}
                   </h4>
                 </div>
@@ -179,8 +277,6 @@ const ProductRecommendations = () => {
                     {discountPercentage > 0 && item.originalPrice > 0 && (
                       <>
                         <p className="text-gray-500 line-through text-xs sm:text-sm">
-                          {" "}
-                          {/* Adjusted text size */}
                           Rp{formatPrice(item.originalPrice)}
                         </p>
                         <span className="text-red-500 text-xs bg-red-100 px-1 rounded">
@@ -190,8 +286,6 @@ const ProductRecommendations = () => {
                     )}
                   </div>
                   <p className="text-[#003D47] font-bold text-sm sm:text-base md:text-lg">
-                    {" "}
-                    {/* Adjusted text size */}
                     Rp{formatPrice(item.discountedPrice)}/{item.satuan || "kg"}
                   </p>
                 </div>
@@ -201,15 +295,16 @@ const ProductRecommendations = () => {
         </div>
       )}
 
+      {/* Pesan jika tidak ada rekomendasi */}
       {!loading && !error && recommendations.length === 0 && (
-        <p className="text-center text-gray-600">
-          Belum ada rekomendasi produk saat ini.
+        <p className="text-center text-gray-600 py-10">
+          Belum ada rekomendasi produk yang dapat ditampilkan saat ini.
         </p>
       )}
 
       <div className="text-center mt-8">
         <button
-          className="border border-gray-300 px-6 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-200"
+          className="border border-gray-300 px-6 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-200 cursor-pointer" // Tambahkan cursor-pointer di sini
           onClick={handleShowMore}
         >
           Lihat Semua Produk

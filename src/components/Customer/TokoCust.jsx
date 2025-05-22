@@ -4,12 +4,25 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
+// Komponen Placeholder untuk animasi loading (bisa ditaruh di file terpisah jika sering digunakan)
+const ProductCardSkeleton = () => (
+  <div className="bg-white p-2 sm:p-3 md:p-4 rounded-lg shadow animate-pulse">
+    <div className="w-full aspect-square overflow-hidden rounded bg-gray-300 mb-2"></div>
+    <div className="h-5 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>{" "}
+    {/* Sesuaikan tinggi */}
+    <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto mb-1"></div>{" "}
+    {/* Sesuaikan tinggi */}
+    <div className="h-5 bg-gray-300 rounded w-1/3 mx-auto"></div>{" "}
+    {/* Sesuaikan tinggi */}
+  </div>
+);
+
 const FishStore = () => {
   const [products, setProducts] = useState([]);
   const [sortBy, setSortBy] = useState("terlaris");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Set loading true di awal
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,10 +30,14 @@ const FishStore = () => {
   const fetchProducts = async (search = "", sort = sortBy, pg = page) => {
     setLoading(true);
     setError(null);
+    // Jika bukan halaman pertama, jangan reset produk agar tidak ada kedipan
+    // if (pg === 1) {
+    //   setProducts([]);
+    // }
     try {
       const params = {
         page: pg,
-        limit: 20,
+        limit: 20, // Jumlah produk per halaman
         sortBy:
           sort === "terlaris"
             ? "sales"
@@ -30,9 +47,10 @@ const FishStore = () => {
         sortOrder: sort === "harga-rendah" ? "asc" : "desc",
         search: search,
       };
+      // Khusus untuk sorting harga, API mungkin tidak butuh sortBy dan sortOrder
       if (sort === "harga-rendah" || sort === "harga-tinggi") {
-        delete params.sortBy;
-        delete params.sortOrder;
+        delete params.sortBy; // Hapus sortBy jika backend menangani sort harga secara khusus
+        // params.sortBy = "price"; // Atau set sortBy ke 'price' jika backend mendukung
       }
       const response = await axios.get(`${API_URL}/api/products`, { params });
       const { products: fetchedProducts, pagination } = response.data;
@@ -92,6 +110,7 @@ const FishStore = () => {
         };
       });
 
+      // Sorting harga di frontend jika API tidak melakukannya
       if (sort === "harga-rendah") {
         transformedProducts.sort(
           (a, b) => (a.discountedPrice || 0) - (b.discountedPrice || 0)
@@ -102,15 +121,17 @@ const FishStore = () => {
         );
       }
 
-      console.log("Transformed Products:", transformedProducts);
-      setProducts(transformedProducts);
-      setTotalPages(pagination.totalPages);
+      // console.log("Transformed Products:", transformedProducts);
+      setProducts(transformedProducts); // Langsung set produk baru
+      setTotalPages(pagination.totalPages || 1);
     } catch (err) {
       setError(`Gagal mengambil data produk: ${err.message}`);
       console.error(
         "Fetch products error:",
         err.response ? err.response.data : err
       );
+      setProducts([]); // Kosongkan produk jika error
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -119,11 +140,25 @@ const FishStore = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const search = queryParams.get("search") || "";
-    fetchProducts(search, sortBy, page);
-  }, [location.search, sortBy, page]);
+    // Reset page ke 1 jika search atau sortBy berubah
+    if (
+      location.state?.prevSearch !== search ||
+      location.state?.prevSortBy !== sortBy
+    ) {
+      setPage(1); // Kembali ke halaman 1
+      fetchProducts(search, sortBy, 1);
+    } else {
+      fetchProducts(search, sortBy, page);
+    }
+    // Simpan state search dan sortBy untuk perbandingan berikutnya
+    navigate(location.pathname + location.search, {
+      replace: true,
+      state: { ...location.state, prevSearch: search, prevSortBy: sortBy },
+    });
+  }, [location.search, sortBy, page]); // Tambahkan navigate ke dependency jika diperlukan, tapi hati-hati loop
 
   const calculateDiscount = (originalPrice, discountedPrice) => {
-    if (!originalPrice || !discountedPrice) return 0;
+    if (!originalPrice || !discountedPrice || originalPrice === 0) return 0; // Tambah cek originalPrice === 0
     return Math.round(
       ((originalPrice - discountedPrice) / originalPrice) * 100
     );
@@ -134,10 +169,19 @@ const FishStore = () => {
     e.target.src = "/default-fish.png";
   };
 
-  // Helper function untuk format harga
   const formatPrice = (price) => {
-    if (typeof price !== "number") return "0";
-    return price.toLocaleString("id-ID"); // Menggunakan locale Indonesia
+    if (typeof price !== "number" || isNaN(price)) return "0"; // Tambah cek isNaN
+    return price.toLocaleString("id-ID");
+  };
+
+  const handleSortChange = (newSortBy) => {
+    // setPage(1); // Selalu kembali ke halaman 1 saat sort berubah
+    setSortBy(newSortBy);
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    window.scrollTo(0, 0); // Scroll ke atas saat ganti halaman
   };
 
   return (
@@ -147,44 +191,70 @@ const FishStore = () => {
           <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-center sm:justify-start">
             <button
               className={`px-2 sm:px-4 py-2 text-sm sm:text-base rounded ${
-                sortBy === "terlaris" && "bg-[#003D47] text-white"
+                sortBy === "terlaris"
+                  ? "bg-[#003D47] text-white"
+                  : "bg-white text-black hover:bg-gray-200"
               }`}
-              onClick={() => setSortBy("terlaris")}
+              onClick={() => handleSortChange("terlaris")}
             >
               Terlaris
             </button>
             <button
               className={`px-2 sm:px-4 py-2 text-sm sm:text-base rounded ${
-                sortBy === "terbaru" && "bg-[#003D47] text-white"
+                sortBy === "terbaru"
+                  ? "bg-[#003D47] text-white"
+                  : "bg-white text-black hover:bg-gray-200"
               }`}
-              onClick={() => setSortBy("terbaru")}
+              onClick={() => handleSortChange("terbaru")}
             >
               Terbaru
             </button>
             <select
-              className={`border rounded px-2 sm:px-3 py-2 text-sm sm:text-base ${
+              className={`border rounded px-2 sm:px-3 py-2 text-sm sm:text-base cursor-pointer ${
                 sortBy === "harga-rendah" || sortBy === "harga-tinggi"
                   ? "bg-[#003D47] text-white"
                   : "bg-white text-black"
               }`}
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              value={sortBy} // Pastikan value sesuai dengan opsi yang ada atau default
+              onChange={(e) => handleSortChange(e.target.value)}
             >
-              <option value="paling-sesuai">Paling Sesuai</option>
+              {/* Default value untuk select bisa berbeda, "paling-sesuai" mungkin tidak ada di logic sortBy Anda */}
+              <option value="terlaris">Paling Sesuai</option>
               <option value="harga-rendah">Harga Termurah</option>
               <option value="harga-tinggi">Harga Termahal</option>
             </select>
           </div>
-          <span className="text-gray-600 text-sm sm:text-base mt-2 sm:mt-0">
-            Menampilkan {products.length} hasil
-            {location.search &&
-              ` untuk "${new URLSearchParams(location.search).get("search")}"`}
-          </span>
+          {!loading && !error && (
+            <span className="text-gray-600 text-sm sm:text-base mt-2 sm:mt-0">
+              Menampilkan {products.length} dari total (backend) hasil
+              {location.search &&
+                ` untuk "${new URLSearchParams(location.search).get(
+                  "search"
+                )}"`}
+            </span>
+          )}
         </div>
 
-        {loading && <p className="text-center">Memuat produk...</p>}
-        {error && <p className="text-center text-red-500">{error}</p>}
+        {/* Tampilan Loading */}
+        {loading && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4 py-5">
+            {[...Array(10)].map(
+              (
+                _,
+                index // Tampilkan 10 skeleton, atau sesuai limit Anda
+              ) => (
+                <ProductCardSkeleton key={index} />
+              )
+            )}
+          </div>
+        )}
 
+        {/* Tampilan Error */}
+        {!loading && error && (
+          <p className="text-center text-red-500 py-10">{error}</p>
+        )}
+
+        {/* Tampilan Produk */}
         {!loading && !error && products.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
             {products.map((product) => {
@@ -196,7 +266,7 @@ const FishStore = () => {
               return (
                 <div
                   key={product._id}
-                  className="bg-white p-2 sm:p-3 md:p-4 rounded-lg shadow flex flex-col justify-between cursor-pointer"
+                  className="bg-white p-2 sm:p-3 md:p-4 rounded-lg shadow flex flex-col justify-between cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => navigate(`/product/${product._id}`)}
                 >
                   <div className="w-full aspect-square overflow-hidden rounded">
@@ -208,24 +278,28 @@ const FishStore = () => {
                       loading="lazy"
                     />
                   </div>
-                  <div className="text-center mt-2">
-                    <h3 className="text-sm sm:text-base md:text-lg font-semibold truncate">
+                  <div className="text-center mt-2 flex-grow flex flex-col justify-end">
+                    {" "}
+                    {/* Penyesuaian untuk tata letak teks */}
+                    <h3 className="text-sm sm:text-base md:text-lg font-semibold truncate mb-0.5">
                       {product.name}
                     </h3>
-                    <div className="flex justify-center items-center gap-1 sm:gap-2">
-                      {discountPercentage > 0 && (
-                        <>
-                          <p className="text-xs sm:text-sm text-gray-400 line-through">
-                            Rp{formatPrice(product.originalPrice)}{" "}
-                            {/* <-- PERUBAHAN DI SINI */}
-                          </p>
-                          <span className="text-red-500 text-xs sm:text-sm">
-                            -{discountPercentage}%
-                          </span>
-                        </>
-                      )}
+                    <div className="flex justify-center items-center gap-1 sm:gap-2 min-h-[1.2em]">
+                      {" "}
+                      {/* Min height untuk discount */}
+                      {discountPercentage > 0 &&
+                        product.originalPrice > 0 && ( // Tambah cek originalPrice
+                          <>
+                            <p className="text-xs sm:text-sm text-gray-400 line-through">
+                              Rp{formatPrice(product.originalPrice)}
+                            </p>
+                            <span className="text-red-500 text-xs sm:text-sm bg-red-100 px-1 rounded">
+                              {discountPercentage}%
+                            </span>
+                          </>
+                        )}
                     </div>
-                    <p className="text-sm sm:text-base md:text-lg font-bold text-[#003D47]">
+                    <p className="text-sm sm:text-base md:text-lg font-bold text-[#003D47] mt-0.5">
                       Rp{formatPrice(product.discountedPrice)}/
                       {product.satuan || "kg"}
                     </p>
@@ -236,26 +310,44 @@ const FishStore = () => {
           </div>
         )}
 
+        {/* Pesan Jika Tidak Ada Produk */}
         {!loading && !error && products.length === 0 && (
-          <p className="text-center">Tidak ada produk ditemukan</p>
+          <p className="text-center text-gray-600 py-10">
+            Tidak ada produk ditemukan.
+          </p>
         )}
 
-        {!loading && !error && products.length > 0 && (
-          <div className="flex justify-center flex-wrap gap-1 sm:gap-2 mt-4 sm:mt-6">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-              <button
-                key={num}
-                className={`px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded ${
-                  page === num ? "bg-[#003D47] text-white" : "bg-gray-200"
-                }`}
-                onClick={() => setPage(num)}
-              >
-                {num}
-              </button>
-            ))}
+        {/* Paginasi */}
+        {!loading && !error && products.length > 0 && totalPages > 1 && (
+          <div className="flex justify-center items-center flex-wrap gap-1 sm:gap-2 mt-6 sm:mt-8">
             <button
-              className="bg-gray-300 px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded"
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              className="bg-gray-300 hover:bg-gray-400 px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => handlePageChange(Math.max(1, page - 1))}
+              disabled={page === 1}
+            >
+              Prev
+            </button>
+            {/* Logika untuk menampilkan beberapa nomor halaman */}
+            {[...Array(totalPages)].map((_, i) => {
+              const pageNum = i + 1;
+              // Sederhanakan: tampilkan semua atau logika yang lebih kompleks untuk "..."
+              return (
+                <button
+                  key={pageNum}
+                  className={`px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded ${
+                    page === pageNum
+                      ? "bg-[#003D47] text-white"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  }`}
+                  onClick={() => handlePageChange(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+            <button
+              className="bg-gray-300 hover:bg-gray-400 px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => handlePageChange(Math.min(page + 1, totalPages))}
               disabled={page === totalPages}
             >
               Next
