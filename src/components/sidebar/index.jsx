@@ -106,7 +106,7 @@ const Sidebar = ({ isMobile }) => {
                   <span className="text-lg mr-3">
                     <FaSignOutAlt />
                   </span>
-                  {isOpen && <span>Log Out</span>}
+                  {isOpen && <span>Keluar</span>}
                 </button>
               </li>
             </ul>
@@ -143,7 +143,7 @@ const Sidebar = ({ isMobile }) => {
           <span className="text-lg mr-3">
             <FaSignOutAlt />
           </span>
-          <span>Log Out</span>
+          <span>Keluar</span>
         </button>
       </li>
     </ul>

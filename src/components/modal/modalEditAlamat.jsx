@@ -1,5 +1,6 @@
+// modalEditAlamat.jsx
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// Hapus useNavigate jika tidak digunakan langsung di sini
 import CancelModal from "./modalCancel";
 import SimpanModal from "./modalBerhasilSimpan";
 
@@ -7,11 +8,13 @@ export default function EditAddressModal({
   isOpen,
   onClose,
   address,
-  setAddresses,
-  addresses,
+  // Hapus setAddresses dan addresses jika tidak digunakan lagi secara langsung
+  // setAddresses,
+  // addresses,
+  onAddressUpdated, // Prop baru dari Alamat.jsx
 }) {
   const [isCancelOpen, setIsCancelOpen] = useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Hapus jika tidak digunakan
   const [isSimpanOpen, setIsSimpanOpen] = useState(false);
   const [recipientName, setRecipientName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -19,19 +22,26 @@ export default function EditAddressModal({
   const [postalCode, setPostalCode] = useState("");
   const [province, setProvince] = useState("");
   const [city, setCity] = useState("");
-  const [isPrimary, setIsPrimary] = useState(false);
 
   useEffect(() => {
-    if (address) {
+    if (isOpen && address) {
+      // Pastikan modal terbuka dan address ada
       setRecipientName(address.recipientName || "");
       setPhoneNumber(address.phoneNumber || "");
       setStreetAddress(address.streetAddress || "");
       setPostalCode(address.postalCode || "");
       setProvince(address.province || "");
       setCity(address.city || "");
-      setIsPrimary(address.isPrimary || false);
+    } else if (!isOpen) {
+      // Reset jika modal ditutup
+      setRecipientName("");
+      setPhoneNumber("");
+      setStreetAddress("");
+      setPostalCode("");
+      setProvince("");
+      setCity("");
     }
-  }, [address]);
+  }, [isOpen, address]); // Re-run jika isOpen atau address berubah
 
   const handlePostalCodeChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
@@ -40,6 +50,10 @@ export default function EditAddressModal({
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!address?._id) {
+      alert("Error: Alamat tidak valid untuk diedit.");
+      return;
+    }
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -63,7 +77,6 @@ export default function EditAddressModal({
             postalCode,
             province,
             city,
-            isPrimary,
           }),
         }
       );
@@ -74,94 +87,125 @@ export default function EditAddressModal({
         throw new Error(result.message || "Failed to update address");
       }
 
-      // Update the addresses state with the updated address
-      setAddresses(
-        addresses.map((addr) => (addr._id === address._id ? result.data : addr))
-      );
+      // Tidak perlu update state 'addresses' di sini lagi
+      // setAddresses(
+      //   addresses.map((addr) => (addr._id === address._id ? result.data : addr))
+      // );
       setIsSimpanOpen(true);
     } catch (err) {
       console.error("Failed to update address:", err);
+      alert(`Gagal memperbarui alamat: ${err.message}`);
     }
+  };
+
+  const handleConfirmSimpan = async () => {
+    setIsSimpanOpen(false);
+    if (onAddressUpdated) {
+      await onAddressUpdated(); // Panggil callback untuk refresh data di parent
+    }
+    onClose(); // Tutup modal edit alamat
+    // navigate("/profile?tab=address"); // Navigasi sudah ditangani oleh onClose di parent jika perlu
+  };
+
+  const handleCancelAndClose = () => {
+    setIsCancelOpen(false);
+    onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 backdrop-blur-xl bg-opacity-50 flex justify-center items-center p-4">
+    <div className="fixed inset-0 backdrop-blur-xl bg-opacity-50 flex justify-center items-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
         <h2 className="text-2xl font-bold mb-4">Edit Alamat</h2>
         <form className="space-y-4" onSubmit={handleSave}>
           <div>
-            <label className="block text-sm font-medium">Nama</label>
-            <input
-              type="text"
-              className="w-full border rounded p-2"
-              value={recipientName}
-              onChange={(e) => setRecipientName(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">No Telepon</label>
-            <input
-              type="tel"
-              className="w-full border rounded p-2"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-            />
-          </div>
-          <div>
             <label className="block text-sm font-medium">
-              Nama Jalan, Gedung, No. Rumah
+              Nama Penerima <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               className="w-full border rounded p-2"
-              value={streetAddress}
-              onChange={(e) => setStreetAddress(e.target.value)}
+              placeholder="Nama Lengkap Penerima"
+              value={recipientName}
+              onChange={(e) => setRecipientName(e.target.value)}
+              required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Kode Pos</label>
+            <label className="block text-sm font-medium">
+              No Telepon <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              className="w-full border rounded p-2"
+              placeholder="No Telepon Penerima"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">
+              Nama Jalan, Gedung, No. Rumah{" "}
+              <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded p-2"
+              placeholder="Detail Alamat Lengkap"
+              value={streetAddress}
+              onChange={(e) => setStreetAddress(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">
+              Kode Pos <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               className="w-full border rounded p-2 appearance-none"
+              placeholder="Kode Pos"
               value={postalCode}
               onChange={handlePostalCodeChange}
               maxLength="6"
+              pattern="\d{5,6}"
+              title="Kode pos harus terdiri dari 5 atau 6 digit angka."
+              required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Provinsi</label>
+            <label className="block text-sm font-medium">
+              Provinsi <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               className="w-full border rounded p-2"
+              placeholder="Provinsi"
               value={province}
               onChange={(e) => setProvince(e.target.value)}
+              required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Kota</label>
+            <label className="block text-sm font-medium">
+              Kota <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               className="w-full border rounded p-2"
+              placeholder="Kota/Kabupaten"
               value={city}
               onChange={(e) => setCity(e.target.value)}
+              required
             />
           </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              className="mr-2"
-              checked={isPrimary}
-              onChange={(e) => setIsPrimary(e.target.checked)}
-            />
-            <label className="text-sm">Atur sebagai Alamat Utama</label>
-          </div>
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between pt-4">
             <button
               type="button"
               onClick={() => setIsCancelOpen(true)}
-              className="bg-gray-300 text-black hover:bg-[#F0F1F3] transition px-4 py-2 rounded"
+              className="bg-gray-300 text-black hover:bg-gray-400 transition px-4 py-2 rounded"
             >
               Batal
             </button>
@@ -175,24 +219,22 @@ export default function EditAddressModal({
         </form>
       </div>
 
-      {/* Modal Batal */}
       <CancelModal
         isOpen={isCancelOpen}
         onClose={() => setIsCancelOpen(false)}
-        onConfirm={() => {
-          setIsCancelOpen(false);
-          onClose();
-        }}
+        onConfirm={handleCancelAndClose}
+        title="Konfirmasi Batal"
+        message="Apakah Anda yakin ingin membatalkan perubahan alamat?"
+        confirmText="Ya, Batalkan"
+        cancelText="Tidak"
       />
 
-      {/* Modal Simpan */}
       <SimpanModal
         isOpen={isSimpanOpen}
-        onClose={() => {
-          setIsSimpanOpen(false);
-          onClose();
-          navigate("/profile?tab=address");
-        }}
+        onClose={handleConfirmSimpan}
+        title="Berhasil"
+        message="Alamat berhasil diperbarui!"
+        confirmText="OK"
       />
     </div>
   );

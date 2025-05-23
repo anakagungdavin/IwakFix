@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { EyeIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import TransactionDetailModal from "../modal/modalDetailTransaksi"; // Pastikan path ini benar
 
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
-const ConfirmedOrdersTable = () => {
-  const [orders, setOrders] = useState([]);
-  const [confirmedOrders, setConfirmedOrders] = useState([]);
-  const [shippedOrders, setShippedOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const ConfirmedOrdersTable = ({
+  ordersData,
+  onOrderStatusChange,
+  isLoading,
+}) => {
+  const [actionError, setActionError] = useState(null);
   const [resiNumbers, setResiNumbers] = useState({});
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,46 +20,29 @@ const ConfirmedOrdersTable = () => {
 
   const token = localStorage.getItem("token");
 
+  const confirmedOrders = useMemo(
+    () => ordersData.filter((order) => order.status === "Paid"),
+    [ordersData]
+  );
+
+  const shippedOrders = useMemo(
+    () => ordersData.filter((order) => order.status === "Shipped"),
+    [ordersData]
+  );
+
   useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get(`${API_URL}/api/orders/all`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const allOrders = response.data;
-      setOrders(allOrders); // Simpan semua order
-
-      // Filter orders berdasarkan status
-      const filteredConfirmedOrders = allOrders.filter(
-        (order) => order.status === "Paid"
-      );
-      const filteredShippedOrders = allOrders.filter(
-        (order) => order.status === "Shipped"
-      );
-
-      // Inisialisasi metode pengiriman untuk order yang dikonfirmasi
-      const initialShippingMethods = {};
-      filteredConfirmedOrders.forEach((order) => {
-        // Default ke 'resi' jika paymentMethod bukan 'cod', atau jika tidak ada preferensi
+    const initialShippingMethods = {};
+    confirmedOrders.forEach((order) => {
+      if (!shippingMethod[order._id]) {
+        // Hanya set jika belum ada untuk order tsb
         initialShippingMethods[order._id] =
           order.paymentMethod?.toLowerCase() === "cod" ? "COD" : "resi";
-      });
-
-      setShippingMethod(initialShippingMethods);
-      setConfirmedOrders(filteredConfirmedOrders);
-      setShippedOrders(filteredShippedOrders);
-    } catch (err) {
-      setError(err.response?.data?.message || "Gagal mengambil data pesanan");
-    } finally {
-      setLoading(false);
+      }
+    });
+    if (Object.keys(initialShippingMethods).length > 0) {
+      setShippingMethod((prev) => ({ ...prev, ...initialShippingMethods }));
     }
-  };
+  }, [confirmedOrders, shippingMethod]); // Tambahkan shippingMethod agar tidak overwrite state yang sudah diubah user
 
   const handleResiChange = (orderId, value) => {
     setResiNumbers((prev) => ({ ...prev, [orderId]: value }));
@@ -67,7 +50,6 @@ const ConfirmedOrdersTable = () => {
 
   const handleShippingMethodChange = (orderId, method) => {
     setShippingMethod((prev) => ({ ...prev, [orderId]: method }));
-    // Reset input resi jika beralih ke COD dan sebaliknya
     if (method === "COD") {
       setResiNumbers((prev) => ({ ...prev, [orderId]: "" }));
     } else if (method === "resi") {
@@ -78,11 +60,9 @@ const ConfirmedOrdersTable = () => {
   const handleCodImageUpload = (orderId, e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validasi ukuran file sebelum membaca
       if (file.size > 0.5 * 1024 * 1024) {
-        // 0.5 MB
         alert("Ukuran file terlalu besar. Maksimum 0.5MB.");
-        e.target.value = null; // Reset input file
+        e.target.value = null;
         return;
       }
       const reader = new FileReader();
@@ -102,19 +82,17 @@ const ConfirmedOrdersTable = () => {
       delete newImages[orderId];
       return newImages;
     });
-    // Reset input file jika ada
     const fileInput = document.getElementById(`cod-image-${orderId}`);
-    if (fileInput) {
-      fileInput.value = null;
-    }
+    if (fileInput) fileInput.value = null;
   };
 
   const handleShipOrder = async (orderId) => {
+    setActionError(null);
     const currentOrder = confirmedOrders.find((o) => o._id === orderId);
     if (!currentOrder) return;
 
     const method = shippingMethod[orderId];
-    let payload = { status: "Shipped" };
+    let payload;
     let requestConfig = { headers: { Authorization: `Bearer ${token}` } };
     const formData = new FormData();
 
@@ -124,8 +102,11 @@ const ConfirmedOrdersTable = () => {
         alert("Harap masukkan nomor resi sebelum mengirim pesanan.");
         return;
       }
-      payload.trackingNumber = resiNumber;
-      payload.shippingMethod = "courier"; // Atau sesuai pilihan kurir
+      payload = {
+        status: "Shipped",
+        trackingNumber: resiNumber,
+        shippingMethod: "courier",
+      };
     } else if (method === "COD") {
       const codImageFile = codImages[orderId]?.file;
       if (!codImageFile) {
@@ -134,8 +115,8 @@ const ConfirmedOrdersTable = () => {
       }
       formData.append("status", "Shipped");
       formData.append("shippingMethod", "COD");
-      formData.append("codProof", codImageFile); // Backend expect 'codProof'
-      payload = formData; // Gunakan formData untuk payload
+      formData.append("codProof", codImageFile);
+      payload = formData;
       requestConfig.headers["Content-Type"] = "multipart/form-data";
     } else {
       alert("Metode pengiriman tidak valid.");
@@ -143,61 +124,54 @@ const ConfirmedOrdersTable = () => {
     }
 
     try {
-      const response = await axios.put(
+      await axios.put(
         `${API_URL}/api/orders/${orderId}/status`,
-        payload, // Bisa objek JSON atau FormData
+        payload,
         requestConfig
       );
-      // Panggil fetchOrders lagi untuk mendapatkan data terbaru dari server
-      fetchOrders();
-      // Optional: buka modal dengan data dari respons jika diperlukan
-      // setSelectedOrder(response.data);
-      // setIsModalOpen(true);
       alert("Status pesanan berhasil diperbarui menjadi 'Shipped'.");
+
+      // Reset state lokal untuk order yang baru dikirim
+      setResiNumbers((prev) => {
+        const newState = { ...prev };
+        delete newState[orderId];
+        return newState;
+      });
+      setCodImages((prev) => {
+        const newState = { ...prev };
+        delete newState[orderId];
+        return newState;
+      });
+      // Tidak perlu menghapus shippingMethod[orderId] karena akan hilang dari daftar "Perlu Dikirim"
+
+      if (onOrderStatusChange) {
+        onOrderStatusChange(); // Panggil callback untuk refresh data di Dashboard
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Gagal mengirim pesanan");
-      alert(
-        `Error: ${err.response?.data?.message || "Gagal mengirim pesanan"}`
-      );
+      const errorMsg = err.response?.data?.message || "Gagal mengirim pesanan";
+      setActionError(errorMsg);
+      alert(`Error: ${errorMsg}`);
     }
   };
 
-  // PERBAIKAN UTAMA DI SINI:
   const handleViewDetails = (order) => {
-    // Objek 'order' dari state (yang diambil dari API) seharusnya sudah memiliki struktur yang
-    // dibutuhkan oleh TransactionDetailModal.
-    // TransactionDetailModal mengharapkan prop 'transaction' dengan field:
-    // _id, createdAt, status, items (array), totalAmount, shippingAddress,
-    // shippingCost, paymentMethod, trackingNumber.
-    // Setiap 'item' dalam 'items' harus memiliki:
-    // product (objek terpopulate dengan name, images), quantity, price, discountedPrice, jenis, size, satuan.
-
-    // Pastikan `order.items` ada dan `item.product` terpopulate minimal dengan `name` dan `images`.
-    // `jenis`, `size`, `satuan` harus ada langsung di `item`.
-    // `paymentMethod` dan `createdAt` harus ada di `order`.
-
-    console.log("Data order yang akan ditampilkan di modal:", order); // Untuk debugging
-    setSelectedOrder(order); // Langsung gunakan objek order dari state
+    setSelectedOrder(order);
     setIsModalOpen(true);
   };
 
-  const openImageProof = (imageUrl) => {
-    setPreviewImage(imageUrl);
-  };
-
-  const closeImageProof = () => {
-    setPreviewImage(null);
-  };
+  const openImageProof = (imageUrl) => setPreviewImage(imageUrl);
+  const closeImageProof = () => setPreviewImage(null);
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Tanggal tidak valid";
-    return date.toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+    return isNaN(date.getTime())
+      ? "Tanggal tidak valid"
+      : date.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
   };
 
   const getProductNames = (items) => {
@@ -205,7 +179,7 @@ const ConfirmedOrdersTable = () => {
       return "Tidak ada produk";
     return items
       .map(
-        (item) => item?.product?.name || item?.name || "Produk tidak bernama" // Ambil dari item.product.name dulu
+        (item) => item?.product?.name || item?.name || "Produk tidak bernama"
       )
       .join(", ");
   };
@@ -215,27 +189,21 @@ const ConfirmedOrdersTable = () => {
     return items.reduce((sum, item) => sum + (item?.quantity || 0), 0);
   };
 
-  if (loading)
+  if (isLoading && confirmedOrders.length === 0 && shippedOrders.length === 0) {
     return (
       <div className="flex justify-center items-center p-4">
         <p>Memuat pesanan...</p>
       </div>
     );
-  if (error)
-    return (
-      <div className="p-4">
-        <p className="text-red-500">Error: {error}</p>
-        <button
-          onClick={fetchOrders}
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Coba Lagi
-        </button>
-      </div>
-    );
+  }
+  if (actionError) {
+    // Anda bisa menampilkan error ini di UI jika diinginkan
+    console.error("Action Error:", actionError);
+  }
 
   return (
     <div className="w-full">
+      {/* Judul "Pesanan yang Perlu Dikirim" dipindahkan ke Dashboard.jsx */}
       <h2 className="text-lg font-semibold mb-4">Pesanan yang Perlu Dikirim</h2>
       {confirmedOrders.length === 0 ? (
         <p className="text-center text-gray-500 py-6">
@@ -250,7 +218,7 @@ const ConfirmedOrdersTable = () => {
                   <th className="py-3 px-2 sm:p-4">ID</th>
                   <th className="py-3 px-2 sm:p-4">TANGGAL</th>
                   <th className="py-3 px-2 sm:p-4">PRODUK</th>
-                  <th className="py-3 px-2 sm:p-4">JUMLAH</th>
+                  <th className="py-3 px-2 sm:p-4 text-center">JUMLAH</th>
                   <th className="py-3 px-2 sm:p-4">TOTAL HARGA</th>
                   <th className="py-3 px-2 sm:p-4">METODE</th>
                   <th className="py-3 px-2 sm:p-4">DETAIL PENGIRIMAN</th>
@@ -293,7 +261,7 @@ const ConfirmedOrdersTable = () => {
                             className="mr-2"
                             disabled={
                               order.paymentMethod?.toLowerCase() === "cod"
-                            } // Disable resi jika metode bayar COD
+                            }
                           />
                           <span>Kurir</span>
                         </label>
@@ -309,7 +277,7 @@ const ConfirmedOrdersTable = () => {
                             className="mr-2"
                             disabled={
                               order.paymentMethod?.toLowerCase() !== "cod"
-                            } // Disable COD jika metode bayar bukan COD
+                            }
                           />
                           <span>COD</span>
                         </label>
@@ -446,8 +414,7 @@ const ConfirmedOrdersTable = () => {
                       {order._id?.slice(-6) || "N/A"}
                     </td>
                     <td className="py-3 px-2 sm:p-4">
-                      {formatDate(order.updatedAt)}{" "}
-                      {/* Tanggal status diubah ke Shipped */}
+                      {formatDate(order.updatedAt)}
                     </td>
                     <td className="py-3 px-2 sm:p-4">
                       {getProductNames(order.items)}
@@ -491,21 +458,19 @@ const ConfirmedOrdersTable = () => {
         </div>
       )}
 
-      {isModalOpen &&
-        selectedOrder && ( // Pastikan selectedOrder ada
-          <TransactionDetailModal
-            isOpen={isModalOpen}
-            onClose={() => {
-              setIsModalOpen(false);
-              setSelectedOrder(null); // Reset selectedOrder saat modal ditutup
-            }}
-            transaction={selectedOrder}
-          />
-        )}
-
+      {isModalOpen && selectedOrder && (
+        <TransactionDetailModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedOrder(null);
+          }}
+          transaction={selectedOrder}
+        />
+      )}
       {previewImage && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-75" // Naikkan z-index
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-75"
           onClick={closeImageProof}
         >
           <div className="relative max-w-2xl max-h-[80vh] p-4">

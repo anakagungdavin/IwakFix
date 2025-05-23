@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { EyeIcon } from "@heroicons/react/24/solid";
-import ModalImage from "../modal/modalImage";
+import ModalImage from "../modal/modalImage"; // Pastikan path ini benar
 
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
-const PendingOrdersTable = () => {
-  const [pendingOrders, setPendingOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const PendingOrdersTable = ({
+  pendingOrdersData,
+  onOrderStatusChange,
+  isLoading,
+}) => {
+  const [actionError, setActionError] = useState(null);
   const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null); // Ganti menjadi seluruh order
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   const token = localStorage.getItem("token");
@@ -21,69 +23,49 @@ const PendingOrdersTable = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const fetchPendingOrders = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/orders/all`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const filtered = response.data.filter(
-        (order) => order.status === "Pending"
-      );
-      setPendingOrders(filtered);
-      setLoading(false);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch pending orders");
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPendingOrders();
-  }, []);
-
   const handleApprove = async (orderId) => {
+    setActionError(null);
     try {
       await axios.put(
         `${API_URL}/api/orders/${orderId}/status`,
         { status: "Paid" },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setImageModalOpen(false);
-      fetchPendingOrders();
+      setSelectedOrder(null);
+      if (onOrderStatusChange) {
+        onOrderStatusChange(); // Panggil callback untuk refresh data di Dashboard
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to approve order");
+      const errorMsg =
+        err.response?.data?.message || "Gagal menyetujui pesanan";
+      setActionError(errorMsg);
+      alert(`Error: ${errorMsg}`);
     }
   };
 
   const handleReject = async (orderId) => {
+    setActionError(null);
     try {
       await axios.put(
         `${API_URL}/api/orders/${orderId}/status`,
         { status: "Cancelled" },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setImageModalOpen(false);
-      fetchPendingOrders();
+      setSelectedOrder(null);
+      if (onOrderStatusChange) {
+        onOrderStatusChange(); // Panggil callback untuk refresh data di Dashboard
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to reject order");
+      const errorMsg = err.response?.data?.message || "Gagal menolak pesanan";
+      setActionError(errorMsg);
+      alert(`Error: ${errorMsg}`);
     }
   };
 
   const viewPaymentProof = (order) => {
-    console.log("Order Data:", order);
-    console.log("Proof of Payment:", order.proofOfPayment);
-    setSelectedOrder(order); // Simpan seluruh data order
+    setSelectedOrder(order);
     setImageModalOpen(true);
   };
 
@@ -104,44 +86,44 @@ const PendingOrdersTable = () => {
   };
 
   const truncateText = (text, maxLength) => {
+    if (!text) return "";
     const length = windowWidth < 640 ? Math.min(maxLength, 20) : maxLength;
     return text.length > length ? `${text.substring(0, length)}...` : text;
   };
 
   const formatOrderId = (id) => {
+    if (!id) return "N/A";
     if (windowWidth < 640) {
       return `${id.substring(0, 4)}...${id.substring(id.length - 4)}`;
     }
     return id;
   };
 
-  if (loading)
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center p-4">
-        <p>Loading pending orders...</p>
+        <p>Memuat pesanan tertunda...</p>
       </div>
     );
-  if (error)
-    return (
-      <div className="p-4">
-        <p className="text-red-500">{error}</p>
-      </div>
-    );
+  }
+
+  if (actionError) {
+    // Anda bisa menampilkan error ini di UI jika diinginkan
+    console.error("Action Error:", actionError);
+  }
 
   return (
     <div className="w-full">
-      <h2 className="text-lg font-semibold mb-4">Order untuk dikonfirmasi</h2>
-
-      {pendingOrders.length === 0 ? (
+      {/* Judul dipindahkan ke Dashboard.jsx */}
+      {pendingOrdersData.length === 0 ? (
         <p className="text-center text-gray-500 py-6">
-          Tidak ada order terpending
+          Tidak ada order tertunda.
         </p>
       ) : (
         <div className="relative bg-white rounded-lg shadow-sm">
           <div className="md:hidden text-xs text-gray-500 italic text-right mb-2">
             ← Geser untuk melihat selengkapnya →
           </div>
-
           <div className="rounded-lg overflow-x-auto w-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <table className="w-full text-left text-gray-700 min-w-[640px]">
               <thead>
@@ -149,21 +131,20 @@ const PendingOrdersTable = () => {
                   <th className="py-3 px-2 sm:p-4">ID</th>
                   <th className="py-3 px-2 sm:p-4">TANGGAL</th>
                   <th className="py-3 px-2 sm:p-4">PRODUK</th>
-                  <th className="py-3 px-2 sm:p-4">JUMLAH</th>
+                  <th className="py-3 px-2 sm:p-4 text-center">JUMLAH</th>
                   <th className="py-3 px-2 sm:p-4">TOTAL HARGA</th>
                   <th className="py-3 px-2 sm:p-4 text-center">KONFIRMASI</th>
                 </tr>
               </thead>
               <tbody>
-                {pendingOrders.map((order) => {
+                {pendingOrdersData.map((order) => {
                   const totalQuantity = order.items.reduce(
                     (sum, item) => sum + (item.quantity || 0),
                     0
                   );
                   const productNames = order.items
-                    .map((item) => item.product?.name || "Unknown Product")
+                    .map((item) => item.product?.name || "Produk Tidak Dikenal")
                     .join(", ");
-
                   return (
                     <tr
                       key={order._id}
@@ -178,7 +159,9 @@ const PendingOrdersTable = () => {
                       <td className="py-3 px-2 sm:p-4">
                         {truncateText(productNames, 50)}
                       </td>
-                      <td className="py-3 px-2 sm:p-4">{totalQuantity}</td>
+                      <td className="py-3 px-2 sm:p-4 text-center">
+                        {totalQuantity}
+                      </td>
                       <td className="py-3 px-2 sm:p-4 whitespace-nowrap">
                         Rp {order.totalAmount.toLocaleString("id-ID")}
                       </td>
@@ -186,8 +169,8 @@ const PendingOrdersTable = () => {
                         <button
                           onClick={() => viewPaymentProof(order)}
                           className="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50"
-                          title="View Payment Proof"
-                          aria-label="View Payment Proof"
+                          title="Lihat Bukti Pembayaran"
+                          aria-label="Lihat Bukti Pembayaran"
                         >
                           <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5 text-[#003D47]" />
                         </button>
@@ -200,14 +183,18 @@ const PendingOrdersTable = () => {
           </div>
         </div>
       )}
-
-      <ModalImage
-        isOpen={imageModalOpen}
-        onClose={() => setImageModalOpen(false)}
-        orderData={selectedOrder} // Kirim seluruh data order
-        onApprove={handleApprove}
-        onReject={handleReject}
-      />
+      {selectedOrder && (
+        <ModalImage
+          isOpen={imageModalOpen}
+          onClose={() => {
+            setImageModalOpen(false);
+            setSelectedOrder(null);
+          }}
+          orderData={selectedOrder}
+          onApprove={handleApprove}
+          onReject={handleReject}
+        />
+      )}
     </div>
   );
 };

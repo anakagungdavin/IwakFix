@@ -44,12 +44,12 @@ const FooterCust = () => {
             <ul className="mt-2 space-y-2">
               <li>
                 <a href="/" className="text-yellow-400 hover:text-gray-300">
-                  Home
+                  Beranda
                 </a>
               </li>
               <li>
                 <a href="/shop" className="text-yellow-400 hover:text-gray-300">
-                  Shop
+                  Produk
                 </a>
               </li>
               <li>
@@ -57,7 +57,7 @@ const FooterCust = () => {
                   href="/about"
                   className="text-yellow-400 hover:text-gray-300"
                 >
-                  About
+                  Tentang Kami
                 </a>
               </li>
             </ul>

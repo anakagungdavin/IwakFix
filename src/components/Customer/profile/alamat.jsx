@@ -1,25 +1,30 @@
+// alamat.jsx
 import React, { useState, useEffect } from "react";
 import { Pencil, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+// Hapus useNavigate jika tidak digunakan langsung di sini
 import EditAddressModal from "../../modal/modalEditAlamat";
 import AddressModal from "../../modal/modalTambahAlamat";
 import DeleteModal from "../../modal/modalDelete";
 
-const Alamat = ({ userData }) => {
-  const navigate = useNavigate();
+const Alamat = ({ userData, onDataUpdate }) => {
+  // Terima onDataUpdate
+  // const navigate = useNavigate(); // Hapus jika tidak digunakan
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [addresses, setAddresses] = useState(userData?.addresses || []);
 
-  // Debugging
-  console.log("userData in Alamat:", userData);
-  console.log("addresses in Alamat:", addresses);
-
   useEffect(() => {
-    setAddresses(userData?.addresses || []);
-  }, [userData]);
+    // Update local addresses state hanya jika userData.addresses benar-benar berubah
+    // Ini penting untuk menghindari loop re-render yang tidak perlu jika onDataUpdate dipanggil
+    if (
+      userData?.addresses &&
+      JSON.stringify(userData.addresses) !== JSON.stringify(addresses)
+    ) {
+      setAddresses(userData.addresses);
+    }
+  }, [userData]); // Hanya re-run jika userData berubah
 
   const handleEditClick = (address) => {
     setSelectedAddress(address);
@@ -32,6 +37,7 @@ const Alamat = ({ userData }) => {
   };
 
   const confirmDelete = async () => {
+    if (!selectedAddress?._id) return; // Pastikan selectedAddress ada
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -58,12 +64,27 @@ const Alamat = ({ userData }) => {
         );
       }
 
-      setAddresses(
-        addresses.filter((addr) => addr._id !== selectedAddress._id)
-      );
+      // Panggil onDataUpdate untuk me-refresh data user dari parent
+      if (onDataUpdate) {
+        await onDataUpdate(); // Tunggu hingga data di-fetch ulang
+      }
       setIsDeleteOpen(false);
+      setSelectedAddress(null); // Reset selected address
     } catch (err) {
       console.error("Failed to delete address:", err);
+      alert(`Gagal menghapus alamat: ${err.message}`);
+    }
+  };
+
+  const handleAddressAdded = async () => {
+    if (onDataUpdate) {
+      await onDataUpdate();
+    }
+  };
+
+  const handleAddressEdited = async () => {
+    if (onDataUpdate) {
+      await onDataUpdate();
     }
   };
 
@@ -99,7 +120,8 @@ const Alamat = ({ userData }) => {
                   {address.recipientName}
                 </h3>
                 <p className="text-gray-500 text-xs md:text-sm">
-                  {address.streetAddress}
+                  {address.streetAddress}, {address.city}, {address.province},{" "}
+                  {address.postalCode}
                 </p>
               </div>
               <div className="flex gap-2 justify-end md:justify-start">
@@ -122,25 +144,34 @@ const Alamat = ({ userData }) => {
           <p>Tidak ada alamat yang tersedia.</p>
         )}
       </div>
-      <EditAddressModal
-        isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        address={selectedAddress}
-        setAddresses={setAddresses}
-        addresses={addresses}
-      />
-      <AddressModal
-        isOpen={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
-        setAddresses={setAddresses}
-        addresses={addresses}
-      />
-      <DeleteModal
-        isOpen={isDeleteOpen}
-        onClose={() => setIsDeleteOpen(false)}
-        onConfirm={confirmDelete}
-        item={selectedAddress}
-      />
+      {isEditOpen && ( // Render modal hanya jika isEditOpen true
+        <EditAddressModal
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          address={selectedAddress}
+          onAddressUpdated={handleAddressEdited} // Prop baru untuk callback
+        />
+      )}
+      {isAddOpen && ( // Render modal hanya jika isAddOpen true
+        <AddressModal
+          isOpen={isAddOpen}
+          onClose={() => setIsAddOpen(false)}
+          onAddressAdded={handleAddressAdded} // Prop baru untuk callback
+        />
+      )}
+      {isDeleteOpen &&
+        selectedAddress && ( // Render modal hanya jika isDeleteOpen dan selectedAddress ada
+          <DeleteModal
+            isOpen={isDeleteOpen}
+            onClose={() => {
+              setIsDeleteOpen(false);
+              setSelectedAddress(null); // Reset selected address on close
+            }}
+            onConfirm={confirmDelete}
+            item={{ name: selectedAddress.recipientName, type: "Alamat" }} // Sesuaikan dengan item prop
+            message={`Apakah Anda yakin ingin menghapus alamat untuk "${selectedAddress.recipientName}"?`}
+          />
+        )}
     </div>
   );
 };

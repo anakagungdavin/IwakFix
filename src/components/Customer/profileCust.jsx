@@ -1,7 +1,8 @@
+// profileCust.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import InformasiCust from "./profile/informasi";
-import Alamat from "./profile/alamat";
+import Alamat from "./profile/alamat"; // Pastikan path ini benar
 import TransactionList from "./profile/pesanan";
 
 const CustProfile = () => {
@@ -20,8 +21,9 @@ const CustProfile = () => {
   ];
 
   const fetchUserProfile = async () => {
+    // Tidak perlu setLoading(true) di sini jika sudah ada di useEffect awal
+    // atau jika kita hanya ingin me-refresh data tanpa menampilkan loading global
     try {
-      setLoading(true);
       const token = localStorage.getItem("token");
       if (!token) {
         throw new Error("No authentication token found");
@@ -46,21 +48,24 @@ const CustProfile = () => {
       const contentType = response.headers.get("Content-Type");
       if (contentType && contentType.includes("application/json")) {
         const result = JSON.parse(text);
-        setUserData(result.data);
+        setUserData(result.data); // Ini akan memperbarui userData dengan data terbaru
       } else {
         throw new Error("Unexpected response format: " + text);
       }
+      setError(null); // Bersihkan error jika fetch berhasil
     } catch (err) {
       setError(err.message);
-      navigate("/login");
+      // Jangan navigasi ke login di sini jika hanya refresh, kecuali token benar-benar invalid
+      // navigate("/login");
     } finally {
-      setLoading(false);
+      // Tidak perlu setLoading(false) di sini jika tidak di-set true di awal fungsi ini
     }
   };
 
   useEffect(() => {
-    fetchUserProfile();
-  }, []);
+    setLoading(true); // Set loading true untuk fetch awal
+    fetchUserProfile().finally(() => setLoading(false)); // Pastikan loading false setelah fetch awal
+  }, []); // Hanya dijalankan sekali saat komponen mount
 
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -80,6 +85,8 @@ const CustProfile = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role"); // Hapus juga role jika ada
+    localStorage.removeItem("userId"); // Hapus juga userId jika ada
     navigate("/login");
   };
 
@@ -187,7 +194,7 @@ const CustProfile = () => {
                 onClick={handleLogout}
                 className="text-red-500 font-semibold p-2 md:p-3 hover:bg-red-100 rounded-md cursor-pointer"
               >
-                Log Out
+                Keluar
               </li>
             </ul>
           </div>
@@ -199,12 +206,18 @@ const CustProfile = () => {
             {activeMenu}
           </h2>
           {activeMenu === "Profile Saya" && (
-            <InformasiCust userData={userData} />
+            <InformasiCust
+              userData={userData}
+              onProfileUpdate={fetchUserProfile}
+            />
           )}
           {activeMenu === "Pesanan Saya" && (
             <TransactionList userId={userData?._id} />
           )}
-          {activeMenu === "Alamat" && <Alamat userData={userData} />}
+          {/* Berikan fetchUserProfile ke Alamat */}
+          {activeMenu === "Alamat" && (
+            <Alamat userData={userData} onDataUpdate={fetchUserProfile} />
+          )}
         </div>
       </div>
     </div>

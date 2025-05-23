@@ -183,11 +183,11 @@ const EditProfileCust = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Edit Profile</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Edit Profil</h2>
 
         <div className="relative w-24 h-24 mx-auto">
           <img
-            // src={avatar || "https://via.placeholder.com/80"}
+            src={avatar || "https://via.placeholder.com/80"}
             alt="Avatar"
             className="w-full h-full object-cover rounded-full border-2 border-gray-300"
           />

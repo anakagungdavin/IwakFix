@@ -10,6 +10,9 @@ import UploadSuccessModal from "../../components/modal/modalBerhasilUpload";
 import SimpanModal from "../../components/modal/modalBerhasilSimpan";
 import { addProduct } from "../../services/api";
 
+// Fungsi getStatus tetap sama dan bisa digunakan jika diperlukan di sini,
+// namun umumnya status baru ada setelah produk dibuat.
+// Untuk konsistensi, kita bisa menyimpannya.
 export function getStatus(stok, isPublished) {
   if (!isPublished)
     return { label: "Draft", jenis: "bg-[#F0F1F3] text-[#667085]" };
@@ -28,9 +31,9 @@ const AddProduct = () => {
   const [product, setProduct] = useState({
     name: "",
     description: "",
-    stock: 0,
-    price: 0, // Reintroduced for consistency
-    discount: 0, // Reintroduced for consistency
+    stock: 0, // Ini mungkin lebih relevan untuk produk sederhana tanpa varian
+    price: 0, // Untuk produk sederhana tanpa varian
+    discount: 0, // Untuk produk sederhana tanpa varian
     images: [],
     imageFiles: [],
     weight: 0,
@@ -43,13 +46,13 @@ const AddProduct = () => {
       size: [],
     },
     seller: localStorage.getItem("sellerId") || "default-seller-id",
-    isPublished: true,
-    stocks: [],
+    isPublished: true, // Defaultnya true untuk tombol "Tambah Produk"
+    stocks: [], // Untuk produk dengan varian
   });
 
   const handleInputChange = (e) => {
     if (e && e.target) {
-      const { name, value } = e.target;
+      const { name, value, type: inputType, checked } = e.target;
       if (name.startsWith("dimensions.")) {
         const dimensionField = name.split(".")[1];
         setProduct((prevState) => ({
@@ -59,6 +62,12 @@ const AddProduct = () => {
             [dimensionField]: parseFloat(value) || 0,
           },
         }));
+      } else if (inputType === "checkbox" && name === "isPublished") {
+        // Jika ada toggle untuk isPublished di form, ini akan menanganinya
+        setProduct((prevState) => ({
+          ...prevState,
+          isPublished: checked,
+        }));
       } else {
         setProduct((prevState) => {
           const newState = {
@@ -67,55 +76,51 @@ const AddProduct = () => {
               ? parseFloat(value) || 0
               : value,
           };
-          console.log(`Updated ${name}:`, newState[name]);
+          // console.log(`Updated ${name}:`, newState[name]);
           return newState;
         });
       }
     } else if (e && e.weight !== undefined && e.dimensions !== undefined) {
-      setProduct((prevState) => {
-        const newState = {
-          ...prevState,
-          weight: parseFloat(e.weight) || 0,
-          dimensions: {
-            height: parseFloat(e.dimensions.height) || 0,
-            length: parseFloat(e.dimensions.length) || 0,
-          },
-        };
-        console.log(
-          "Updated from BeratProduk:",
-          newState.weight,
-          newState.dimensions
-        );
-        return newState;
-      });
+      // Dari BeratProduk
+      setProduct((prevState) => ({
+        ...prevState,
+        weight: parseFloat(e.weight) || 0,
+        dimensions: {
+          height: parseFloat(e.dimensions.height) || 0,
+          length: parseFloat(e.dimensions.length) || 0,
+        },
+      }));
     } else if (e && e.type !== undefined && e.stocks !== undefined) {
-      setProduct((prevState) => {
-        const newState = {
-          ...prevState,
-          type: {
-            jenis: e.type.jenis || [],
-            size: e.type.size || [],
-          },
-          stocks: e.stocks || [],
-        };
-        console.log("Updated type and stocks:", newState.type, newState.stocks);
-        return newState;
-      });
+      // Dari JenisProduk
+      const updatedStocks = Array.isArray(e.stocks)
+        ? e.stocks.map((stock) => ({
+            jenis: stock.jenis,
+            size: stock.size,
+            satuan: stock.satuan || "kg",
+            stock: parseInt(stock.stock, 10) || 0,
+            price: parseFloat(stock.price) || 0,
+            discount: parseFloat(stock.discount) || 0,
+          }))
+        : [];
+      setProduct((prevState) => ({
+        ...prevState,
+        type: {
+          jenis: e.type.jenis || [],
+          size: e.type.size || [],
+        },
+        stocks: updatedStocks,
+      }));
     }
   };
 
   const handleAddImage = (files) => {
     if (files && files.length > 0) {
       const imagePreviews = files.map((file) => URL.createObjectURL(file));
-      setProduct((prevState) => {
-        const newState = {
-          ...prevState,
-          images: [...prevState.images, ...imagePreviews],
-          imageFiles: [...prevState.imageFiles, ...files],
-        };
-        console.log("Updated images:", newState.images);
-        return newState;
-      });
+      setProduct((prevState) => ({
+        ...prevState,
+        images: [...prevState.images, ...imagePreviews],
+        imageFiles: [...prevState.imageFiles, ...files],
+      }));
     }
   };
 
@@ -126,9 +131,14 @@ const AddProduct = () => {
       );
       const newImageFiles = prevState.imageFiles.filter((file) => {
         const fileUrl = URL.createObjectURL(file);
-        return fileUrl !== removedImageUrl;
+        const match = fileUrl === removedImageUrl;
+        if (match) {
+          URL.revokeObjectURL(fileUrl); // Revoke object URL if it's the one being removed
+        }
+        return !match;
       });
 
+      // Jika URL yang dihapus adalah blob, revoke juga
       if (removedImageUrl && removedImageUrl.startsWith("blob:")) {
         URL.revokeObjectURL(removedImageUrl);
       }
@@ -141,92 +151,171 @@ const AddProduct = () => {
     });
   };
 
-  const handleSaveDraft = () => {
-    setSimpanSuccess(true);
+  const commonFormDataSetup = (isPublishedStatus) => {
+    const formData = new FormData();
+    formData.append("name", product.name);
+    formData.append("description", product.description);
+    formData.append("weight", product.weight || 0);
+    formData.append("seller", product.seller);
+    formData.append("isPublished", isPublishedStatus);
+    formData.append(
+      "dimensions",
+      JSON.stringify({
+        height: product.dimensions.height || 0,
+        length: product.dimensions.length || 0,
+      })
+    );
+    formData.append(
+      "type",
+      JSON.stringify({
+        jenis: product.type.jenis || [],
+        size: product.type.size || [],
+      })
+    );
+    formData.append("stocks", JSON.stringify(product.stocks || []));
+    product.imageFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    // Jika tidak ada varian (type.jenis dan type.size kosong),
+    // dan ada harga/stok utama, kita bisa menambahkannya sebagai satu stock item
+    // Ini asumsi, backend harus bisa menangani ini atau validasi lebih lanjut diperlukan
+    if (
+      product.type.jenis.length === 0 &&
+      product.type.size.length === 0 &&
+      product.stocks.length === 0
+    ) {
+      if (product.price > 0 || product.stock > 0) {
+        const defaultStockItem = {
+          jenis: "Default", // Atau biarkan kosong jika backend menangani
+          size: "Default", // Atau biarkan kosong
+          satuan: "pcs", // Satuan default
+          stock: product.stock || 0,
+          price: product.price || 0,
+          discount: product.discount || 0,
+        };
+        formData.set("stocks", JSON.stringify([defaultStockItem]));
+        // Juga, jika type kosong, pastikan tidak mengirim array kosong yang membingungkan
+        formData.set("type", JSON.stringify({ jenis: [], size: [] }));
+      }
+    }
+
+    // Log FormData untuk debugging
+    const formDataLog = {};
+    for (const [key, value] of formData.entries()) {
+      formDataLog[key] = value instanceof File ? value.name : value;
+    }
+    console.log(
+      `FormData (isPublished: ${isPublishedStatus}) yang dikirim:`,
+      formDataLog
+    );
+
+    return formData;
   };
 
-  const handleUpload = async () => {
-    try {
-      const missingFields = [];
-      if (!product.name) missingFields.push("Nama");
-      if (!product.description) missingFields.push("Deskripsi");
+  const validateProductData = () => {
+    const missingFields = [];
+    if (!product.name.trim()) missingFields.push("Nama Produk");
+    if (!product.description.trim()) missingFields.push("Deskripsi Produk");
 
-      if (product.type.jenis.length > 0 && product.type.size.length > 0) {
-        if (product.stocks.length === 0) {
-          throw new Error(
-            "Harap atur stok untuk setiap kombinasi jenis dan ukuran!"
+    if (missingFields.length > 0) {
+      alert(`${missingFields.join(", ")} harus diisi!`);
+      return false;
+    }
+
+    // Validasi stocks jika jenis atau ukuran dipilih
+    if (product.type.jenis.length > 0 || product.type.size.length > 0) {
+      if (!product.stocks || product.stocks.length === 0) {
+        alert(
+          "Harap atur stok untuk setiap kombinasi jenis dan ukuran yang dipilih!"
+        );
+        return false;
+      }
+      for (const stock of product.stocks) {
+        if (!stock.jenis || !stock.size || !stock.satuan) {
+          alert(
+            `Detail stok (jenis, ukuran, satuan) tidak lengkap untuk salah satu entri stok.`
           );
+          return false;
         }
-        product.stocks.forEach((stock, index) => {
-          if (!stock.jenis || !stock.size) {
-            throw new Error(
-              `Stock entry #${
-                index + 1
-              } missing required fields (jenis or size)`
-            );
-          }
-          if (stock.stock < 0 || stock.price < 0) {
-            throw new Error(
-              `Stock entry #${index + 1} has invalid stock or price`
-            );
-          }
-          if (stock.discount < 0 || stock.discount > 100) {
-            throw new Error(
-              `Stock entry #${index + 1} has invalid discount (must be 0-100)`
-            );
-          }
-        });
+        if (
+          stock.stock === undefined ||
+          stock.stock < 0 ||
+          isNaN(parseInt(stock.stock))
+        ) {
+          alert(
+            `Jumlah stok tidak valid untuk ${stock.jenis} - ${stock.size}.`
+          );
+          return false;
+        }
+        if (
+          stock.price === undefined ||
+          stock.price < 0 ||
+          isNaN(parseFloat(stock.price))
+        ) {
+          alert(`Harga tidak valid untuk ${stock.jenis} - ${stock.size}.`);
+          return false;
+        }
+        if (
+          stock.discount !== undefined &&
+          (stock.discount < 0 ||
+            stock.discount > 100 ||
+            isNaN(parseFloat(stock.discount)))
+        ) {
+          alert(
+            `Diskon tidak valid (0-100) untuk ${stock.jenis} - ${stock.size}.`
+          );
+          return false;
+        }
       }
-
-      if (missingFields.length > 0) {
-        throw new Error(`${missingFields.join(", ")} produk harus diisi!`);
+    } else {
+      // Validasi untuk produk sederhana (tanpa varian)
+      // Jika price ada, harus > 0. Stok boleh 0.
+      if (product.price < 0) {
+        alert("Harga produk tidak boleh negatif.");
+        return false;
       }
-
-      const formData = new FormData();
-      formData.append("name", product.name);
-      formData.append("description", product.description);
-      formData.append("weight", product.weight || 0);
-      formData.append("seller", product.seller);
-      formData.append("isPublished", product.isPublished);
-      formData.append(
-        "dimensions",
-        JSON.stringify({
-          height: product.dimensions.height || 0,
-          length: product.dimensions.length || 0,
-        })
-      );
-      formData.append(
-        "type",
-        JSON.stringify({
-          jenis: product.type.jenis || [],
-          size: product.type.size || [],
-        })
-      );
-      formData.append("stocks", JSON.stringify(product.stocks || []));
-      product.imageFiles.forEach((file) => {
-        formData.append("images", file);
-      });
-
-      const formDataLog = {};
-      for (const [key, value] of formData.entries()) {
-        formDataLog[key] = value instanceof File ? value.name : value;
+      if (product.stock < 0) {
+        alert("Stok produk tidak boleh negatif.");
+        return false;
       }
-      console.log("FormData yang dikirim:", formDataLog);
+      if (product.discount < 0 || product.discount > 100) {
+        alert("Diskon produk harus antara 0 dan 100.");
+        return false;
+      }
+    }
+    return true;
+  };
 
-      console.log("Data yang dikirim ke API:", {
-        name: product.name,
-        description: product.description,
-        weight: product.weight,
-        dimensions: product.dimensions,
-        type: product.type,
-        stocks: product.stocks,
-        seller: product.seller,
-        images: product.imageFiles.map((file) => file.name),
-        isPublished: product.isPublished,
-      });
-
+  const handleSaveDraft = async () => {
+    if (!product.name.trim()) {
+      alert("Nama produk harus diisi untuk menyimpan sebagai draft.");
+      return;
+    }
+    try {
+      const formData = commonFormDataSetup(false); // isPublished = false
       const response = await addProduct(formData);
+      if (!response) throw new Error("Gagal menyimpan draft produk");
 
+      setProduct((prevState) => ({
+        ...prevState,
+        images: response.images || prevState.images, // Jika API mengembalikan URL gambar
+        imageFiles: [], // Kosongkan file baru setelah simpan
+        isPublished: false,
+      }));
+      setSimpanSuccess(true);
+    } catch (error) {
+      console.error("Error saving draft:", error.message);
+      alert(`Gagal menyimpan draft: ${error.message}`);
+    }
+  };
+
+  const handleAddProduct = async () => {
+    if (!validateProductData()) return;
+
+    try {
+      const formData = commonFormDataSetup(true); // isPublished = true
+      const response = await addProduct(formData);
       if (!response) throw new Error("Gagal menambahkan produk");
 
       setProduct((prevState) => ({
@@ -236,8 +325,8 @@ const AddProduct = () => {
       }));
       setUploadSuccess(true);
     } catch (error) {
-      console.error("Error uploading product:", error.message);
-      alert(error.message);
+      console.error("Error adding product:", error.message);
+      alert(`Gagal menambahkan produk: ${error.message}`);
     }
   };
 
@@ -259,81 +348,75 @@ const AddProduct = () => {
       />
       <UploadSuccessModal
         isOpen={isUploadSuccess}
-        onClose={() => setUploadSuccess(false)}
+        onClose={() => {
+          setUploadSuccess(false);
+          navigate("/admin/products"); // Arahkan ke daftar produk setelah sukses
+        }}
+        message="Produk berhasil ditambahkan!"
       />
       <SimpanModal
         isOpen={isSimpanSuccess}
-        onClose={() => setSimpanSuccess(false)}
+        onClose={() => {
+          setSimpanSuccess(false);
+          // Opsional: navigate("/admin/products/drafts") atau serupa jika ada halaman draft
+        }}
+        message="Produk berhasil disimpan sebagai draft!"
       />
 
-      <div className="bg-gray-200 min-h-screen py-6">
-        <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
+      <div className="bg-gray-100 min-h-screen py-6">
+        <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
           <Breadcrumb pageName="Tambah Produk" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="col-span-4">
-              <div className="bg-white shadow-md rounded-lg p-4">
-                <InformasiProduk
-                  data={product}
-                  setData={setProduct}
-                  onChange={handleInputChange}
-                />
-              </div>
+          <div className="grid grid-cols-1 gap-6 mt-6">
+            <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 md:p-6">
+              <InformasiProduk
+                data={product}
+                // setData={setProduct} // Sebaiknya tidak pass setData langsung
+                onChange={handleInputChange}
+              />
             </div>
-            <div className="col-span-4">
-              <div className="bg-white shadow-md rounded-lg p-4">
-                <UploadGambar
-                  data={{ images: product.images }}
-                  onUpload={(files) => handleAddImage(files)}
-                  onRemove={handleRemoveImage}
-                  mode="add"
-                />
-              </div>
+            <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 md:p-6">
+              <UploadGambar
+                data={{
+                  images: product.images,
+                  imageFiles: product.imageFiles,
+                }}
+                onUpload={handleAddImage}
+                onRemove={handleRemoveImage}
+                mode="add" // Mode tetap "add" untuk AddProduct
+              />
             </div>
-            <div className="col-span-4">
-              <div className="bg-white shadow-md rounded-lg p-4">
-                <JenisProduk
-                  data={product}
-                  onChange={(updatedData) => {
-                    setProduct((prevState) => ({
-                      ...prevState,
-                      type: updatedData.type,
-                      stocks: updatedData.stocks || [],
-                    }));
-                  }}
-                />
-              </div>
+            <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 md:p-6">
+              <JenisProduk
+                data={product}
+                onChange={handleInputChange} // Gunakan handleInputChange yang sudah menghandle jenis dan stocks
+              />
             </div>
-            <div className="col-span-4">
-              <div className="bg-white shadow-md rounded-lg p-4">
-                <BeratProduk
-                  data={product}
-                  onChange={(updatedData) => {
-                    setProduct((prevState) => ({
-                      ...prevState,
-                      weight: updatedData.weight,
-                      dimensions: updatedData.dimensions || {
-                        height: 0,
-                        length: 0,
-                      },
-                    }));
-                  }}
-                />
-              </div>
+            <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 md:p-6">
+              <BeratProduk
+                data={product}
+                onChange={handleInputChange} // Gunakan handleInputChange yang sudah menghandle berat dan dimensi
+              />
             </div>
           </div>
 
-          <div className="flex justify-end gap-4 mt-6">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
             <button
               onClick={handleCancel}
-              className="px-4 py-2 bg-[#FEECEE] text-[#EB3D4D] rounded-md"
+              className="px-4 py-2 text-sm font-medium text-red-600 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
             >
               Batalkan
             </button>
             <button
-              onClick={handleUpload}
-              className="px-4 py-2 bg-[#E9FAF7] text-[#1A9882] rounded-md"
+              onClick={handleSaveDraft}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
             >
-              Upload
+              Simpan sebagai Draft
+            </button>
+            <button
+              onClick={handleAddProduct}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+            >
+              Tambah Produk
             </button>
           </div>
         </div>

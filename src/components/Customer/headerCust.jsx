@@ -5,57 +5,43 @@ import {
   FaSearch,
   FaBars,
   FaTimes,
+  FaSignInAlt, // Icon baru untuk login, opsional
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+import { useNavigate, Link } from "react-router-dom";
 
 const HeaderCust = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
 
-  // Get user role from localStorage
+  const token = localStorage.getItem("token"); // Cek apakah ada token
   const userRole = localStorage.getItem("role");
-  const isAdmin = userRole === "admin";
-  const profileLink = isAdmin ? "/admin-dashboard" : "/profile";
-  const profileText = isAdmin ? "Dashboard" : "Profile";
+  const isAdmin = token && userRole === "admin"; // Pastikan token ada sebelum cek role
+
+  // Tentukan link dan teks berdasarkan status login dan role
+  let authLinkPath = "/login";
+  let authLinkText = "Masuk";
+  let AuthIcon = FaSignInAlt; // Menggunakan FaSignInAlt untuk login, bisa diganti FaUserCircle jika mau
+
+  if (token) {
+    authLinkPath = isAdmin ? "/admin-dashboard" : "/profile";
+    authLinkText = isAdmin ? "Dashboard" : "Profil";
+    AuthIcon = FaUserCircle; // Gunakan FaUserCircle untuk Profile/Dashboard
+  }
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleSearchChange = async (query) => {
+  const handleSearchChange = (query) => {
     setSearchQuery(query);
-
-    if (query.trim() === "") {
-      setSearchResults([]);
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${API_URL}/api/products?search=${encodeURIComponent(query)}&limit=5`
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log("Search results:", data); // Debugging
-      setSearchResults(data.products || []);
-    } catch (error) {
-      console.error("Error fetching search results:", error);
-      setSearchResults([]);
-    }
   };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
-      setSearchResults([]);
-      setSearchQuery(""); // Reset input after submit
+      setSearchQuery("");
     }
   };
 
@@ -77,67 +63,56 @@ const HeaderCust = () => {
               onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-white text-black rounded-lg focus:outline-none"
             />
-            {searchResults.length > 0 && (
-              <div className="absolute z-50 bg-white text-black w-full mt-2 rounded-lg shadow-lg max-h-60 overflow-y-auto border border-gray-200">
-                {searchResults.map((product) => (
-                  <a
-                    key={product._id}
-                    href={`/product/${product._id}`}
-                    className="block px-4 py-2 hover:bg-gray-100 border-b last:border-b-0"
-                    onClick={() => setSearchResults([])} // Close dropdown on click
-                  >
-                    {product.name} - Rp{" "}
-                    {product.discountedPrice.toLocaleString()}
-                  </a>
-                ))}
-              </div>
-            )}
           </form>
         </div>
 
         <div className="flex gap-4 items-center">
-          {!isAdmin && (
-            <a href="/cart" className="text-white hover:text-gray-300">
+          {/* Tampilkan Cart hanya jika login dan bukan admin */}
+          {token && !isAdmin && (
+            <Link to="/cart" className="text-white hover:text-gray-300">
               <FaShoppingCart size={20} />
-            </a>
+            </Link>
           )}
-          <a
-            href={profileLink}
+          <Link
+            to={authLinkPath}
             className="text-white hover:text-gray-300 flex items-center gap-2"
           >
-            <FaUserCircle size={20} />
-            <span className="text-sm">{profileText}</span>
-          </a>
+            <AuthIcon size={20} />
+            <span className="text-sm hidden xs:inline">{authLinkText}</span>
+          </Link>
         </div>
       </div>
 
       {/* Mobile Navigation */}
       <nav className={`${isMenuOpen ? "block" : "hidden"} sm:hidden mt-4`}>
-        <a
-          href="/customer-dashboard"
+        <Link
+          to="/customer-dashboard"
           className="block py-2 text-white hover:text-gray-300"
+          onClick={toggleMenu}
         >
-          Home
-        </a>
-        <a href="/about" className="block py-2 text-white hover:text-gray-300">
-          About
-        </a>
-        <a href="/shop" className="block py-2 text-white hover:text-gray-300">
-          Toko
-        </a>
-        <a
-          href={profileLink}
+          Beranda
+        </Link>
+        <Link
+          to="/about"
           className="block py-2 text-white hover:text-gray-300"
+          onClick={toggleMenu}
         >
-          {profileText}
-        </a>
+          Tentang Kami
+        </Link>
+        <Link
+          to="/shop"
+          className="block py-2 text-white hover:text-gray-300"
+          onClick={toggleMenu}
+        >
+          Produk
+        </Link>
       </nav>
 
       {/* Desktop View */}
       <div className="hidden sm:flex items-center justify-between">
         <div className="flex items-center">
           <div className="mr-8">
-            <a href="/customer-dashboard" className="flex items-center gap-2">
+            <Link to="/customer-dashboard" className="flex items-center gap-2">
               <img
                 src="/images/logo/pemkot.png"
                 alt="Pemkot Logo"
@@ -148,22 +123,21 @@ const HeaderCust = () => {
                 alt="IWAK Logo"
                 className="h-8 w-auto"
               />
-            </a>
+            </Link>
           </div>
-
           <nav className="flex items-center space-x-6">
-            <a
-              href="/customer-dashboard"
+            <Link
+              to="/customer-dashboard"
               className="text-white hover:text-gray-300"
             >
-              Home
-            </a>
-            <a href="/about" className="text-white hover:text-gray-300">
-              About
-            </a>
-            <a href="/shop" className="text-white hover:text-gray-300">
-              Toko
-            </a>
+              Beranda
+            </Link>
+            <Link to="/about" className="text-white hover:text-gray-300">
+              Tentang Kami
+            </Link>
+            <Link to="/shop" className="text-white hover:text-gray-300">
+              Produk
+            </Link>
           </nav>
         </div>
 
@@ -177,41 +151,27 @@ const HeaderCust = () => {
               onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2 bg-white text-black rounded-lg focus:outline-none"
             />
-            {searchResults.length > 0 && (
-              <div className="absolute z-50 bg-white text-black w-full mt-2 rounded-lg shadow-lg max-h-60 overflow-y-auto border border-gray-200">
-                {searchResults.map((product) => (
-                  <a
-                    key={product._id}
-                    href={`/product/${product._id}`}
-                    className="block px-4 py-2 hover:bg-gray-100 border-b last:border-b-0"
-                    onClick={() => setSearchResults([])}
-                  >
-                    {product.name} - Rp{" "}
-                    {product.discountedPrice.toLocaleString()}
-                  </a>
-                ))}
-              </div>
-            )}
           </form>
         </div>
 
         <div className="flex gap-6 items-center">
-          {!isAdmin && (
-            <a
-              href="/cart"
+          {/* Tampilkan Cart hanya jika login dan bukan admin */}
+          {token && !isAdmin && (
+            <Link
+              to="/cart"
               className="flex items-center gap-2 text-white hover:text-gray-300"
             >
               <FaShoppingCart size={20} />
-              <span>Cart</span>
-            </a>
+              <span>Keranjang</span>
+            </Link>
           )}
-          <a
-            href={profileLink}
+          <Link
+            to={authLinkPath}
             className="flex items-center gap-2 text-white hover:text-gray-300"
           >
-            <FaUserCircle size={20} />
-            <span>{profileText}</span>
-          </a>
+            <AuthIcon size={20} />
+            <span>{authLinkText}</span>
+          </Link>
         </div>
       </div>
     </header>

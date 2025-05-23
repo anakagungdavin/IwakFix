@@ -7,15 +7,8 @@ import {
   Document,
   StyleSheet,
   PDFDownloadLink,
-  // Font, // Hapus jika tidak menggunakan font kustom atau path tidak valid
 } from "@react-pdf/renderer";
 import * as XLSX from "xlsx";
-
-// Hapus registrasi font jika path tidak valid atau tidak digunakan
-// Font.register({
-//   family: "Times-Roman",
-//   src: "/fonts/Times-Roman.ttf", // Pastikan path ini benar dan font ada di folder public
-// });
 
 const getFormattedDate = (dateInput) => {
   if (!dateInput) return "N/A";
@@ -28,17 +21,27 @@ const getFormattedDate = (dateInput) => {
   });
 };
 
-// Desain untuk PDF
+const formatAddress = (address) => {
+  if (!address) return "N/A";
+  const parts = [
+    address.streetAddress,
+    address.city,
+    address.province,
+    address.postalCode,
+  ].filter(Boolean);
+  return parts.join(", ") || "Alamat tidak lengkap";
+};
+
+// Desain untuk PDF (tidak berubah dari sebelumnya)
 const styles = StyleSheet.create({
   page: {
-    padding: 30, // Kurangi padding agar lebih muat
-    // fontFamily: "Times-Roman", // Gunakan font default jika Times-Roman tidak ada
-    fontFamily: "Helvetica", // Font standar yang lebih umum tersedia
-    fontSize: 10, // Kecilkan font size global
-    lineHeight: 1.4,
+    padding: 30,
+    fontFamily: "Helvetica",
+    fontSize: 9,
+    lineHeight: 1.3,
   },
   header: {
-    borderBottomWidth: 1, // Tipiskan border
+    borderBottomWidth: 1,
     borderBottomColor: "#333333",
     paddingBottom: 8,
     marginBottom: 15,
@@ -46,10 +49,10 @@ const styles = StyleSheet.create({
   headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start", // Align items ke atas
+    alignItems: "flex-start",
   },
   companyInfo: {
-    width: "60%", // Beri ruang lebih untuk info perusahaan
+    width: "60%",
     fontSize: 9,
   },
   invoiceInfo: {
@@ -58,12 +61,12 @@ const styles = StyleSheet.create({
     fontSize: 9,
   },
   logoPlaceholder: {
-    fontSize: 14, // Kecilkan sedikit
+    fontSize: 14,
     fontWeight: "bold",
     marginBottom: 3,
   },
   title: {
-    fontSize: 14, // Kecilkan
+    fontSize: 14,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 5,
@@ -72,7 +75,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     textAlign: "center",
     color: "#555555",
-    marginBottom: 10, // Kurangi margin
+    marginBottom: 10,
   },
   table: {
     width: "100%",
@@ -88,17 +91,17 @@ const styles = StyleSheet.create({
     borderBottomColor: "#bfbfbf",
   },
   tableHeader: {
-    backgroundColor: "#f2f2f2", // Warna header lebih soft
+    backgroundColor: "#f2f2f2",
     fontWeight: "bold",
   },
   tableCell: {
-    padding: 5, // Kurangi padding cell
+    padding: 4,
     borderStyle: "solid",
     borderRightWidth: 1,
     borderRightColor: "#bfbfbf",
     flexGrow: 1,
-    textAlign: "left", // Default align kiri
-    wordBreak: "break-word", // Agar teks panjang bisa wrap
+    textAlign: "left",
+    wordBreak: "break-word",
   },
   tableCellHeader: {
     padding: 5,
@@ -107,19 +110,21 @@ const styles = StyleSheet.create({
     borderRightColor: "#bfbfbf",
     flexGrow: 1,
     textAlign: "center",
-    fontWeight: "bold", // Pastikan header bold
+    fontWeight: "bold",
   },
   tableCellAmount: {
-    // Cell untuk angka
     textAlign: "right",
   },
-  // Definisikan lebar kolom secara spesifik jika perlu
-  colTanggal: { width: "18%" },
-  colItem: { width: "30%" }, // Beri ruang lebih untuk nama item
-  colJumlah: { width: "15%" },
-  colHarga: { width: "18%" },
-  colTotal: { width: "19%", borderRightWidth: 0 }, // Kolom terakhir tidak perlu border kanan
-
+  tableCellCenter: {
+    textAlign: "center",
+  },
+  colNo: { width: "5%" },
+  colTanggal: { width: "13%" },
+  colNamaPembeli: { width: "17%" },
+  colAlamat: { width: "25%" },
+  colJumlah: { width: "10%" },
+  colHargaSatuan: { width: "15%" },
+  colHargaTotal: { width: "15%", borderRightWidth: 0 },
   totalSection: {
     marginTop: 15,
     borderTopWidth: 1,
@@ -133,19 +138,19 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: 10,
-    width: "70%", // Sesuaikan
+    width: "70%",
     textAlign: "right",
     paddingRight: 8,
   },
   totalValue: {
     fontSize: 10,
     fontWeight: "bold",
-    width: "30%", // Sesuaikan
+    width: "30%",
     textAlign: "right",
   },
   footer: {
     position: "absolute",
-    bottom: 20, // Naikkan sedikit
+    bottom: 20,
     left: 30,
     right: 30,
     textAlign: "center",
@@ -155,9 +160,9 @@ const styles = StyleSheet.create({
 });
 
 const MyDocument = ({ startDate, endDate, orders }) => {
+  // ... (definisi MyDocument tidak berubah, sama seperti sebelumnya)
   const start = new Date(startDate);
   start.setHours(0, 0, 0, 0);
-
   const end = new Date(endDate);
   end.setHours(23, 59, 59, 999);
 
@@ -166,7 +171,6 @@ const MyDocument = ({ startDate, endDate, orders }) => {
     return orderDate >= start && orderDate <= end;
   });
 
-  // Hitung total berdasarkan harga setelah diskon jika ada, atau harga asli
   const totalInvoice = filteredOrders.reduce((sum, order) => {
     return (
       sum +
@@ -178,12 +182,12 @@ const MyDocument = ({ startDate, endDate, orders }) => {
     );
   }, 0);
 
+  let itemNo = 0;
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header} fixed>
-          {" "}
-          {/* 'fixed' agar header muncul di setiap halaman */}
           <View style={styles.headerTop}>
             <View style={styles.companyInfo}>
               <Text style={styles.logoPlaceholder}>UPTD Aneka Usaha</Text>
@@ -209,73 +213,104 @@ const MyDocument = ({ startDate, endDate, orders }) => {
 
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
+            <Text style={[styles.tableCellHeader, styles.colNo]}>No</Text>
             <Text style={[styles.tableCellHeader, styles.colTanggal]}>
               Tanggal
             </Text>
-            <Text style={[styles.tableCellHeader, styles.colItem]}>Item</Text>
+            <Text style={[styles.tableCellHeader, styles.colNamaPembeli]}>
+              Nama Pembeli
+            </Text>
+            <Text style={[styles.tableCellHeader, styles.colAlamat]}>
+              Alamat
+            </Text>
             <Text style={[styles.tableCellHeader, styles.colJumlah]}>
               Jumlah
             </Text>
-            <Text style={[styles.tableCellHeader, styles.colHarga]}>
+            <Text style={[styles.tableCellHeader, styles.colHargaSatuan]}>
               Harga Satuan
             </Text>
-            <Text style={[styles.tableCellHeader, styles.colTotal]}>Total</Text>
+            <Text style={[styles.tableCellHeader, styles.colHargaTotal]}>
+              Harga Total
+            </Text>
           </View>
           {filteredOrders.length > 0 ? (
             filteredOrders.flatMap((order) =>
-              order.items.map((item, index) => (
-                <View
-                  key={`${order._id}-${index}-${
-                    item.product?._id || item.name
-                  }`}
-                  style={styles.tableRow}
-                  wrap={false}
-                >
-                  {" "}
-                  {/* wrap={false} agar baris tidak terpisah antar halaman */}
-                  <Text style={[styles.tableCell, styles.colTanggal]}>
-                    {getFormattedDate(order.createdAt)}
-                  </Text>
-                  <Text style={[styles.tableCell, styles.colItem]}>
-                    {item.product?.name || "Produk Tidak Dikenal"}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.tableCell,
-                      styles.colJumlah,
-                      styles.tableCellAmount,
-                    ]}
+              order.items.map((item, index) => {
+                itemNo++;
+                const buyerName =
+                  order.shippingAddress?.recipientName ||
+                  order.user?.name ||
+                  "N/A";
+                const addressString = formatAddress(order.shippingAddress);
+
+                return (
+                  <View
+                    key={`${order._id}-${itemNo}`}
+                    style={styles.tableRow}
+                    wrap={false}
                   >
-                    {/* MENAMBAHKAN SATUAN DI SINI (PDF) */}
-                    {item.quantity} {item.satuan || ""}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.tableCell,
-                      styles.colHarga,
-                      styles.tableCellAmount,
-                    ]}
-                  >
-                    Rp{" "}
-                    {(item.discountedPrice || item.price || 0).toLocaleString(
-                      "id-ID"
-                    )}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.tableCell,
-                      styles.colTotal,
-                      styles.tableCellAmount,
-                    ]}
-                  >
-                    Rp{" "}
-                    {(
-                      (item.quantity || 0) *
-                      (item.discountedPrice || item.price || 0)
-                    ).toLocaleString("id-ID")}
-                  </Text>
-                </View>
-              ))
+                    <Text
+                      style={[
+                        styles.tableCell,
+                        styles.colNo,
+                        styles.tableCellCenter,
+                      ]}
+                    >
+                      {" "}
+                      {itemNo}{" "}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.colTanggal]}>
+                      {" "}
+                      {getFormattedDate(order.createdAt)}{" "}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.colNamaPembeli]}>
+                      {" "}
+                      {buyerName}{" "}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.colAlamat]}>
+                      {" "}
+                      {addressString}{" "}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tableCell,
+                        styles.colJumlah,
+                        styles.tableCellCenter,
+                      ]}
+                    >
+                      {" "}
+                      {item.quantity} {item.satuan || ""}{" "}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tableCell,
+                        styles.colHargaSatuan,
+                        styles.tableCellAmount,
+                      ]}
+                    >
+                      {" "}
+                      Rp{" "}
+                      {(item.discountedPrice || item.price || 0).toLocaleString(
+                        "id-ID"
+                      )}{" "}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tableCell,
+                        styles.colHargaTotal,
+                        styles.tableCellAmount,
+                      ]}
+                    >
+                      {" "}
+                      Rp{" "}
+                      {(
+                        (item.quantity || 0) *
+                        (item.discountedPrice || item.price || 0)
+                      ).toLocaleString("id-ID")}{" "}
+                    </Text>
+                  </View>
+                );
+              })
             )
           ) : (
             <View style={styles.tableRow}>
@@ -285,7 +320,8 @@ const MyDocument = ({ startDate, endDate, orders }) => {
                   { width: "100%", textAlign: "center", fontStyle: "italic" },
                 ]}
               >
-                Tidak ada data penjualan pada periode ini.
+                {" "}
+                Tidak ada data penjualan pada periode ini.{" "}
               </Text>
             </View>
           )}
@@ -324,6 +360,7 @@ const generateExcelData = (startDate, endDate, orders) => {
   });
 
   const excelData = [];
+  // Informasi Perusahaan & Periode
   excelData.push(["UPTD Aneka Usaha - Laporan Penjualan Bibit Ikan"]);
   excelData.push([
     "Jalan Pleret Raya, Kel. Sumber, Kec. Banjarsari, Kota Surakarta",
@@ -334,26 +371,63 @@ const generateExcelData = (startDate, endDate, orders) => {
   ]);
   excelData.push([]); // Spasi
 
-  excelData.push([
+  // Header Tabel
+  const tableHeaders = [
+    "No",
     "Tanggal",
-    "Item",
-    "Jumlah", // Header untuk jumlah + satuan
+    "Nama Pembeli",
+    "Alamat",
+    "Jumlah",
     "Harga Satuan (Rp)",
-    "Total (Rp)",
-  ]);
+    "Harga Total (Rp)",
+  ];
+  excelData.push(tableHeaders);
+
+  // Inisialisasi lebar kolom berdasarkan header
+  let colWidths = tableHeaders.map((header) => header.length);
+
+  let itemNo = 0;
+  const dataRowsForExcel = [];
 
   filteredOrders.forEach((order) => {
+    const buyerName =
+      order.shippingAddress?.recipientName || order.user?.name || "N/A";
+    const addressString = formatAddress(order.shippingAddress);
+
     order.items.forEach((item) => {
-      excelData.push([
+      itemNo++;
+      const rowValues = [
+        itemNo,
         getFormattedDate(order.createdAt),
-        item.product?.name || "Produk Tidak Dikenal",
-        // MENAMBAHKAN SATUAN DI SINI (EXCEL)
+        buyerName,
+        addressString,
         `${item.quantity} ${item.satuan || ""}`,
-        item.discountedPrice || item.price || 0, // Harga numerik untuk Excel
-        (item.quantity || 0) * (item.discountedPrice || item.price || 0), // Total numerik
-      ]);
+        item.discountedPrice || item.price || 0, // Nilai numerik untuk Excel
+        (item.quantity || 0) * (item.discountedPrice || item.price || 0), // Nilai numerik
+      ];
+      dataRowsForExcel.push(rowValues);
+
+      // Update lebar kolom berdasarkan konten baris data
+      rowValues.forEach((cell, index) => {
+        let cellStringRepresentation;
+        if (index === 5 || index === 6) {
+          // Kolom Harga Satuan & Harga Total
+          // Untuk kalkulasi lebar, format sebagai string mata uang
+          cellStringRepresentation = `Rp ${Number(cell).toLocaleString(
+            "id-ID"
+          )}`;
+        } else {
+          cellStringRepresentation = String(cell);
+        }
+        colWidths[index] = Math.max(
+          colWidths[index] || 0,
+          cellStringRepresentation.length
+        );
+      });
     });
   });
+
+  excelData.push(...dataRowsForExcel); // Tambahkan semua baris data ke excelData
 
   const totalInvoice = filteredOrders.reduce((sum, order) => {
     return (
@@ -367,9 +441,43 @@ const generateExcelData = (startDate, endDate, orders) => {
   }, 0);
 
   excelData.push([]); // Spasi
-  excelData.push(["", "", "", "Total Keseluruhan Penjualan:", totalInvoice]);
+  const totalRowData = [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "Total Keseluruhan Penjualan:",
+    totalInvoice,
+  ];
+  excelData.push(totalRowData);
 
-  return excelData;
+  // Update lebar kolom untuk baris total
+  totalRowData.forEach((cell, index) => {
+    if (cell === null || cell === undefined || String(cell).trim() === "")
+      return;
+    let cellStringRepresentation;
+    if (index === 6) {
+      // Kolom nilai total
+      cellStringRepresentation = `Rp ${Number(cell).toLocaleString("id-ID")}`;
+    } else {
+      cellStringRepresentation = String(cell);
+    }
+    if (colWidths[index] !== undefined) {
+      colWidths[index] = Math.max(
+        colWidths[index],
+        cellStringRepresentation.length
+      );
+    } else {
+      // Jika kolom tidak ada di header tapi ada di total (seharusnya tidak terjadi)
+      colWidths[index] = cellStringRepresentation.length;
+    }
+  });
+
+  // Tambahkan buffer kecil ke setiap lebar kolom dan format untuk `!cols`
+  const finalCalculatedWidths = colWidths.map((width) => ({ wch: width + 2 })); // buffer 2 karakter
+
+  return { data: excelData, widths: finalCalculatedWidths };
 };
 
 const downloadExcel = (startDate, endDate, orders) => {
@@ -377,22 +485,18 @@ const downloadExcel = (startDate, endDate, orders) => {
     alert("Silakan pilih rentang tanggal terlebih dahulu.");
     return;
   }
-  const excelData = generateExcelData(startDate, endDate, orders);
+  const { data: excelData, widths: calculatedWidths } = generateExcelData(
+    startDate,
+    endDate,
+    orders
+  );
   const workbook = XLSX.utils.book_new();
   const worksheet = XLSX.utils.aoa_to_sheet(excelData);
 
-  // Atur lebar kolom (opsional, tapi bisa membuat tampilan lebih baik)
-  worksheet["!cols"] = [
-    { wch: 18 }, // Tanggal
-    { wch: 40 }, // Item
-    { wch: 15 }, // Jumlah + Satuan
-    { wch: 18 }, // Harga Satuan
-    { wch: 18 }, // Total
-  ];
-
-  // Format kolom harga dan total sebagai angka/mata uang jika memungkinkan (tergantung library)
-  // Ini lebih kompleks dan mungkin memerlukan styling cell secara spesifik
-  // Untuk kesederhanaan, kita biarkan sebagai angka biasa yang bisa diformat manual di Excel.
+  // Terapkan lebar kolom yang sudah dihitung
+  if (worksheet && calculatedWidths && calculatedWidths.length > 0) {
+    worksheet["!cols"] = calculatedWidths;
+  }
 
   XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Penjualan");
   XLSX.writeFile(
@@ -405,12 +509,13 @@ const downloadExcel = (startDate, endDate, orders) => {
 };
 
 const SalesReportModal = ({ onClose }) => {
+  // ... (state dan useEffect hooks tidak berubah dari sebelumnya)
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isGenerating, setIsGenerating] = useState(false); // State untuk loading PDF/Excel
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -421,10 +526,9 @@ const SalesReportModal = ({ onClose }) => {
       try {
         const apiUrl =
           import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
-        const response = await axios.get(
-          `${apiUrl}/api/orders/all`, // Menggunakan VITE_API_URL
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const response = await axios.get(`${apiUrl}/api/orders/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setOrders(Array.isArray(response.data) ? response.data : []);
       } catch (err) {
         setError(err.response?.data?.message || "Gagal mengambil data pesanan");
@@ -446,7 +550,7 @@ const SalesReportModal = ({ onClose }) => {
     setEndDate(formattedToday);
 
     const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(today.getDate() - 29); // -29 untuk 30 hari termasuk hari ini
+    thirtyDaysAgo.setDate(today.getDate() - 29);
     setStartDate(thirtyDaysAgo.toISOString().split("T")[0]);
   }, []);
 
@@ -456,8 +560,7 @@ const SalesReportModal = ({ onClose }) => {
       return;
     }
     setIsGenerating(true);
-    // Biarkan PDFDownloadLink menangani loadingnya sendiri, tapi kita bisa set state untuk feedback lain
-    setTimeout(() => setIsGenerating(false), 3000); // Timeout untuk reset jika ada masalah dengan link
+    setTimeout(() => setIsGenerating(false), 3000);
   };
 
   const handleDownloadExcel = () => {
@@ -495,7 +598,8 @@ const SalesReportModal = ({ onClose }) => {
             className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
             aria-label="Close"
           >
-            ✖
+            {" "}
+            ✖{" "}
           </button>
           <div className="text-red-500">
             <svg
@@ -517,24 +621,38 @@ const SalesReportModal = ({ onClose }) => {
       </div>
     );
 
-  const displayedOrders = orders
-    .filter((order) => {
-      if (!startDate || !endDate) return false;
-      const orderDate = new Date(order.createdAt);
-      const start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-      const endD = new Date(endDate); // Ganti nama variabel agar tidak konflik
-      endD.setHours(23, 59, 59, 999);
-      return orderDate >= start && orderDate <= endD;
-    })
-    .flatMap((order) =>
-      order.items.map((item) => ({ ...item, orderCreatedAt: order.createdAt }))
-    ) // Sertakan tanggal order
-    .slice(0, 5); // Ambil 5 item pertama untuk preview
+  const filteredOrdersForPreview = orders.filter((order) => {
+    if (!startDate || !endDate) return false;
+    const orderDate = new Date(order.createdAt);
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    const endD = new Date(endDate);
+    endD.setHours(23, 59, 59, 999);
+    return orderDate >= start && orderDate <= endD;
+  });
 
+  const displayedItemsForPreview = filteredOrdersForPreview
+    .flatMap((order) =>
+      order.items.map((item) => ({
+        ...item,
+        orderId: order._id,
+        orderCreatedAt: order.createdAt,
+        buyerName:
+          order.shippingAddress?.recipientName || order.user?.name || "N/A",
+        shippingFullAddress: formatAddress(order.shippingAddress),
+      }))
+    )
+    .slice(0, 5);
+
+  const totalItemsInFilteredRange = filteredOrdersForPreview.reduce(
+    (acc, order) => acc + order.items.length,
+    0
+  );
+
+  // JSX untuk modal (tidak berubah dari sebelumnya)
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-[60] p-2 sm:p-4">
-      <div className="bg-white shadow-xl rounded-lg p-5 sm:p-6 w-full max-w-3xl mx-auto relative overflow-y-auto max-h-[95vh] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+      <div className="bg-white shadow-xl rounded-lg p-5 sm:p-6 w-full max-w-4xl mx-auto relative overflow-y-auto max-h-[95vh] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 p-1.5 z-10 rounded-full hover:bg-gray-100"
@@ -548,11 +666,10 @@ const SalesReportModal = ({ onClose }) => {
             />
           </svg>
         </button>
-
         <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 text-left mb-4 sm:mb-5">
-          Laporan Penjualan Ikan
+          {" "}
+          Laporan Penjualan Ikan{" "}
         </h2>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           <div>
             <label
@@ -585,16 +702,15 @@ const SalesReportModal = ({ onClose }) => {
             />
           </div>
         </div>
-
         <p className="text-left text-gray-600 text-sm sm:text-base mb-6">
+          {" "}
           Laporan untuk periode:{" "}
           <strong className="text-gray-700">
             {startDate && endDate
               ? `${getFormattedDate(startDate)} - ${getFormattedDate(endDate)}`
               : "Pilih rentang waktu"}
-          </strong>
+          </strong>{" "}
         </p>
-
         <div className="flex flex-col sm:flex-row justify-start gap-3 sm:gap-4 mb-6">
           {startDate && endDate && (
             <>
@@ -613,9 +729,7 @@ const SalesReportModal = ({ onClose }) => {
                 className="w-full sm:w-auto"
                 onClick={handleDownloadPdf}
               >
-                {(
-                  { loading: pdfLoading } // Gunakan pdfLoading agar tidak konflik
-                ) => (
+                {({ loading: pdfLoading }) => (
                   <button
                     disabled={isGenerating || pdfLoading}
                     className="w-full bg-red-50 hover:bg-red-100 text-red-700 font-medium px-4 sm:px-5 py-2.5 rounded-lg shadow-sm border border-red-200 flex items-center justify-center transition-colors duration-150 disabled:opacity-70"
@@ -640,7 +754,6 @@ const SalesReportModal = ({ onClose }) => {
                   </button>
                 )}
               </PDFDownloadLink>
-
               <button
                 onClick={handleDownloadExcel}
                 disabled={isGenerating}
@@ -665,11 +778,10 @@ const SalesReportModal = ({ onClose }) => {
             </>
           )}
         </div>
-
         {startDate &&
           endDate &&
           orders.length > 0 &&
-          displayedOrders.length > 0 && (
+          displayedItemsForPreview.length > 0 && (
             <div className="mt-6">
               <p className="font-medium mb-2 text-gray-700">
                 Preview Laporan (5 item pertama):
@@ -680,88 +792,92 @@ const SalesReportModal = ({ onClose }) => {
                     <thead className="bg-gray-50">
                       <tr>
                         {[
+                          "No",
                           "Tanggal",
-                          "Item",
+                          "Nama Pembeli",
+                          "Alamat",
                           "Jumlah",
                           "Harga Satuan",
-                          "Total",
-                        ].map((header) => (
+                          "Harga Total",
+                        ].map((header, idx) => (
                           <th
                             key={header}
                             scope="col"
-                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            className={`px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                              idx === 0 ? "w-10 text-center" : ""
+                            } ${idx === 4 ? "text-center" : ""} ${
+                              idx === 5 || idx === 6 ? "text-right" : ""
+                            } `}
                           >
-                            {header}
+                            {" "}
+                            {header}{" "}
                           </th>
                         ))}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {displayedOrders.map((item, index) => (
+                      {displayedItemsForPreview.map((item, index) => (
                         <tr
-                          key={`${item.product?._id || item.name}-${index}`}
+                          key={`${item.orderId}-${item.product?._id || index}`}
                           className="hover:bg-gray-50"
                         >
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {index + 1}
+                          </td>
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700">
                             {getFormattedDate(item.orderCreatedAt)}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                            {item.product?.name || "Produk Tidak Dikenal"}
+                          <td className="px-3 py-3 text-sm text-gray-700 max-w-[150px] whitespace-pre-wrap break-words">
+                            {item.buyerName}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                            {/* MENAMBAHKAN SATUAN DI SINI (PREVIEW) */}
-                            {item.quantity} {item.satuan || ""}
+                          <td className="px-3 py-3 text-sm text-gray-700 max-w-[200px] whitespace-pre-wrap break-words">
+                            {item.shippingFullAddress}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {" "}
+                            {item.quantity} {item.satuan || ""}{" "}
+                          </td>
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-right">
+                            {" "}
                             Rp{" "}
                             {(
                               item.discountedPrice ||
                               item.price ||
                               0
-                            ).toLocaleString("id-ID")}
+                            ).toLocaleString("id-ID")}{" "}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-medium">
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 font-medium text-right">
+                            {" "}
                             Rp{" "}
                             {(
                               (item.quantity || 0) *
                               (item.discountedPrice || item.price || 0)
-                            ).toLocaleString("id-ID")}
+                            ).toLocaleString("id-ID")}{" "}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-                {orders
-                  .filter((order) => {
-                    /* ... filter logic ... */
-                  })
-                  .flatMap((order) => order.items).length > 5 && (
+                {totalItemsInFilteredRange > 5 && (
                   <div className="p-3 text-center text-xs text-gray-500 bg-gray-50 border-t border-gray-200">
-                    Menampilkan 5 dari{" "}
-                    {
-                      orders
-                        .filter((order) => {
-                          const orderDate = new Date(order.createdAt);
-                          const start = new Date(startDate);
-                          start.setHours(0, 0, 0, 0);
-                          const endD = new Date(endDate);
-                          endD.setHours(23, 59, 59, 999);
-                          return orderDate >= start && orderDate <= endD;
-                        })
-                        .flatMap((order) => order.items).length
-                    }{" "}
-                    item. Unduh laporan untuk data lengkap.
+                    {" "}
+                    Menampilkan 5 dari {totalItemsInFilteredRange} item. Unduh
+                    laporan untuk data lengkap.{" "}
                   </div>
                 )}
               </div>
             </div>
           )}
-        {startDate && endDate && displayedOrders.length === 0 && !loading && (
-          <p className="text-center text-gray-500 mt-6">
-            Tidak ada data penjualan untuk periode yang dipilih.
-          </p>
-        )}
+        {startDate &&
+          endDate &&
+          displayedItemsForPreview.length === 0 &&
+          !loading && (
+            <p className="text-center text-gray-500 mt-6">
+              {" "}
+              Tidak ada data penjualan untuk periode yang dipilih.{" "}
+            </p>
+          )}
       </div>
     </div>
   );

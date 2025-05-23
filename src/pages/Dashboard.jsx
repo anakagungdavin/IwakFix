@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import axios from "axios";
 import ChartS from "../components/charts/ChartS";
 import ChartWithLegend from "../components/charts/ChartWithLegend";
@@ -8,7 +8,7 @@ import PendingOrdersTable from "../components/tables/PendingOrdersTable";
 import ConfirmedOrdersTable from "../components/tables/ConfirmedOrdersTable";
 
 const Dashboard = () => {
-  const [orders, setOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,58 +16,68 @@ const Dashboard = () => {
 
   const token = localStorage.getItem("token");
 
-  // Track window resize for responsive adjustments
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch data pesanan dan produk dari API
+  const fetchData = useCallback(async () => {
+    console.log("Dashboard: fetchData triggered");
+    if (!loading) setLoading(true); // Set loading true only if not already loading
+    setError(null);
+    try {
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+
+      const ordersResponse = await axios.get(`${apiUrl}/api/orders/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAllOrders(ordersResponse.data);
+
+      const productsResponse = await axios.get(`${apiUrl}/api/products/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts(productsResponse.data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Gagal mengambil data");
+    } finally {
+      setLoading(false);
+    }
+  }, [token, loading]); // Added loading to dependencies to avoid re-triggering fetchData unnecessarily
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const apiUrl =
-          import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
-
-        // Fetch pesanan
-        const ordersResponse = await axios.get(`${apiUrl}/api/orders/all`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setOrders(ordersResponse.data);
-
-        // Fetch produk
-        const productsResponse = await axios.get(`${apiUrl}/api/products/all`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setProducts(productsResponse.data);
-
-        setLoading(false);
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to fetch data");
-        setLoading(false);
-      }
-    };
-
     if (token) {
       fetchData();
     } else {
-      setError("No authentication token found");
+      setError("Token autentikasi tidak ditemukan");
       setLoading(false);
     }
-  }, [token]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]); // fetchData will be called once on mount due to token, then by callbacks
 
-  // Proses data untuk chart dan persentase (2 minggu terakhir)
-  const getTwoWeeksData = () => {
+  const pendingOrders = useMemo(
+    () => allOrders.filter((order) => order.status === "Pending"),
+    [allOrders]
+  );
+
+  const paidAndShippedOrders = useMemo(
+    () =>
+      allOrders.filter(
+        (order) => order.status === "Paid" || order.status === "Shipped"
+      ),
+    [allOrders]
+  );
+
+  const getTwoWeeksData = useCallback(() => {
     const today = new Date();
     const thisWeekStart = new Date(today);
-    thisWeekStart.setDate(today.getDate() - 6); // 7 hari terakhir (minggu ini)
+    thisWeekStart.setDate(today.getDate() - 6);
     const lastWeekStart = new Date(today);
-    lastWeekStart.setDate(today.getDate() - 13); // 7 hari sebelumnya (minggu lalu)
+    lastWeekStart.setDate(today.getDate() - 13);
     const lastWeekEnd = new Date(thisWeekStart);
     lastWeekEnd.setDate(thisWeekStart.getDate() - 1);
 
-    // Get abbreviated day names for small screens
     const getDayFormat = () =>
       windowWidth < 640 ? { weekday: "short" } : { weekday: "long" };
 
@@ -77,19 +87,16 @@ const Dashboard = () => {
       return date.toLocaleDateString("id-ID", getDayFormat());
     });
 
-    // Filter pesanan minggu ini
-    const thisWeekOrders = orders.filter((order) => {
+    const thisWeekOrders = allOrders.filter((order) => {
       const orderDate = new Date(order.createdAt);
       return orderDate >= thisWeekStart && orderDate <= today;
     });
 
-    // Filter pesanan minggu lalu
-    const lastWeekOrders = orders.filter((order) => {
+    const lastWeekOrders = allOrders.filter((order) => {
       const orderDate = new Date(order.createdAt);
       return orderDate >= lastWeekStart && orderDate <= lastWeekEnd;
     });
 
-    // Hitung total order dan pendapatan
     const thisWeekOrderCount = thisWeekOrders.reduce(
       (sum, order) => sum + order.items.length,
       0
@@ -107,7 +114,6 @@ const Dashboard = () => {
       0
     );
 
-    // Hitung persentase perubahan
     const orderPercentChange =
       lastWeekOrderCount === 0
         ? thisWeekOrderCount > 0
@@ -123,27 +129,24 @@ const Dashboard = () => {
           : 0
         : ((thisWeekRevenue - lastWeekRevenue) / lastWeekRevenue) * 100;
 
-    // Data harian untuk chart
-    const dailyOrders = days.map((day, index) => {
+    const dailyOrdersData = days.map((_, index) => {
       const dayStart = new Date(thisWeekStart);
       dayStart.setDate(thisWeekStart.getDate() + index);
       dayStart.setHours(0, 0, 0, 0);
       const dayEnd = new Date(dayStart);
       dayEnd.setHours(23, 59, 59, 999);
-
       return thisWeekOrders.filter((order) => {
         const orderDate = new Date(order.createdAt);
         return orderDate >= dayStart && orderDate <= dayEnd;
       }).length;
     });
 
-    const dailyRevenue = days.map((day, index) => {
+    const dailyRevenueData = days.map((_, index) => {
       const dayStart = new Date(thisWeekStart);
       dayStart.setDate(thisWeekStart.getDate() + index);
       dayStart.setHours(0, 0, 0, 0);
       const dayEnd = new Date(dayStart);
       dayEnd.setHours(23, 59, 59, 999);
-
       return thisWeekOrders
         .filter((order) => {
           const orderDate = new Date(order.createdAt);
@@ -152,13 +155,12 @@ const Dashboard = () => {
         .reduce((sum, order) => sum + order.totalAmount, 0);
     });
 
-    const dailyCustomers = days.map((day, index) => {
+    const dailyCustomersData = days.map((_, index) => {
       const dayStart = new Date(thisWeekStart);
       dayStart.setDate(thisWeekStart.getDate() + index);
       dayStart.setHours(0, 0, 0, 0);
       const dayEnd = new Date(dayStart);
       dayEnd.setHours(23, 59, 59, 999);
-
       const uniqueCustomers = new Set(
         thisWeekOrders
           .filter((order) => {
@@ -170,13 +172,12 @@ const Dashboard = () => {
       return uniqueCustomers.size;
     });
 
-    const dailyProductsSold = days.map((day, index) => {
+    const dailyProductsSoldData = days.map((_, index) => {
       const dayStart = new Date(thisWeekStart);
       dayStart.setDate(thisWeekStart.getDate() + index);
       dayStart.setHours(0, 0, 0, 0);
       const dayEnd = new Date(dayStart);
       dayEnd.setHours(23, 59, 59, 999);
-
       return thisWeekOrders
         .filter((order) => {
           const orderDate = new Date(order.createdAt);
@@ -189,21 +190,16 @@ const Dashboard = () => {
         );
     });
 
-    // Hitung stok harian berdasarkan produk dan pengurangan dari pesanan
-    const dailyStock = days.map((day, index) => {
+    const dailyStockData = days.map((_, index) => {
       const dayStart = new Date(thisWeekStart);
       dayStart.setDate(thisWeekStart.getDate() + index);
       dayStart.setHours(0, 0, 0, 0);
       const dayEnd = new Date(dayStart);
       dayEnd.setHours(23, 59, 59, 999);
-
-      // Total stok awal dari semua produk
       const totalInitialStock = products.reduce(
         (sum, product) => sum + product.stock,
         0
       );
-
-      // Kurangi stok berdasarkan pesanan harian
       const dailySold = thisWeekOrders
         .filter((order) => {
           const orderDate = new Date(order.createdAt);
@@ -214,39 +210,63 @@ const Dashboard = () => {
             sum + order.items.reduce((acc, item) => acc + item.quantity, 0),
           0
         );
-
-      return Math.max(0, totalInitialStock - dailySold); // Pastikan tidak negatif
+      return Math.max(0, totalInitialStock - dailySold);
     });
 
     return {
       days,
-      dailyOrders,
-      dailyRevenue,
+      dailyOrders: dailyOrdersData,
+      dailyRevenue: dailyRevenueData,
       thisWeekOrderCount,
       lastWeekOrderCount,
       orderPercentChange,
       thisWeekRevenue,
       lastWeekRevenue,
       revenuePercentChange,
-      dailyCustomers,
-      dailyProductsSold,
-      dailyStock,
+      dailyCustomers: dailyCustomersData,
+      dailyProductsSold: dailyProductsSoldData,
+      dailyStock: dailyStockData,
     };
-  };
+  }, [allOrders, products, windowWidth]);
 
-  const data = getTwoWeeksData();
-  const totalOrders = data.thisWeekOrderCount;
-  const totalRevenue = data.thisWeekRevenue;
-  const orderPercent = Math.abs(data.orderPercentChange).toFixed(2);
-  const revenuePercent = Math.abs(data.revenuePercentChange).toFixed(2);
-  const orderLevelUp = data.orderPercentChange >= 0;
-  const revenueLevelUp = data.revenuePercentChange >= 0;
+  const chartStats = useMemo(() => {
+    if (allOrders.length === 0 && products.length === 0 && !loading) {
+      // Return a default structure if data is empty but not loading
+      return {
+        days: Array(7).fill(""),
+        dailyOrders: Array(7).fill(0),
+        dailyRevenue: Array(7).fill(0),
+        thisWeekOrderCount: 0,
+        orderPercentChange: 0,
+        thisWeekRevenue: 0,
+        revenuePercentChange: 0,
+        dailyCustomers: Array(7).fill(0),
+        dailyProductsSold: Array(7).fill(0),
+        dailyStock: Array(7).fill(0),
+        orderLevelUp: true,
+        revenueLevelUp: true,
+        orderPercent: "0.00",
+        revenuePercent: "0.00",
+        totalOrders: 0,
+        totalRevenue: 0,
+      };
+    }
+    const data = getTwoWeeksData();
+    return {
+      ...data,
+      totalOrders: data.thisWeekOrderCount,
+      totalRevenue: data.thisWeekRevenue,
+      orderPercent: Math.abs(data.orderPercentChange || 0).toFixed(2),
+      revenuePercent: Math.abs(data.revenuePercentChange || 0).toFixed(2),
+      orderLevelUp: (data.orderPercentChange || 0) >= 0,
+      revenueLevelUp: (data.revenuePercentChange || 0) >= 0,
+    };
+  }, [allOrders, products, getTwoWeeksData, loading]);
 
-  // Responsive chart options based on screen size
   const getChartHeight = () => {
-    if (windowWidth < 640) return 220; // Small screens
-    if (windowWidth < 1024) return 300; // Medium screens
-    return 350; // Large screens
+    if (windowWidth < 640) return 220;
+    if (windowWidth < 1024) return 300;
+    return 350;
   };
 
   const smallChartOptions = {
@@ -262,26 +282,21 @@ const Dashboard = () => {
   const largeChartOptions = {
     chart: {
       type: "line",
-      toolbar: { show: windowWidth > 768 }, // Only show toolbar on larger screens
+      toolbar: { show: windowWidth > 768 },
       height: getChartHeight(),
     },
     stroke: { curve: "smooth", width: 2 },
     xaxis: {
-      categories: data.days,
+      categories: chartStats.days,
       labels: {
-        rotate: windowWidth < 640 ? -45 : 0, // Rotate labels on small screens
-        style: {
-          fontSize: windowWidth < 640 ? "10px" : "12px",
-        },
+        rotate: windowWidth < 640 ? -45 : 0,
+        style: { fontSize: windowWidth < 640 ? "10px" : "12px" },
       },
     },
     legend: {
       position: windowWidth < 768 ? "bottom" : "top",
       fontSize: windowWidth < 640 ? "10px" : "12px",
-      itemMargin: {
-        horizontal: windowWidth < 640 ? 5 : 10,
-        vertical: 0,
-      },
+      itemMargin: { horizontal: windowWidth < 640 ? 5 : 10, vertical: 0 },
     },
     grid: {
       padding: {
@@ -292,26 +307,24 @@ const Dashboard = () => {
   };
 
   const xlChartData = [
-    { name: "Customers", data: data.dailyCustomers },
-    { name: "Stock Produk", data: data.dailyStock },
-    { name: "Pendapatan", data: data.dailyRevenue },
-    { name: "Jumlah Produk Terjual", data: data.dailyProductsSold },
+    { name: "Customers", data: chartStats.dailyCustomers },
+    { name: "Stock Produk", data: chartStats.dailyStock },
+    { name: "Pendapatan", data: chartStats.dailyRevenue },
+    { name: "Jumlah Produk Terjual", data: chartStats.dailyProductsSold },
   ];
 
   const xlChartOptions = {
     chart: {
       type: "line",
-      toolbar: { show: windowWidth > 768 }, // Only show toolbar on larger screens
+      toolbar: { show: windowWidth > 768 },
       height: getChartHeight() * 1.2,
     },
     stroke: { curve: "smooth", width: 2 },
     xaxis: {
-      categories: data.days,
+      categories: chartStats.days,
       labels: {
-        rotate: windowWidth < 640 ? -45 : 0, // Rotate labels on small screens
-        style: {
-          fontSize: windowWidth < 640 ? "10px" : "12px",
-        },
+        rotate: windowWidth < 640 ? -45 : 0,
+        style: { fontSize: windowWidth < 640 ? "10px" : "12px" },
       },
     },
     legend: {
@@ -330,38 +343,31 @@ const Dashboard = () => {
         right: windowWidth < 640 ? 5 : 10,
       },
     },
-    responsive: [
-      {
-        breakpoint: 640,
-        options: {
-          legend: {
-            show: false, // Hide legend completely on very small screens
-          },
-        },
-      },
-    ],
+    responsive: [{ breakpoint: 640, options: { legend: { show: false } } }],
   };
 
-  const smallChartData = [{ name: "Orders", data: data.dailyOrders }];
-  const largeChartData = [{ name: "Pendapatan", data: data.dailyRevenue }];
+  // const smallChartSeriesData = [{ name: "Orders", data: chartStats.dailyOrders }]; // Jika ChartS butuh format series
+  const largeChartSeriesData = [
+    { name: "Pendapatan", data: chartStats.dailyRevenue },
+  ];
 
-  // Function to format currency according to screen size
   const formatCurrency = (amount) => {
     if (windowWidth < 640 && amount > 999999) {
-      // For small screens, abbreviate large numbers
       return `Rp${(amount / 1000000).toFixed(1)}M`;
     }
     return `Rp${amount.toLocaleString("id-ID")}`;
   };
 
-  if (loading)
+  if (loading && allOrders.length === 0)
     return (
+      // Tampilkan loading hanya jika data awal belum ada
       <div className="flex justify-center items-center h-screen">
         <p className="text-lg">Loading...</p>
       </div>
     );
-  if (error)
+  if (error && allOrders.length === 0)
     return (
+      // Tampilkan error hanya jika data awal gagal dimuat
       <div className="p-4 md:p-6">
         <p className="text-red-500 text-center">{error}</p>
       </div>
@@ -369,50 +375,45 @@ const Dashboard = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 p-3 md:p-4 lg:p-6">
-      {/* Main revenue chart - full width on mobile, 3/4 on desktop */}
       <div className="col-span-1 md:col-span-2 lg:col-span-3">
         <ChartWithLegend
           title="Total Pembelian"
           time="1 Minggu Terakhir"
-          total={formatCurrency(totalRevenue)}
-          percent={`${revenuePercent}%`}
+          total={formatCurrency(chartStats.totalRevenue)}
+          percent={`${chartStats.revenuePercent}%`}
           comparedTo={
-            revenueLevelUp
+            chartStats.revenueLevelUp
               ? "lebih tinggi dari minggu lalu"
               : "lebih rendah dari minggu lalu"
           }
-          levelUp={revenueLevelUp}
-          chartData={largeChartData}
+          levelUp={chartStats.revenueLevelUp}
+          chartData={largeChartSeriesData}
           chartOptions={largeChartOptions}
         />
       </div>
-
-      {/* Order stats card - full width on mobile, 1/4 on desktop */}
       <div className="col-span-1 md:col-span-2 lg:col-span-1">
         <ChartS
           title="Total Order"
           time="1 Minggu Terakhir"
-          total={totalOrders.toLocaleString("id-ID")}
-          percent={`${orderPercent}%`}
+          total={chartStats.totalOrders.toLocaleString("id-ID")}
+          percent={`${chartStats.orderPercent}%`}
           comparedTo={
-            orderLevelUp
+            chartStats.orderLevelUp
               ? "daripada 1 minggu yang lalu"
               : "kurang dari 1 minggu yang lalu"
           }
-          levelUp={orderLevelUp}
-          chartData={data.dailyOrders}
+          levelUp={chartStats.orderLevelUp}
+          chartData={chartStats.dailyOrders} // Pastikan ChartS menerima array angka
           chartOptions={smallChartOptions}
         />
       </div>
-
-      {/* Weekly report chart - full width across all devices */}
       <div className="col-span-1 md:col-span-2 lg:col-span-4">
         <ChartXL
           title="Laporan Mingguan"
           time="1 Minggu Terakhir"
           options={
             windowWidth < 640
-              ? ["Customers", "Stock", "Revenue", "Terjual"] // Shorter labels for small screens
+              ? ["Customers", "Stock", "Revenue", "Terjual"]
               : [
                   "Customers",
                   "Stock Produk",
@@ -424,26 +425,30 @@ const Dashboard = () => {
           chartOptions={xlChartOptions}
         />
       </div>
-
-      {/* Pending orders table - full width across all devices */}
       <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-white p-4 md:p-6 rounded-lg shadow-sm">
         <h2 className="text-lg md:text-xl font-semibold mb-4">
           Pesanan Tertunda
         </h2>
         <div className="overflow-x-auto">
-          <PendingOrdersTable />
+          <PendingOrdersTable
+            pendingOrdersData={pendingOrders}
+            onOrderStatusChange={fetchData}
+            isLoading={loading && pendingOrders.length === 0}
+          />
         </div>
       </div>
       <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-white p-4 md:p-6 rounded-lg shadow-sm">
         <h2 className="text-lg md:text-xl font-semibold mb-4">
-          Pesanan Terkonfirmasi
+          Manajemen Pengiriman
         </h2>
         <div className="overflow-x-auto">
-          <ConfirmedOrdersTable />
+          <ConfirmedOrdersTable
+            ordersData={paidAndShippedOrders}
+            onOrderStatusChange={fetchData}
+            isLoading={loading && paidAndShippedOrders.length === 0}
+          />
         </div>
       </div>
-
-      {/* Orders table - full width across all devices */}
       <div className="col-span-1 md:col-span-2 lg:col-span-4">
         <div className="overflow-x-auto">
           <TableOne />
