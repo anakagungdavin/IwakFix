@@ -40,11 +40,15 @@ const MainLayout = () => {
     >
       {isMobileView ? (
         <>
-          <div className="flex justify-between items-center py-2 px-4 bg-white shadow-sm">
-            <div className="text-yellow-500 font-bold text-xl">iwak.</div>
+          <div className="flex justify-between items-center py-2 px-4 bg-[#003D47]  shadow-sm">
+            <img
+              src="/images/logo/Slice 1-fix.png"
+              alt="IWAK Logo"
+              className="h-12 w-auto"
+            />
             <button
               onClick={toggleMobileMenu}
-              className="text-gray-600 p-2 rounded-md hover:bg-gray-100"
+              className="text-white p-2 rounded-md hover:bg-green-600"
             >
               {showMobileMenu ? <FaTimes /> : <FaBars />}
             </button>

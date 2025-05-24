@@ -48,29 +48,33 @@ const Sidebar = ({ isMobile }) => {
     return (
       <div className="flex h-full">
         <div
-          className={`bg-white shadow-md h-full p-5 ${
+          className={`bg-[#003D47] shadow-md h-full p-5 ${
             isOpen ? "w-64" : "w-20"
           } transition-all duration-300 flex flex-col justify-between`}
         >
           <div>
             <div className="flex justify-between items-center mb-6">
               <h1
-                className={`text-yellow-500 font-bold text-2xl ${
+                className={`text-green-500 font-bold text-2xl ${
                   !isOpen && "hidden"
                 }`}
               >
-                iwak.
+                <img
+                  src="/images/logo/Slice 1-fix.png"
+                  alt="IWAK Logo"
+                  className="h-12 w-auto"
+                />
               </h1>
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="text-gray-600 text-2xl"
+                className="text-white text-2xl"
               >
                 <FaBars />
               </button>
             </div>
 
             <p
-              className={`text-gray-400 uppercase text-sm mb-2 ${
+              className={`text-white uppercase text-sm mb-2 ${
                 !isOpen && "hidden"
               }`}
             >
@@ -81,11 +85,11 @@ const Sidebar = ({ isMobile }) => {
                 <li key={index} className="mb-2">
                   <Link
                     to={item.path}
-                    className={`flex items-center p-3 rounded-lg hover:bg-gray-200 transition-all 
+                    className={`flex items-center p-3 rounded-lg hover:bg-green-700 transition-all 
                       ${
                         location.pathname === item.path
-                          ? "bg-gray-100 font-semibold text-[#003D47]"
-                          : "text-[#8B909A]"
+                          ? "bg-white font-semibold text-[#003D47]"
+                          : "text-white"
                       }`}
                   >
                     <span className="text-lg mr-3">{item.icon}</span>

@@ -34,9 +34,8 @@ const ConfirmedOrdersTable = ({
     const initialShippingMethods = {};
     confirmedOrders.forEach((order) => {
       if (!shippingMethod[order._id]) {
-        // Hanya set jika belum ada untuk order tsb
-        initialShippingMethods[order._id] =
-          order.paymentMethod?.toLowerCase() === "cod" ? "COD" : "resi";
+        // Always set to COD since Kurir is disabled
+        initialShippingMethods[order._id] = "COD";
       }
     });
     if (Object.keys(initialShippingMethods).length > 0) {
@@ -252,22 +251,6 @@ const ConfirmedOrdersTable = ({
                         <label className="inline-flex items-center">
                           <input
                             type="radio"
-                            value="resi"
-                            name={`shipping-method-${order._id}`}
-                            checked={shippingMethod[order._id] === "resi"}
-                            onChange={() =>
-                              handleShippingMethodChange(order._id, "resi")
-                            }
-                            className="mr-2"
-                            disabled={
-                              order.paymentMethod?.toLowerCase() === "cod"
-                            }
-                          />
-                          <span>Kurir</span>
-                        </label>
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
                             value="COD"
                             name={`shipping-method-${order._id}`}
                             checked={shippingMethod[order._id] === "COD"}
@@ -275,9 +258,6 @@ const ConfirmedOrdersTable = ({
                               handleShippingMethodChange(order._id, "COD")
                             }
                             className="mr-2"
-                            disabled={
-                              order.paymentMethod?.toLowerCase() !== "cod"
-                            }
                           />
                           <span>COD</span>
                         </label>

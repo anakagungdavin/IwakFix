@@ -40,7 +40,13 @@ const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
 
   return (
     <div className="p-5">
-      <h2 className="text-lg font-semibold text-gray-700 mb-4">Media</h2>
+      <h2 className="text-lg font-semibold text-gray-700">Media</h2>
+      <p className="text-sm text-red-500">
+        <span className="text-red-600">*</span> Ukuran maximum 2 MB
+      </p>
+      <p className="text-sm text-red-500 mb-4">
+        <span className="text-red-600">*</span> Ekstensi file : jpg, jpeg, png
+      </p>
       <div
         className="border-2 border-dashed border-gray-300 rounded-md p-5 text-center cursor-pointer"
         onDragOver={(e) => e.preventDefault()}
@@ -69,7 +75,9 @@ const UploadGambar = ({ data = {}, onUpload, onRemove, mode = "add" }) => {
                   src={item.url}
                   alt={`Preview ${item.id}`}
                   className="w-40 h-40 object-cover rounded-md"
-                  onError={(e) => console.error("Gambar gagal dimuat:", e, item.url)}
+                  onError={(e) =>
+                    console.error("Gambar gagal dimuat:", e, item.url)
+                  }
                 />
                 <button
                   onClick={() => handleRemove(item.id)}
