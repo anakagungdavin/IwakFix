@@ -89,17 +89,21 @@ const CheckoutPage = () => {
   }, [navigate, log]); // Tambahkan log ke dependency array
 
   // useEffect untuk mengupdate ongkos kirim berdasarkan metode pembayaran
+  // useEffect(() => {
+  //   if (paymentMethod === "cod") {
+  //     setShippingCost(0);
+  //     log("Payment method COD, shipping cost set to 0");
+  //   } else {
+  //     setShippingCost(DEFAULT_SHIPPING_COST);
+  //     log(
+  //       `Payment method ${paymentMethod}, shipping cost set to ${DEFAULT_SHIPPING_COST}`
+  //     );
+  //   }
+  // }, [paymentMethod, log]); // Tambahkan log ke dependency array
   useEffect(() => {
-    if (paymentMethod === "cod") {
-      setShippingCost(0);
-      log("Payment method COD, shipping cost set to 0");
-    } else {
-      setShippingCost(DEFAULT_SHIPPING_COST);
-      log(
-        `Payment method ${paymentMethod}, shipping cost set to ${DEFAULT_SHIPPING_COST}`
-      );
-    }
-  }, [paymentMethod, log]); // Tambahkan log ke dependency array
+  setShippingCost(DEFAULT_SHIPPING_COST);
+}, [paymentMethod]);
+
 
   const getPriceDetails = (item) => {
     log("Getting price details for item:", item);
@@ -188,10 +192,15 @@ const CheckoutPage = () => {
       setError("Tidak ada item untuk di-checkout.");
       return;
     }
-    if (paymentMethod !== "cod" && !proofPayment) {
+    // if (paymentMethod !== "cod" && !proofPayment) {
+    //   setError("Silakan unggah bukti pembayaran.");
+    //   return;
+    // }
+    if (!proofPayment) {
       setError("Silakan unggah bukti pembayaran.");
       return;
     }
+
 
     setLoading(true);
     setError(null);
@@ -218,9 +227,13 @@ const CheckoutPage = () => {
         })
       );
       formData.append("paymentMethod", paymentMethod);
-      if (paymentMethod !== "cod" && proofPayment) {
+      // if (paymentMethod !== "cod" && proofPayment) {
+      //   formData.append("proofOfPayment", proofPayment);
+      // }
+      if (proofPayment) {
         formData.append("proofOfPayment", proofPayment);
       }
+
 
       const orderSource = cartDataFromState ? "cart" : "buyNow";
       formData.append("source", orderSource);
@@ -448,7 +461,7 @@ const CheckoutPage = () => {
                   >
                     <option value="">Pilih Metode Pembayaran</option>
                     <option value="bank_jateng">Bank Jateng</option>
-                    <option value="cod">COD (Bayar di Tempat)</option>
+                    {/* <option value="cod">COD (Bayar di Tempat)</option> */}
                     <option value="qris">QRIS</option>
                   </select>
 
@@ -559,7 +572,7 @@ const CheckoutPage = () => {
                       cartItems.length === 0 ||
                       !selectedAddress ||
                       !paymentMethod ||
-                      (paymentMethod !== "cod" && !proofPayment)
+                      (!proofPayment)
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-blue-600 hover:bg-blue-700"
                     }`}
