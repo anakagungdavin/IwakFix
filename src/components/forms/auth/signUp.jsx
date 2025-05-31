@@ -48,6 +48,16 @@ const SignUp = () => {
       setLoading(false);
       return;
     }
+    if (!validateEmail(email)) {
+    setError("Format email tidak valid. Harap masukkan email dengan format yang benar.");
+    setLoading(false);
+    return;
+    }
+    if (!validatePhoneNumber(phoneNumber)) {
+    setError("Format nomor telepon tidak valid. Pastikan nomor telepon diawali dengan 08, 62, atau +62 dan terdiri dari 8 hingga 13 angka.");
+    setLoading(false);
+    return;
+    }
     if (!validatePassword(password)) {
       setError(
         "Password harus terdiri dari minimal 8 karakter, " +
@@ -106,6 +116,12 @@ const SignUp = () => {
       setLoading(false);
     }
   };
+
+  const validatePhoneNumber = (phoneNumber) => {
+  const pattern = /^(\+62|62|0)8[1-9][0-9]{6,9}$/;
+    return pattern.test(phoneNumber);
+  };
+
 
   const validatePassword = (password) => {
     // ... (fungsi validatePassword tetap sama)
@@ -249,7 +265,7 @@ const SignUp = () => {
                 <div className="relative">
                   <input
                     type="tel"
-                    pattern="^(\+62|62|0)8[1-9][0-9]{6,9}$"
+                    // pattern="^(\+62|62|0)8[1-9][0-9]{6,9}$"
                     inputMode="numeric"
                     placeholder="Masukan telephone"
                     value={phoneNumber}
