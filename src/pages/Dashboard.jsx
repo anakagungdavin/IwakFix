@@ -27,8 +27,7 @@ const Dashboard = () => {
     if (!loading) setLoading(true); // Set loading true only if not already loading
     setError(null);
     try {
-      const apiUrl =
-        import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
       const ordersResponse = await axios.get(`${apiUrl}/api/orders/all`, {
         headers: { Authorization: `Bearer ${token}` },

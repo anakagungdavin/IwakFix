@@ -1,4 +1,4 @@
-// src/App.jsx (atau path yang sesuai di proyek Anda)
+// src/App.jsx
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,17 +6,20 @@ import {
   Navigate,
 } from "react-router-dom";
 
+// <<==== IMPORT PAGE TRACKER ====>>
+import PageTracker from "./components/PageTracker"; // Sesuaikan path jika PageTracker.jsx ada di folder lain
+
 // Halaman Auth
 import SignInPage from "./pages/auth/signInPage";
 import SignUpPage from "./pages/auth/signUpPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPassword";
 import ResetPasswordPage from "./pages/auth/ResetPassword";
-// import VerifyEmailPage from "./pages/auth/VerifyEmailPage"; // Rute ini akan redirect dari backend, jadi komponennya tidak langsung digunakan di sini
+// import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import ResendVerificationPage from "./pages/auth/ResendVerificationPage";
-import AuthMessagePage from "./pages/auth/AuthMessagePage"; // <<==== TAMBAHKAN IMPORT INI
+import AuthMessagePage from "./pages/auth/AuthMessagePage";
 
 // Layouts dan Komponen lainnya
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard"; // Asumsi ini dashboard Admin
 import PrivateRoute from "./routes/PrivateRoutes";
 import ProductManagement from "./pages/productmanage/ProductManagement";
 import AddProduct from "./pages/productmanage/AddProduct";
@@ -28,6 +31,8 @@ import EditProduct from "./pages/productmanage/EditProduct";
 import UserList from "./pages/usermanagement/UserList";
 import UserProfile from "./pages/usermanagement/UserProfile";
 import EditProfile from "./pages/usermanagement/EditUserProfile";
+
+// Halaman Customer
 import DashboardCust from "./pages/customer/DashboardCust";
 import AboutPage from "./pages/customer/About";
 import TokoPage from "./pages/customer/Toko";
@@ -37,10 +42,15 @@ import CartPage from "./pages/customer/CartPage";
 import CheckoutPage from "./pages/customer/CheckoutPage";
 import ProductPage from "./pages/customer/ProductPage";
 import ChangeAddress from "./components/Customer/ChangeAddress";
+// Admin Analytics (jika Anda masih memiliki halaman terpisah ini, opsional)
+// import WebsiteAnalytics from "./pages/Admin/WebsiteAnalytics";
 
 function App() {
   return (
     <Router>
+      {/* <<==== RENDER PAGE TRACKER DI SINI, DI DALAM ROUTER ====>> */}
+      <PageTracker />
+
       <Routes>
         {/* Redirect dari root ke customer dashboard */}
         <Route path="/" element={<Navigate to="/customer-dashboard" />} />
@@ -50,16 +60,8 @@ function App() {
         <Route path="/register" element={<SignUpPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-
-        {/* Rute ini tidak lagi merender komponen langsung karena backend akan redirect */}
-        {/* Jika Anda masih memiliki komponen VerifyEmailPage dan ingin menggunakannya untuk tujuan lain, Anda bisa uncomment impornya */}
-        {/* Tapi untuk alur verifikasi via redirect, element={null} atau hapus rute ini sudah cukup jika tidak ada logika lain */}
         <Route path="/verify-email/:token" element={null} />
-
-        {/* Rute baru untuk menampilkan pesan dari backend setelah redirect */}
         <Route path="/auth-message" element={<AuthMessagePage />} />
-
-        {/* Opsional: Rute untuk kirim ulang email verifikasi */}
         <Route
           path="/resend-verification"
           element={<ResendVerificationPage />}
@@ -75,6 +77,7 @@ function App() {
         <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
           <Route element={<MainLayout />}>
             <Route path="/admin-dashboard" element={<Dashboard />} />
+            {/* <Route path="/admin/analytics" element={<WebsiteAnalytics />} /> Opsional jika ada */}
             <Route path="/product-management" element={<ProductManagement />} />
             <Route path="/product-management/add" element={<AddProduct />} />
             <Route

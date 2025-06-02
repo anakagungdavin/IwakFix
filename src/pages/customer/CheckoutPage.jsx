@@ -5,7 +5,7 @@ import FooterCust from "../../components/Customer/footerCust";
 import ChangeAddress from "../../components/Customer/ChangeAddress";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const DEFAULT_SHIPPING_COST = 25000; // Definisikan ongkir default
 
 const CheckoutPage = () => {
@@ -101,9 +101,8 @@ const CheckoutPage = () => {
   //   }
   // }, [paymentMethod, log]); // Tambahkan log ke dependency array
   useEffect(() => {
-  setShippingCost(DEFAULT_SHIPPING_COST);
-}, [paymentMethod]);
-
+    setShippingCost(DEFAULT_SHIPPING_COST);
+  }, [paymentMethod]);
 
   const getPriceDetails = (item) => {
     log("Getting price details for item:", item);
@@ -201,7 +200,6 @@ const CheckoutPage = () => {
       return;
     }
 
-
     setLoading(true);
     setError(null);
     setSuccessMessage(null);
@@ -233,7 +231,6 @@ const CheckoutPage = () => {
       if (proofPayment) {
         formData.append("proofOfPayment", proofPayment);
       }
-
 
       const orderSource = cartDataFromState ? "cart" : "buyNow";
       formData.append("source", orderSource);
@@ -572,7 +569,7 @@ const CheckoutPage = () => {
                       cartItems.length === 0 ||
                       !selectedAddress ||
                       !paymentMethod ||
-                      (!proofPayment)
+                      !proofPayment
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-blue-600 hover:bg-blue-700"
                     }`}

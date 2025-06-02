@@ -123,8 +123,7 @@ const TransactionList = () => {
         throw new Error("No authentication token found. Please login.");
       }
 
-      const apiUrl =
-        import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
       const response = await fetch(`${apiUrl}/api/orders`, {
         method: "GET",
         headers: {

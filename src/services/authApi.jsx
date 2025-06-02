@@ -2,7 +2,7 @@
 import axios from "axios";
 
 // Pastikan API_URL ini sesuai dengan backend Anda
-const API_URL = "https://iwak.onrender.com/api"; // Sesuaikan jika berbeda
+const API_URL = "http://localhost:5000/api"; // Sesuaikan jika berbeda
 
 // Sign Up
 export const signUp = async (userData) => {
