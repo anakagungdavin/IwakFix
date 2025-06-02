@@ -1,3 +1,4 @@
+// DashboardCust.jsx
 import React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -5,16 +6,15 @@ import { motion } from "framer-motion";
 import HeaderCust from "../../components/Customer/headerCust";
 import ProductRecommendations from "../../components/Customer/productRecommendation";
 import FooterCust from "../../components/Customer/footerCust";
-// import CustomerReviews from "../../components/Customer/reviewCust"; // Komentari jika tidak digunakan
+import WebsiteStatsSection from "../../components/Customer/WebsiteStatsSection";
+import PasswordReminderModal from "../../components/modal/PasswordReminderModal";
 
-// <<==== IMPORT KOMPONEN STATISTIK YANG BARU DIBUAT ====>>
-import WebsiteStatsSection from "../../components/Customer/WebsiteStatsSection"; // Sesuaikan path jika perlu
-
+// ... (fishTypes tetap sama)
 const fishTypes = [
   {
     id: 1,
     name: "Lele",
-    image: ["/images/lele.jpeg"], // Pastikan path gambar benar
+    image: ["/images/lele.jpeg"],
     nutrition: {
       short: ["Protein 18g Calories 120"],
       detailed: {
@@ -29,7 +29,7 @@ const fishTypes = [
   {
     id: 2,
     name: "Nila",
-    image: ["/images/nila.jpeg"], // Pastikan path gambar benar
+    image: ["/images/nila.jpeg"],
     nutrition: {
       short: ["Protein 20g Calories 96"],
       detailed: {
@@ -44,7 +44,7 @@ const fishTypes = [
   {
     id: 3,
     name: "Mas",
-    image: ["/images/mas.jpeg"], // Pastikan path gambar benar
+    image: ["/images/mas.jpeg"],
     nutrition: {
       short: ["Protein 16g Calories 135"],
       detailed: {
@@ -59,7 +59,7 @@ const fishTypes = [
   {
     id: 4,
     name: "Gurami",
-    image: ["/images/gurame.jpeg"], // Pastikan path gambar benar
+    image: ["/images/gurame.jpeg"],
     nutrition: {
       short: ["Protein 19g Calories 110"],
       detailed: {
@@ -76,15 +76,86 @@ const fishTypes = [
 const DashboardCust = () => {
   const [hoveredFishId, setHoveredFishId] = useState(null);
   const navigate = useNavigate();
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const response = await fetch(`${apiUrl}/api/users/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setUserData(result.data);
+        }
+      } else {
+        console.error("Gagal mengambil profil user:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  useEffect(() => {
+    if (userData) {
+      const { lastPasswordChangeAt, createdAt } = userData;
+      const checkDate = lastPasswordChangeAt
+        ? new Date(lastPasswordChangeAt)
+        : new Date(createdAt);
+
+      // Atur interval sesuai kebutuhan pengujian atau produksi
+      const intervalInMs = 6 * 30 * 24 * 60 * 60 * 1000; // Produksi: 6 bulan
+      // const intervalInMs = 1 * 60 * 1000; // Pengujian: 6 detik (0.1 menit)
+      // const intervalInMs = 10 * 1000; // Pengujian: 10 detik
+
+      const targetTime = new Date(Date.now() - intervalInMs);
+
+      // HILANGKAN pengecekan sessionStorage
+      // const reminderShownThisSession = sessionStorage.getItem(
+      // "passwordReminderShown"
+      // );
+
+      // Sekarang modal akan muncul jika kondisi tanggal terpenuhi,
+      // tidak peduli apa yang ada di sessionStorage
+      if (checkDate < targetTime) {
+        setShowPasswordModal(true);
+      } else {
+        // Jika kondisi tanggal tidak terpenuhi, pastikan modal tidak tampil
+        // (berguna jika user baru saja ganti password di sesi yang sama)
+        setShowPasswordModal(false);
+      }
+    }
+  }, [userData]);
+
+  const handleClosePasswordModal = () => {
+    setShowPasswordModal(false);
+    // HILANGKAN pengaturan sessionStorage di sini jika ingin modal selalu muncul
+    // sessionStorage.setItem("passwordReminderShown", "true");
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
       <div className="sticky top-0 z-50 bg-white shadow-md">
         <HeaderCust />
       </div>
 
-      {/* Logo and Siphiko Banner */}
+      <PasswordReminderModal
+        isOpen={showPasswordModal}
+        onClose={handleClosePasswordModal}
+      />
+
+      {/* ... sisa JSX Anda ... */}
       <div className="bg-[#003D47] text-white py-4 pb-0 px-4 md:px-6 lg:px-12">
         <div className="max-w-6xl mx-auto flex flex-col items-start">
           <img
@@ -101,7 +172,6 @@ const DashboardCust = () => {
         </div>
       </div>
 
-      {/* Hero Section */}
       <section className="relative bg-[#003D47] text-white pt-10 pb-20 px-4 md:px-6 lg:px-12 rounded-br-[80px] overflow-hidden">
         <img
           src="/images/fish.png"
@@ -130,15 +200,10 @@ const DashboardCust = () => {
         </motion.div>
       </section>
 
-      {/* Fish Types Section - Responsive Layout */}
-      {/* Bagian ini ditarik ke atas dengan -mt-12, jadi tidak perlu diubah */}
       <div className="relative max-w-6xl mx-auto px-4 md:px-6 lg:px-12 -mt-12 z-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 lg:gap-6 px-2 md:px-0">
           {fishTypes.map((fish) => (
-            <div
-              key={fish.id}
-              className="relative" // Untuk positioning absolut kartu hover
-            >
+            <div key={fish.id} className="relative">
               <motion.div
                 onClick={() => {
                   navigate(`/product/${fish.id}`, { state: { fish } });
@@ -148,7 +213,7 @@ const DashboardCust = () => {
                 onMouseLeave={() => setHoveredFishId(null)}
                 animate={{
                   scale: hoveredFishId === fish.id ? 1.05 : 1,
-                  zIndex: hoveredFishId === fish.id ? 20 : 1, // Pastikan z-index hover lebih tinggi
+                  zIndex: hoveredFishId === fish.id ? 20 : 1,
                   boxShadow:
                     hoveredFishId === fish.id
                       ? "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
@@ -220,32 +285,20 @@ const DashboardCust = () => {
                   </div>
                 )}
               </motion.div>
-              {/* Spacer div untuk mempertahankan layout grid saat kartu hover membesar */}
-              <div className="invisible h-[160px]"></div>{" "}
-              {/* Tinggi sama dengan kartu normal */}
+              <div className="invisible h-[160px]"></div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Product Recommendations */}
-      {/* HILANGKAN pt-* untuk membuatnya lebih dekat/menempel */}
       <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-12">
         <ProductRecommendations />
       </div>
 
-      {/* WebsiteStatsSection */}
-      {/* HILANGKAN mt-* dan samakan struktur kontainer untuk konsistensi */}
-      {/* Jika ingin sedikit spasi, bisa tambahkan py-4 atau pt-4 di sini */}
       <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-12 py-8">
-        {" "}
-        {/* Memberi sedikit padding vertikal agar tidak terlalu mepet jika diperlukan */}
         <WebsiteStatsSection />
       </div>
 
-      {/* <CustomerReviews /> */}
-
-      {/* Footer */}
       <FooterCust />
     </div>
   );

@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import InformasiCust from "./profile/informasi";
 import Alamat from "./profile/alamat"; // Pastikan path ini benar
 import TransactionList from "./profile/pesanan";
+import ChangePassword from "./profile/gantiPassword"; // <-- IMPORT KOMPONEN BARU
 
 const CustProfile = () => {
   const [activeMenu, setActiveMenu] = useState("Profile Saya");
@@ -18,11 +19,11 @@ const CustProfile = () => {
     { name: "Profile Saya", icon: "fas fa-user", tab: "profile" },
     { name: "Pesanan Saya", icon: "fas fa-box", tab: "orders" },
     { name: "Alamat", icon: "fas fa-map-marker-alt", tab: "address" },
+    { name: "Ganti Password", icon: "fas fa-key", tab: "change-password" }, // <-- TAMBAHKAN MENU INI
   ];
 
   const fetchUserProfile = async () => {
-    // Tidak perlu setLoading(true) di sini jika sudah ada di useEffect awal
-    // atau jika kita hanya ingin me-refresh data tanpa menampilkan loading global
+    // ... (fungsi fetchUserProfile tetap sama)
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -47,24 +48,21 @@ const CustProfile = () => {
       const contentType = response.headers.get("Content-Type");
       if (contentType && contentType.includes("application/json")) {
         const result = JSON.parse(text);
-        setUserData(result.data); // Ini akan memperbarui userData dengan data terbaru
+        setUserData(result.data);
       } else {
         throw new Error("Unexpected response format: " + text);
       }
-      setError(null); // Bersihkan error jika fetch berhasil
+      setError(null);
     } catch (err) {
       setError(err.message);
-      // Jangan navigasi ke login di sini jika hanya refresh, kecuali token benar-benar invalid
-      // navigate("/login");
-    } finally {
-      // Tidak perlu setLoading(false) di sini jika tidak di-set true di awal fungsi ini
+      // navigate("/login"); // Jangan redirect otomatis saat error fetch profil, biarkan user lihat errornya
     }
   };
 
   useEffect(() => {
-    setLoading(true); // Set loading true untuk fetch awal
-    fetchUserProfile().finally(() => setLoading(false)); // Pastikan loading false setelah fetch awal
-  }, []); // Hanya dijalankan sekali saat komponen mount
+    setLoading(true);
+    fetchUserProfile().finally(() => setLoading(false));
+  }, []);
 
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -73,8 +71,12 @@ const CustProfile = () => {
       if (selectedMenu) {
         setActiveMenu(selectedMenu.name);
       }
+    } else {
+      // Default ke "Profile Saya" jika tidak ada tab di URL
+      setActiveMenu("Profile Saya");
+      navigate("/profile?tab=profile", { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]); // tambahkan navigate ke dependencies
 
   const handleMenuClick = (menuName, tab) => {
     setActiveMenu(menuName);
@@ -84,8 +86,8 @@ const CustProfile = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("role"); // Hapus juga role jika ada
-    localStorage.removeItem("userId"); // Hapus juga userId jika ada
+    localStorage.removeItem("role");
+    localStorage.removeItem("userId");
     navigate("/login");
   };
 
@@ -101,10 +103,17 @@ const CustProfile = () => {
     );
   }
 
-  if (error) {
+  if (error && !userData) {
+    // Hanya tampilkan error besar jika user data tidak ada
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        Error: {error}
+      <div className="min-h-screen flex items-center justify-center text-red-500 p-4">
+        Error: {error} <br />
+        <button
+          onClick={() => navigate("/login")}
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Kembali ke Login
+        </button>
       </div>
     );
   }
@@ -113,7 +122,7 @@ const CustProfile = () => {
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg flex flex-col md:flex-row gap-4 md:gap-8">
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex justify-between items-center p-4 bg-white rounded-lg shadow-sm">
+        <div className="md:hidden flex justify-between items-center p-4 bg-white rounded-t-lg shadow-sm">
           <div className="flex items-center gap-2">
             <img
               src={userData?.avatar || "https://via.placeholder.com/80"}
@@ -161,9 +170,13 @@ const CustProfile = () => {
         <div
           className={`${
             menuOpen ? "block" : "hidden"
-          } md:block md:w-1/4 bg-white shadow-md p-4 md:p-6 rounded-lg`}
+          } md:block md:w-1/4 bg-white md:shadow-md p-4 md:p-6 md:rounded-l-lg ${
+            menuOpen ? "rounded-b-lg shadow-md" : ""
+          }`}
         >
-          <div className="flex flex-col items-center">
+          <div className="flex-col items-center hidden md:flex">
+            {" "}
+            {/* Sembunyikan di mobile karena sudah ada di header mobile */}
             <img
               src={userData?.avatar || "https://via.placeholder.com/80"}
               alt="User Avatar"
@@ -174,7 +187,7 @@ const CustProfile = () => {
               {userData?.name || "User"}
             </h2>
           </div>
-          <div className="mt-6">
+          <div className="mt-0 md:mt-6">
             <ul className="space-y-2 md:space-y-4">
               {menuItems.map((item) => (
                 <li
@@ -191,31 +204,39 @@ const CustProfile = () => {
               ))}
               <li
                 onClick={handleLogout}
-                className="text-red-500 font-semibold p-2 md:p-3 hover:bg-red-100 rounded-md cursor-pointer"
+                className="flex items-center gap-2 p-2 md:p-3 text-red-500 font-semibold hover:bg-red-100 rounded-md cursor-pointer"
               >
-                Keluar
+                <i className="fas fa-sign-out-alt"></i> Keluar
               </li>
             </ul>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="w-full md:w-3/4 bg-white p-4 md:p-6 rounded-lg shadow-md">
+        <div className="w-full md:w-3/4 bg-white p-4 md:p-6 rounded-b-lg md:rounded-r-lg md:rounded-bl-none shadow-md">
           <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
             {activeMenu}
           </h2>
-          {activeMenu === "Profile Saya" && (
+          {activeMenu === "Profile Saya" && userData && (
             <InformasiCust
               userData={userData}
               onProfileUpdate={fetchUserProfile}
             />
           )}
-          {activeMenu === "Pesanan Saya" && (
+          {activeMenu === "Pesanan Saya" && userData && (
             <TransactionList userId={userData?._id} />
           )}
-          {/* Berikan fetchUserProfile ke Alamat */}
-          {activeMenu === "Alamat" && (
+          {activeMenu === "Alamat" && userData && (
             <Alamat userData={userData} onDataUpdate={fetchUserProfile} />
+          )}
+          {activeMenu === "Ganti Password" && ( // <-- RENDER KOMPONEN BARU
+            <ChangePassword />
+          )}
+          {/* Tampilkan pesan error fetch profil di sini jika ada, tapi konten lain masih bisa tampil */}
+          {error && userData && (
+            <div className="mt-4 text-sm text-red-600 bg-red-100 p-3 rounded">
+              Update profil terakhir mungkin gagal: {error}
+            </div>
           )}
         </div>
       </div>
