@@ -26,7 +26,8 @@ const WebsiteStatsSection = () => {
     const fetchStatsData = async () => {
       setLoading(true);
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const apiUrl =
+          import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
         const response = await fetch(`${apiUrl}/api/stats/visitors`);
 
         if (!response.ok) {

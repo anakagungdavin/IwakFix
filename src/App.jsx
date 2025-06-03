@@ -5,21 +5,21 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { Toaster } from "react-hot-toast"; // <<==== IMPORT TOASTER DI SINI ====>>
 
 // <<==== IMPORT PAGE TRACKER ====>>
-import PageTracker from "./components/PageTracker"; // Sesuaikan path jika PageTracker.jsx ada di folder lain
+import PageTracker from "./components/PageTracker";
 
 // Halaman Auth
 import SignInPage from "./pages/auth/signInPage";
 import SignUpPage from "./pages/auth/signUpPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPassword";
 import ResetPasswordPage from "./pages/auth/ResetPassword";
-// import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
 import ResendVerificationPage from "./pages/auth/ResendVerificationPage";
 import AuthMessagePage from "./pages/auth/AuthMessagePage";
 
 // Layouts dan Komponen lainnya
-import Dashboard from "./pages/Dashboard"; // Asumsi ini dashboard Admin
+import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./routes/PrivateRoutes";
 import ProductManagement from "./pages/productmanage/ProductManagement";
 import AddProduct from "./pages/productmanage/AddProduct";
@@ -42,12 +42,69 @@ import CartPage from "./pages/customer/CartPage";
 import CheckoutPage from "./pages/customer/CheckoutPage";
 import ProductPage from "./pages/customer/ProductPage";
 import ChangeAddress from "./components/Customer/ChangeAddress";
-// Admin Analytics (jika Anda masih memiliki halaman terpisah ini, opsional)
-// import WebsiteAnalytics from "./pages/Admin/WebsiteAnalytics";
+
+// <<==== IMPORT HALAMAN ADMINISTRASI DATABASE ====>>
+import DatabaseAdminPage from "./pages/admin/DatabaseAdminPage";
 
 function App() {
   return (
+    // Anda bisa membungkus Router dengan React.Fragment (<> </>) jika Toaster di luar Router,
+    // atau letakkan Toaster di dalam Router sebelum Routes jika Anda lebih suka.
+    // Untuk kesederhanaan, meletakkannya di dalam Router sebelum Routes juga umum.
     <Router>
+      {/* <<==== RENDER TOASTER DI SINI, DI DALAM ROUTER, SEBELUM ROUTES ====>> */}
+      <Toaster
+        position="top-center" // Contoh posisi
+        reverseOrder={false}
+        gutter={8} // Jarak antar toast
+        containerClassName="" // Kelas untuk container
+        containerStyle={{}} // Style inline untuk container
+        toastOptions={{
+          // Opsi default
+          className: "", // Kelas untuk setiap toast
+          duration: 5000, // Default 5 detik
+          style: {
+            background: "#333", // Warna latar belakang toast
+            color: "#fff", // Warna teks toast
+            fontSize: "15px",
+          },
+          // Opsi default per jenis
+          success: {
+            duration: 3000,
+            // theme: { // 'theme' tidak ada di opsi default, gunakan style atau className
+            //   primary: 'green',
+            //   secondary: 'black',
+            // },
+            iconTheme: {
+              // Opsi untuk ikon sukses
+              primary: "#10B981", // Warna ikon (hijau)
+              secondary: "#fff", // Warna background ikon
+            },
+            style: {
+              background: "#10B981", // Hijau untuk sukses
+              color: "#fff",
+            },
+          },
+          error: {
+            duration: 5000, // Error tampil lebih lama
+            iconTheme: {
+              primary: "#EF4444", // Warna ikon (merah)
+              secondary: "#fff",
+            },
+            style: {
+              background: "#EF4444", // Merah untuk error
+              color: "#fff",
+            },
+          },
+          loading: {
+            style: {
+              background: "#3B82F6", // Biru untuk loading
+              color: "#fff",
+            },
+          },
+        }}
+      />
+
       {/* <<==== RENDER PAGE TRACKER DI SINI, DI DALAM ROUTER ====>> */}
       <PageTracker />
 
@@ -60,7 +117,6 @@ function App() {
         <Route path="/register" element={<SignUpPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-        <Route path="/verify-email/:token" element={null} />
         <Route path="/auth-message" element={<AuthMessagePage />} />
         <Route
           path="/resend-verification"
@@ -77,7 +133,6 @@ function App() {
         <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
           <Route element={<MainLayout />}>
             <Route path="/admin-dashboard" element={<Dashboard />} />
-            {/* <Route path="/admin/analytics" element={<WebsiteAnalytics />} /> Opsional jika ada */}
             <Route path="/product-management" element={<ProductManagement />} />
             <Route path="/product-management/add" element={<AddProduct />} />
             <Route
@@ -89,6 +144,7 @@ function App() {
             <Route path="/customers" element={<UserList />} />
             <Route path="/customers/edit/:id" element={<EditProfile />} />
             <Route path="/customers/view/:id" element={<UserProfile />} />
+            <Route path="/admin/database" element={<DatabaseAdminPage />} />
           </Route>
         </Route>
 

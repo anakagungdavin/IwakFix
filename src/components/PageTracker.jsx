@@ -24,7 +24,7 @@ const PageTracker = () => {
       trackedPathsRef.current.add(currentPath);
 
       const backendUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000";
+        import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
       fetch(`${backendUrl}/api/stats/track-page-view`, {
         method: "POST",

@@ -17,7 +17,8 @@ const TableOne = () => {
       setLoading(true);
       setError(null);
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const apiUrl =
+          import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
         const response = await axios.get(`${apiUrl}/api/orders/all`, {
           headers: {
             Authorization: `Bearer ${token}`,

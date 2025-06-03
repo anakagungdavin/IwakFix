@@ -84,7 +84,8 @@ const DashboardCust = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
       const response = await fetch(`${apiUrl}/api/users/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,

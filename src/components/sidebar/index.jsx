@@ -1,3 +1,5 @@
+// client/src/components/Sidebar/index.jsx (atau di mana pun file Sidebar Anda berada)
+
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -7,6 +9,7 @@ import {
   FaClipboardList,
   FaSignOutAlt,
   FaBars,
+  FaDatabase, // <-- Tambahkan ikon ini
 } from "react-icons/fa";
 
 const Sidebar = ({ isMobile }) => {
@@ -36,10 +39,16 @@ const Sidebar = ({ isMobile }) => {
       path: "/riwayat-transaksi",
       icon: <FaClipboardList />,
     },
+    {
+      // <-- ITEM MENU BARU DITAMBAHKAN DI SINI
+      name: "Administrasi Database",
+      path: "/admin/database", // Path baru untuk halaman administrasi database
+      icon: <FaDatabase />,
+    },
   ];
 
   const handleLogOut = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("token"); // Pastikan nama 'token' sesuai dengan yang Anda gunakan
     navigate("/login", { replace: true });
   };
 
@@ -60,7 +69,7 @@ const Sidebar = ({ isMobile }) => {
                 }`}
               >
                 <img
-                  src="/images/logo/Slice 1-fix.png"
+                  src="/images/logo/Slice 1-fix.png" // Pastikan path logo benar
                   alt="IWAK Logo"
                   className="h-12 w-auto"
                 />
@@ -78,7 +87,7 @@ const Sidebar = ({ isMobile }) => {
                 !isOpen && "hidden"
               }`}
             >
-              Main Menu
+              Menu Utama
             </p>
             <ul>
               {menuItems.map((item, index) => (
