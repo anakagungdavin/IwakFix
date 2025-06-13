@@ -118,7 +118,7 @@ const DashboardCust = () => {
       // Atur interval sesuai kebutuhan pengujian atau produksi
       const intervalInMs = 6 * 30 * 24 * 60 * 60 * 1000; // Produksi: 6 bulan
       // const intervalInMs = 1 * 60 * 1000; // Pengujian: 6 detik (0.1 menit)
-      // const intervalInMs = 10 * 1000; // Pengujian: 10 detik
+      // const intervalInMs = 30 * 1000; // Pengujian: 10 detik
 
       const targetTime = new Date(Date.now() - intervalInMs);
 

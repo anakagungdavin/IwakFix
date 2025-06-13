@@ -5,7 +5,7 @@ import toast from "react-hot-toast"; // <--- Impor toast
 const DatabaseAdminPage = () => {
   // const [message, setMessage] = useState(""); // Kita tidak lagi menggunakan state message ini
   const [isLoading, setIsLoading] = useState(false);
-  const [file, setFile] = useState(null);
+  // const [file, setFile] = useState(null); // <-- DI-COMMENT: State untuk file restore tidak lagi diperlukan
   const [authToken, setAuthToken] = useState("");
 
   useEffect(() => {
@@ -13,7 +13,7 @@ const DatabaseAdminPage = () => {
     if (token) {
       setAuthToken(token);
     } else {
-      toast.error("Akses ditolak. Silakan login sebagai admin."); // <--- Ganti setMessage dengan toast
+      toast.error("Akses ditolak. Silakan login sebagai admin.");
       console.warn(
         "Token tidak ditemukan. Fitur backup/restore memerlukan autentikasi."
       );
@@ -26,12 +26,11 @@ const DatabaseAdminPage = () => {
 
   const handleBackup = async () => {
     if (!authToken) {
-      toast.error("Autentikasi diperlukan untuk backup."); // <--- Ganti
+      toast.error("Autentikasi diperlukan untuk backup.");
       return;
     }
     setIsLoading(true);
-    // setMessage("Memulai proses backup..."); // Tidak perlu lagi, atau bisa toast.loading
-    const loadingToastId = toast.loading("Memulai proses backup..."); // <--- Toast loading
+    const loadingToastId = toast.loading("Memulai proses backup...");
 
     try {
       const response = await fetch(getApiUrl("/backup"), {
@@ -41,7 +40,7 @@ const DatabaseAdminPage = () => {
         },
       });
 
-      toast.dismiss(loadingToastId); // <--- Hapus toast loading
+      toast.dismiss(loadingToastId);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({
@@ -67,30 +66,33 @@ const DatabaseAdminPage = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(link.href);
 
-      toast.success("Backup berhasil didownload!"); // <--- Ganti
+      toast.success("Backup berhasil didownload!");
     } catch (error) {
-      toast.dismiss(loadingToastId); // Pastikan loading toast dihapus jika error
+      toast.dismiss(loadingToastId);
       console.error("Backup error:", error);
       toast.error(
         `Backup gagal: ${error.message} (Abaikan jika anda menggunakan Internet Download Manager)`
-      ); // <--- Ganti
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
+  // ==================================================================
+  // BAGIAN LOGIKA RESTORE DI-COMMENT SESUAI PERMINTAAN
+  // ==================================================================
+  /*
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
-    // setMessage(""); // Tidak perlu lagi
   };
 
   const handleRestore = async () => {
     if (!authToken) {
-      toast.error("Autentikasi diperlukan untuk restore."); // <--- Ganti
+      toast.error("Autentikasi diperlukan untuk restore.");
       return;
     }
     if (!file) {
-      toast.error("Pilih file backup terlebih dahulu."); // <--- Ganti
+      toast.error("Pilih file backup terlebih dahulu.");
       return;
     }
 
@@ -99,9 +101,7 @@ const DatabaseAdminPage = () => {
     );
     if (!confirmRestore) {
       toast.custom(
-        (
-          t // Contoh custom toast jika ingin
-        ) => (
+        (t) => (
           <div
             className={`${
               t.visible ? "animate-enter" : "animate-leave"
@@ -128,14 +128,12 @@ const DatabaseAdminPage = () => {
           </div>
         ),
         { duration: 4000 }
-      ); // Custom toast bisa memiliki style sendiri
-      // atau sederhananya: toast('Proses restore dibatalkan.');
+      );
       return;
     }
 
     setIsLoading(true);
-    // setMessage("Memulai proses restore..."); // Tidak perlu lagi
-    const loadingToastId = toast.loading("Memulai proses restore..."); // <--- Toast loading
+    const loadingToastId = toast.loading("Memulai proses restore...");
 
     const formData = new FormData();
     formData.append("backupFile", file);
@@ -149,7 +147,7 @@ const DatabaseAdminPage = () => {
         body: formData,
       });
 
-      toast.dismiss(loadingToastId); // <--- Hapus toast loading
+      toast.dismiss(loadingToastId);
 
       const result = await response.json();
 
@@ -157,23 +155,12 @@ const DatabaseAdminPage = () => {
         throw new Error(result.message || `Error ${response.status}`);
       }
 
-      // Menampilkan pesan sukses dan warnings jika ada
       let successMessage = `Database berhasil direstore!`;
-      // if (result.warnings && result.warnings.length > 10) {
-      //   // Hanya tampilkan warning jika ada dan tidak terlalu panjang (atau parse)
-      //   successMessage += ` (Ada beberapa peringatan, cek konsol backend)`;
-      //   console.warn("Restore Warnings:", result.warnings); // Tetap log warning panjang ke konsol
-      // } else if (result.warnings) {
-      //   successMessage += ` (Warnings: ${result.warnings.substring(
-      //     0,
-      //     100
-      //   )}...)`; // Potong warning jika terlalu panjang untuk toast
-      // }
-      toast.success(successMessage, { duration: 7000 }); // Sukses tampil lebih lama untuk dibaca
+      toast.success(successMessage, { duration: 7000 });
     } catch (error) {
-      toast.dismiss(loadingToastId); // Pastikan loading toast dihapus jika error
+      toast.dismiss(loadingToastId);
       console.error("Restore error:", error);
-      toast.error(`Restore gagal: ${error.message}`); // <--- Ganti
+      toast.error(`Restore gagal: ${error.message}`);
     } finally {
       setIsLoading(false);
       setFile(null);
@@ -182,31 +169,15 @@ const DatabaseAdminPage = () => {
       }
     }
   };
+  */
+  // ==================================================================
+  // AKHIR BAGIAN LOGIKA RESTORE YANG DI-COMMENT
+  // ==================================================================
 
   return (
     <div className="p-4 md:p-6 lg:p-8 bg-gray-50 min-h-screen">
       <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-lg p-6 md:p-8">
-        {/* ... (Konten JSX lainnya tetap sama) ... */}
-        {/* HAPUS BAGIAN INI: */}
-        {/* {message && (
-          <div
-            className={`mt-8 p-4 rounded-lg text-center font-medium text-sm
-                        ${
-                          message.toLowerCase().includes("gagal") ||
-                          message.toLowerCase().includes("error") ||
-                          message.toLowerCase().includes("ditolak")
-                            ? "bg-red-100 text-red-800 border border-red-300"
-                            : message.toLowerCase().includes("dibatalkan")
-                            ? "bg-yellow-100 text-yellow-800 border border-yellow-300"
-                            : "bg-green-100 text-green-800 border border-green-300"
-                        }`}
-          >
-            {message}
-          </div>
-        )} */}
-        {/* Bagian di atas dihapus karena kita menggunakan toast */}
-
-        {/* Backup Section (tombol, dll tidak berubah) */}
+        {/* Backup Section */}
         <div className="mb-10 p-4 md:p-6 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
           <h2 className="text-xl md:text-2xl font-semibold text-gray-700 mb-3">
             Backup Database
@@ -224,9 +195,12 @@ const DatabaseAdminPage = () => {
           </button>
         </div>
 
+        {/* ================================================================== */}
+        {/* BAGIAN TAMPILAN (UI/JSX) RESTORE DI-COMMENT SESUAI PERMINTAAN */}
+        {/* ================================================================== */}
+        {/*
         <hr className="my-8 border-gray-300" />
-
-        {/* Restore Section (tombol, dll tidak berubah) */}
+        
         <div className="p-4 md:p-6 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
           <h2 className="text-xl md:text-2xl font-semibold text-gray-700 mb-3">
             Restore Database
@@ -274,7 +248,10 @@ const DatabaseAdminPage = () => {
             {isLoading ? "Memproses Restore..." : "Mulai Restore Database"}
           </button>
         </div>
-        {/* Tidak ada lagi blok {message && ...} di sini */}
+        */}
+        {/* ================================================================== */}
+        {/* AKHIR BAGIAN COMMENT RESTORE */}
+        {/* ================================================================== */}
       </div>
     </div>
   );
