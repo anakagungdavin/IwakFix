@@ -1,34 +1,50 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import HeaderCust from "../../components/Customer/headerCust";
 import FooterCust from "../../components/Customer/footerCust";
 import ChangeAddress from "../../components/Customer/ChangeAddress";
 import axios from "axios";
 
+// Pindahkan ke luar komponen agar tidak dibuat ulang setiap render
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
-const DEFAULT_SHIPPING_COST = 25000; // Definisikan ongkir default
+const DEFAULT_SHIPPING_COST = 25000;
+
+// Buat instance Axios untuk konsistensi
+const apiClient = axios.create({
+  baseURL: API_URL,
+});
 
 const CheckoutPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Ambil data dari state navigasi
   const productDataFromState = location.state?.product || null;
   const cartDataFromState = location.state?.cart || null;
 
+  // State Management
   const [cartItems, setCartItems] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Set loading true di awal
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [proofPayment, setProofPayment] = useState(null);
   const [proofPreview, setProofPreview] = useState(null);
-
-  // State baru untuk ongkos kirim
   const [shippingCost, setShippingCost] = useState(DEFAULT_SHIPPING_COST);
 
-  const log = process.env.NODE_ENV === "development" ? console.log : () => {};
+  // Ambil token di luar agar bisa jadi dependency
+  const token = localStorage.getItem("token");
 
+  // Gunakan useCallback untuk memastikan fungsi log stabil
+  const log = useCallback((...args) => {
+    if (process.env.NODE_ENV === "development") {
+      console.log(...args);
+    }
+  }, []);
+
+  // Effect untuk menginisialisasi item yang akan di-checkout
   useEffect(() => {
     let itemsToCheckout = [];
     if (productDataFromState) {
@@ -38,36 +54,51 @@ const CheckoutPage = () => {
       log("Mode: Checkout from Cart. Cart Data diterima:", cartDataFromState);
       itemsToCheckout = cartDataFromState;
     } else {
-      const storedCheckoutItems = localStorage.getItem("checkoutItems");
-      if (storedCheckoutItems) {
-        log("Mode: Fallback. Mengambil dari localStorage 'checkoutItems'");
-        itemsToCheckout = JSON.parse(storedCheckoutItems);
-      } else {
-        log("Tidak ada data produk atau keranjang valid untuk checkout.");
-        setError("Tidak ada item untuk di-checkout. Silakan kembali ke toko.");
+      try {
+        const storedCheckoutItems = localStorage.getItem("checkoutItems");
+        if (storedCheckoutItems) {
+          log("Mode: Fallback. Mengambil dari localStorage 'checkoutItems'");
+          itemsToCheckout = JSON.parse(storedCheckoutItems);
+        }
+      } catch (e) {
+        log("Gagal parse 'checkoutItems' dari localStorage", e);
+        itemsToCheckout = [];
       }
     }
-    setCartItems(itemsToCheckout);
-    localStorage.setItem("checkoutItems", JSON.stringify(itemsToCheckout));
-    log("Items to checkout (cartItems) set:", itemsToCheckout);
-  }, [productDataFromState, cartDataFromState, log]); // Tambahkan log ke dependency array
 
+    if (itemsToCheckout.length === 0) {
+      log("Tidak ada data produk atau keranjang valid untuk checkout.");
+      setError("Tidak ada item untuk di-checkout. Silakan kembali ke toko.");
+    }
+
+    setCartItems(itemsToCheckout);
+    // Simpan ke localStorage jika ada perubahan
+    if (itemsToCheckout.length > 0) {
+      localStorage.setItem("checkoutItems", JSON.stringify(itemsToCheckout));
+    }
+    log("Items to checkout (cartItems) set:", itemsToCheckout);
+  }, [productDataFromState, cartDataFromState, log]);
+
+  // *** INI BAGIAN YANG DIPERBAIKI SECARA KRUSIAL ***
+  // Effect untuk mengambil data profil dan alamat pengguna
   useEffect(() => {
-    const fetchAddress = async () => {
+    const fetchProfileAndAddress = async () => {
+      if (!token) {
+        setError("Sesi Anda telah berakhir. Silakan login kembali.");
+        navigate("/login");
+        return;
+      }
+
       setLoading(true);
       setError(null);
+
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setError("Silakan login terlebih dahulu!");
-          navigate("/login");
-          return;
-        }
-        const response = await axios.get(`${API_URL}/api/users/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        const response = await apiClient.get("/api/users/profile");
+
         const userData = response.data.data;
-        log("User Data:", userData);
+        log("User Data & Alamat berhasil diambil:", userData);
+
         const primaryAddress = userData.addresses.find(
           (addr) => addr.isPrimary
         );
@@ -76,63 +107,76 @@ const CheckoutPage = () => {
         } else if (userData.addresses.length > 0) {
           setSelectedAddress(userData.addresses[0]);
         } else {
-          setError("Tidak ada alamat tersedia. Silakan tambahkan alamat.");
+          setError(
+            "Anda belum memiliki alamat. Silakan tambahkan alamat pengiriman terlebih dahulu."
+          );
+          setSelectedAddress(null);
         }
       } catch (err) {
-        setError("Gagal mengambil alamat. Silakan coba lagi.");
-        log("Error fetching address:", err.response?.data || err);
+        const errorMessage =
+          err.response?.data?.message ||
+          "Gagal mengambil data profil Anda. Pastikan Anda sudah login dan coba muat ulang halaman.";
+        setError(errorMessage);
+        log(
+          "Error fetching profile/address:",
+          err.response?.data || err.message
+        );
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          navigate("/login");
+        }
       } finally {
         setLoading(false);
       }
     };
-    fetchAddress();
-  }, [navigate, log]); // Tambahkan log ke dependency array
 
-  // useEffect untuk mengupdate ongkos kirim berdasarkan metode pembayaran
-  // useEffect(() => {
-  //   if (paymentMethod === "cod") {
-  //     setShippingCost(0);
-  //     log("Payment method COD, shipping cost set to 0");
-  //   } else {
-  //     setShippingCost(DEFAULT_SHIPPING_COST);
-  //     log(
-  //       `Payment method ${paymentMethod}, shipping cost set to ${DEFAULT_SHIPPING_COST}`
-  //     );
-  //   }
-  // }, [paymentMethod, log]); // Tambahkan log ke dependency array
+    fetchProfileAndAddress();
+  }, [token, navigate, log]); // Dependency array yang benar
+
+  // Effect untuk ongkos kirim (sudah benar)
   useEffect(() => {
     setShippingCost(DEFAULT_SHIPPING_COST);
   }, [paymentMethod]);
 
-  const getPriceDetails = (item) => {
-    log("Getting price details for item:", item);
-    if (item.price && typeof item.price === "number" && item.satuan) {
-      return {
-        price: item.price,
-        discount: item.discount || 0,
-        satuan: item.satuan,
-      };
-    } else if (item.product?.stocks && item.size && item.jenis && item.satuan) {
-      const sanitizedSize = item.size?.trim().toLowerCase() || "";
-      const sanitizedJenis = item.jenis?.trim().toLowerCase() || "";
-      const sanitizedSatuan = item.satuan?.trim() || "";
-      const stockEntry = item.product.stocks.find(
-        (stock) =>
-          stock.size?.trim().toLowerCase() === sanitizedSize &&
-          stock.jenis?.trim().toLowerCase() === sanitizedJenis &&
-          stock.satuan?.trim() === sanitizedSatuan
-      );
-      if (stockEntry) {
+  // Fungsi-fungsi lain (sudah cukup baik, hanya sedikit penyesuaian)
+
+  const getPriceDetails = useCallback(
+    (item) => {
+      // ... (kode Anda di sini sudah baik, tidak perlu diubah)
+      log("Getting price details for item:", item);
+      if (item.price && typeof item.price === "number" && item.satuan) {
         return {
-          price: stockEntry.price || 0,
-          discount: stockEntry.discount || 0,
-          satuan: stockEntry.satuan || "kg",
+          price: item.price,
+          discount: item.discount || 0,
+          satuan: item.satuan,
         };
+      } else if (
+        item.product?.stocks &&
+        item.size &&
+        item.jenis &&
+        item.satuan
+      ) {
+        const sanitizedSize = item.size?.trim().toLowerCase() || "";
+        const sanitizedJenis = item.jenis?.trim().toLowerCase() || "";
+        const sanitizedSatuan = item.satuan?.trim() || "";
+        const stockEntry = item.product.stocks.find(
+          (stock) =>
+            stock.size?.trim().toLowerCase() === sanitizedSize &&
+            stock.jenis?.trim().toLowerCase() === sanitizedJenis &&
+            stock.satuan?.trim() === sanitizedSatuan
+        );
+        if (stockEntry) {
+          return {
+            price: stockEntry.price || 0,
+            discount: stockEntry.discount || 0,
+            satuan: stockEntry.satuan || "kg",
+          };
+        }
       }
-    }
-    log("No valid price details found for item:", item);
-    return { price: 0, discount: 0, satuan: "kg" };
-  };
+      log("No valid price details found for item:", item);
+      return { price: 0, discount: 0, satuan: "kg" };
+    },
+    [log]
+  );
 
   const { totalPriceBeforeDiscount, totalDiscount, finalTotal } =
     cartItems.reduce(
@@ -152,7 +196,6 @@ const CheckoutPage = () => {
       { totalPriceBeforeDiscount: 0, totalDiscount: 0, finalTotal: 0 }
     );
 
-  // Grand total sekarang menggunakan state shippingCost
   const grandTotal = finalTotal + shippingCost;
 
   const handleSelectAddress = (address) => {
@@ -178,7 +221,6 @@ const CheckoutPage = () => {
   };
 
   const handlePayment = async () => {
-    // ... (validasi awal tetap sama) ...
     if (!selectedAddress) {
       setError("Silakan pilih alamat pengiriman.");
       return;
@@ -191,10 +233,6 @@ const CheckoutPage = () => {
       setError("Tidak ada item untuk di-checkout.");
       return;
     }
-    // if (paymentMethod !== "cod" && !proofPayment) {
-    //   setError("Silakan unggah bukti pembayaran.");
-    //   return;
-    // }
     if (!proofPayment) {
       setError("Silakan unggah bukti pembayaran.");
       return;
@@ -205,13 +243,6 @@ const CheckoutPage = () => {
     setSuccessMessage(null);
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Silakan login terlebih dahulu!");
-        navigate("/login");
-        return;
-      }
-
       const formData = new FormData();
       formData.append(
         "shippingAddress",
@@ -225,30 +256,20 @@ const CheckoutPage = () => {
         })
       );
       formData.append("paymentMethod", paymentMethod);
-      // if (paymentMethod !== "cod" && proofPayment) {
-      //   formData.append("proofOfPayment", proofPayment);
-      // }
-      if (proofPayment) {
-        formData.append("proofOfPayment", proofPayment);
-      }
-
-      const orderSource = cartDataFromState ? "cart" : "buyNow";
-      formData.append("source", orderSource);
-      log("Order source being sent:", orderSource);
+      formData.append("proofOfPayment", proofPayment);
+      formData.append("source", cartDataFromState ? "cart" : "buyNow");
 
       const orderItemsPayload = cartItems.map((item) => {
         const { price, discount, satuan } = getPriceDetails(item);
-        const itemDiscount = typeof discount === "number" ? discount : 0;
-        const itemPrice = typeof price === "number" ? price : 0;
         return {
           product: item.product?._id || item._id,
           quantity: item.quantity || 1,
-          price: itemPrice,
-          discount: itemDiscount,
-          discountedPrice: itemPrice * (1 - itemDiscount / 100),
+          price,
+          discount,
+          discountedPrice: price * (1 - discount / 100),
           size: item.size || "N/A",
           jenis: item.jenis || "N/A",
-          satuan: satuan, // Ambil satuan dari getPriceDetails
+          satuan,
         };
       });
 
@@ -257,18 +278,13 @@ const CheckoutPage = () => {
       }
 
       formData.append("items", JSON.stringify(orderItemsPayload));
-      // Kirim totalAmount yang sudah termasuk ongkir yang sudah disesuaikan
       formData.append("totalAmount", grandTotal);
-      // Kirim shippingCost yang sudah disesuaikan
       formData.append("shippingCost", shippingCost);
 
       log("Mengirim FormData:", Object.fromEntries(formData.entries()));
 
-      const response = await axios.post(`${API_URL}/api/orders`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+      const response = await apiClient.post("/api/orders", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       log("Order creation response:", response.data);
@@ -281,7 +297,10 @@ const CheckoutPage = () => {
 
       setTimeout(() => {
         navigate("/customer-dashboard", {
-          state: { orderPlaced: true, source: orderSource },
+          state: {
+            orderPlaced: true,
+            source: cartDataFromState ? "cart" : "buyNow",
+          },
         });
         window.scrollTo(0, 0);
       }, 30000);
@@ -299,6 +318,7 @@ const CheckoutPage = () => {
     }
   };
 
+  // Render JSX (kode Anda di sini sudah baik, tidak perlu diubah)
   return (
     <div>
       <HeaderCust />
@@ -340,7 +360,7 @@ const CheckoutPage = () => {
           </div>
         )}
 
-        {!loading && !successMessage && (
+        {!loading && !successMessage && cartItems.length > 0 && (
           <>
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <h3 className="font-bold text-lg">Alamat Pengiriman</h3>
@@ -358,7 +378,8 @@ const CheckoutPage = () => {
                 </>
               ) : (
                 <p className="text-gray-500 text-sm">
-                  Memuat alamat atau tidak ada alamat tersedia.
+                  Tidak ada alamat yang dipilih. Silakan tambahkan atau pilih
+                  alamat.
                 </p>
               )}
               <button
@@ -377,71 +398,65 @@ const CheckoutPage = () => {
 
             <div className="bg-white p-4 mt-6 rounded-lg shadow-lg">
               <h3 className="font-bold text-lg mb-4">Detail Pesanan</h3>
-              {cartItems.length > 0 ? (
-                cartItems.map((item, index) => {
-                  const { price, discount, satuan } = getPriceDetails(item);
-                  const itemPrice = typeof price === "number" ? price : 0;
-                  const itemDiscount =
-                    typeof discount === "number" ? discount : 0;
-                  const discountedPricePerUnit =
-                    itemPrice * (1 - itemDiscount / 100);
-                  const quantity = item.quantity || 1;
+              {cartItems.map((item, index) => {
+                const { price, discount, satuan } = getPriceDetails(item);
+                const itemPrice = typeof price === "number" ? price : 0;
+                const itemDiscount =
+                  typeof discount === "number" ? discount : 0;
+                const discountedPricePerUnit =
+                  itemPrice * (1 - itemDiscount / 100);
+                const quantity = item.quantity || 1;
 
-                  return (
-                    <div
-                      key={`${
-                        item.product?._id || item._id || `item-${index}`
-                      }-${item.size}-${item.jenis}`}
-                      className="flex items-start border-b pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0"
-                    >
-                      <img
-                        src={
-                          item.image ||
-                          item.product?.images?.[0] ||
-                          "/images/placeholder.png"
-                        }
-                        alt={item.product?.name || item.name || "Produk"}
-                        className="w-20 h-20 mr-4 object-cover rounded"
-                        onError={(e) =>
-                          (e.target.src = "/images/placeholder.png")
-                        }
-                      />
-                      <div className="flex-grow">
-                        <h4 className="font-semibold text-md">
-                          {item.product?.name ||
-                            item.name ||
-                            "Nama Produk Tidak Tersedia"}
-                        </h4>
-                        <p className="text-sm">
-                          Harga: Rp{" "}
-                          {discountedPricePerUnit.toLocaleString("id-ID")}/
-                          {satuan}
-                          {itemDiscount > 0 && (
-                            <span className="text-xs text-gray-500 line-through ml-2">
-                              Rp {itemPrice.toLocaleString("id-ID")}/{satuan}
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-sm">Jenis: {item.jenis || "N/A"}</p>
-                        <p className="text-sm">Ukuran: {item.size || "N/A"}</p>
-                        <p className="text-sm">
-                          Jumlah: {quantity.toLocaleString("id-ID")} {satuan}
-                        </p>
-                        <p className="font-semibold text-sm mt-1">
-                          Subtotal: Rp{" "}
-                          {(discountedPricePerUnit * quantity).toLocaleString(
-                            "id-ID"
-                          )}
-                        </p>
-                      </div>
+                return (
+                  <div
+                    key={`${item.product?._id || item._id || `item-${index}`}-${
+                      item.size
+                    }-${item.jenis}`}
+                    className="flex items-start border-b pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0"
+                  >
+                    <img
+                      src={
+                        item.image ||
+                        item.product?.images?.[0] ||
+                        "/images/placeholder.png"
+                      }
+                      alt={item.product?.name || item.name || "Produk"}
+                      className="w-20 h-20 mr-4 object-cover rounded"
+                      onError={(e) =>
+                        (e.target.src = "/images/placeholder.png")
+                      }
+                    />
+                    <div className="flex-grow">
+                      <h4 className="font-semibold text-md">
+                        {item.product?.name ||
+                          item.name ||
+                          "Nama Produk Tidak Tersedia"}
+                      </h4>
+                      <p className="text-sm">
+                        Harga: Rp{" "}
+                        {discountedPricePerUnit.toLocaleString("id-ID")}/
+                        {satuan}
+                        {itemDiscount > 0 && (
+                          <span className="text-xs text-gray-500 line-through ml-2">
+                            Rp {itemPrice.toLocaleString("id-ID")}/{satuan}
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-sm">Jenis: {item.jenis || "N/A"}</p>
+                      <p className="text-sm">Ukuran: {item.size || "N/A"}</p>
+                      <p className="text-sm">
+                        Jumlah: {quantity.toLocaleString("id-ID")} {satuan}
+                      </p>
+                      <p className="font-semibold text-sm mt-1">
+                        Subtotal: Rp{" "}
+                        {(discountedPricePerUnit * quantity).toLocaleString(
+                          "id-ID"
+                        )}
+                      </p>
                     </div>
-                  );
-                })
-              ) : (
-                <p className="text-gray-500 text-center">
-                  Tidak ada item untuk di-checkout.
-                </p>
-              )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
@@ -450,40 +465,32 @@ const CheckoutPage = () => {
                   <h3 className="font-bold text-lg mb-2">Metode Pembayaran</h3>
                   <select
                     value={paymentMethod}
-                    onChange={(e) => {
-                      setPaymentMethod(e.target.value);
-                      // Logika untuk reset bukti bayar jika COD sudah ada di useEffect
-                    }}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
                     className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">Pilih Metode Pembayaran</option>
                     <option value="bank_jateng">Bank Jateng</option>
-                    {/* <option value="cod">COD (Bayar di Tempat)</option> */}
                     <option value="qris">QRIS</option>
                   </select>
 
                   {paymentMethod === "bank_jateng" && (
                     <div className="mt-3 p-3 bg-blue-50 rounded-md">
                       <p className="text-sm text-blue-700 font-semibold">
-                        {" "}
-                        Nomor Rekening Bank Jateng:{" "}
+                        Nomor Rekening Bank Jateng:
                       </p>
                       <p className="text-lg text-blue-800 font-bold">
-                        {" "}
-                        123-456-7890{" "}
+                        123-456-7890
                       </p>
                       <p className="text-sm text-blue-700">a/n IWAK Store</p>
                       <p className="text-xs text-gray-600 mt-1">
-                        {" "}
-                        Pastikan untuk mengunggah bukti transfer.{" "}
+                        Pastikan untuk mengunggah bukti transfer.
                       </p>
                     </div>
                   )}
                   {paymentMethod === "qris" && (
                     <div className="mt-3 p-3 bg-green-50 rounded-md">
                       <p className="text-sm text-green-700 font-semibold">
-                        {" "}
-                        Silakan scan QRIS di bawah ini:{" "}
+                        Silakan scan QRIS di bawah ini:
                       </p>
                       <img
                         src="/images/qris-example.png"
@@ -492,18 +499,16 @@ const CheckoutPage = () => {
                         onError={(e) => (e.target.style.display = "none")}
                       />
                       <p className="text-xs text-gray-600 mt-1">
-                        {" "}
-                        Pastikan untuk mengunggah bukti pembayaran.{" "}
+                        Pastikan untuk mengunggah bukti pembayaran.
                       </p>
                     </div>
                   )}
                 </div>
 
-                {paymentMethod && paymentMethod !== "cod" && (
+                {paymentMethod && (
                   <div>
                     <h3 className="font-bold text-lg mb-2">
-                      {" "}
-                      Unggah Bukti Pembayaran{" "}
+                      Unggah Bukti Pembayaran
                     </h3>
                     <input
                       type="file"
@@ -512,14 +517,12 @@ const CheckoutPage = () => {
                       className="w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      {" "}
-                      Maksimum ukuran file: 0.5MB (JPEG, PNG, GIF, WEBP).{" "}
+                      Maksimum ukuran file: 0.5MB (JPEG, PNG, GIF, WEBP).
                     </p>
                     {proofPreview && (
                       <div className="mt-4">
                         <h4 className="font-semibold text-sm">
-                          {" "}
-                          Preview Bukti Pembayaran:{" "}
+                          Preview Bukti Pembayaran:
                         </h4>
                         <img
                           src={proofPreview}
@@ -538,8 +541,7 @@ const CheckoutPage = () => {
                   <p className="flex justify-between">
                     <span>Subtotal ({cartItems.length} item)</span>
                     <span>
-                      {" "}
-                      Rp {totalPriceBeforeDiscount.toLocaleString("id-ID")}{" "}
+                      Rp {totalPriceBeforeDiscount.toLocaleString("id-ID")}
                     </span>
                   </p>
                   {totalDiscount > 0 && (
@@ -550,7 +552,6 @@ const CheckoutPage = () => {
                   )}
                   <p className="flex justify-between">
                     <span>Ongkos Kirim</span>
-                    {/* Tampilkan "Gratis" jika shippingCost adalah 0 */}
                     <span>
                       {shippingCost === 0
                         ? "Gratis"
@@ -563,26 +564,23 @@ const CheckoutPage = () => {
                   </p>
                 </div>
                 <button
-                  className={`mt-6 w-full font-semibold py-3 rounded-lg transition-colors text-white
-                    ${
-                      loading ||
-                      cartItems.length === 0 ||
-                      !selectedAddress ||
-                      !paymentMethod ||
-                      !proofPayment
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700"
-                    }`}
+                  className={`mt-6 w-full font-semibold py-3 rounded-lg transition-colors text-white ${
+                    loading ||
+                    !selectedAddress ||
+                    !paymentMethod ||
+                    !proofPayment
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
                   onClick={handlePayment}
                   disabled={
                     loading ||
-                    cartItems.length === 0 ||
                     !selectedAddress ||
                     !paymentMethod ||
-                    (paymentMethod !== "cod" && !proofPayment)
+                    !proofPayment
                   }
                 >
-                  {loading ? "Memproses..." : `Bayar Sekarang`}
+                  {loading ? "Memproses..." : "Bayar Sekarang"}
                 </button>
               </div>
             </div>
