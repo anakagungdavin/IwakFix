@@ -4,10 +4,14 @@ import { useNavigate } from "react-router-dom";
 import CancelModal from "../../modal/modalCancel";
 import SimpanModal from "../../modal/modalBerhasilSimpan";
 
+// --- PERUBAHAN DI SINI: Definisikan konstanta untuk batas ukuran file ---
+const MAX_AVATAR_SIZE_BYTES = 150 * 1024; // 150 KB
+const MAX_AVATAR_SIZE_TEXT = "150 KB";
+
 const EditProfileCust = () => {
   const navigate = useNavigate();
   const [avatar, setAvatar] = useState(null);
-  const [avatarFile, setAvatarFile] = useState(null); // Simpan file untuk upload
+  const [avatarFile, setAvatarFile] = useState(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -19,16 +23,16 @@ const EditProfileCust = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showSimpanModal, setShowSimpanModal] = useState(false);
+  // --- PERUBAHAN DI SINI: Tambahkan state untuk error validasi avatar ---
+  const [avatarError, setAvatarError] = useState("");
 
   useEffect(() => {
     const fetchUserProfile = async () => {
+      // ... (logika fetch tetap sama)
       try {
         setLoading(true);
         const token = localStorage.getItem("token");
-        if (!token) {
-          throw new Error("No authentication token found");
-        }
-
+        if (!token) throw new Error("No authentication token found");
         const apiUrl =
           import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
         const response = await fetch(`${apiUrl}/api/users/profile`, {
@@ -38,19 +42,17 @@ const EditProfileCust = () => {
             "Content-Type": "application/json",
           },
         });
-
         if (!response.ok) {
           const text = await response.text();
           throw new Error(`HTTP error! status: ${response.status} - ${text}`);
         }
-
         const result = await response.json();
         const userData = result.data;
         setName(userData.name || "");
         setPhone(userData.phoneNumber || "");
         setEmail(userData.email || "");
         setGender(userData.gender || "Lainnya");
-        setAvatar(userData.avatar || null); // URL dari Uploadcare
+        setAvatar(userData.avatar || null);
       } catch (err) {
         setError(err.message);
         navigate("/login");
@@ -58,87 +60,82 @@ const EditProfileCust = () => {
         setLoading(false);
       }
     };
-
     fetchUserProfile();
   }, [navigate]);
 
+  // --- PERUBAHAN DI SINI: Tambahkan validasi ukuran file ---
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    if (file) {
-      setAvatarFile(file); // Simpan file untuk upload
-      setAvatar(URL.createObjectURL(file)); // Preview lokal
+
+    // Hapus pesan error lama
+    setAvatarError("");
+
+    if (!file) {
+      return; // Tidak ada file yang dipilih
     }
+
+    // Validasi ukuran file
+    if (file.size > MAX_AVATAR_SIZE_BYTES) {
+      setAvatarError(
+        `Ukuran file tidak boleh melebihi ${MAX_AVATAR_SIZE_TEXT}.`
+      );
+      // Atur timer untuk menghilangkan pesan error setelah 5 detik
+      setTimeout(() => setAvatarError(""), 5000);
+      // Kosongkan input file agar pengguna bisa memilih file yang sama lagi jika sudah diperbaiki
+      event.target.value = null;
+      return; // Hentikan proses
+    }
+
+    // Jika file valid, lanjutkan
+    setAvatarFile(file); // Simpan file untuk upload
+    setAvatar(URL.createObjectURL(file)); // Preview lokal
   };
 
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
+  const handlePasswordChange = (e) => setPassword(e.target.value);
 
   const handleConfirmPasswordChange = (e) => {
     setConfirmPassword(e.target.value);
     setPasswordMatch(e.target.value === password);
   };
 
-  const handleGenderChange = (e) => {
-    setGender(e.target.value);
-  };
+  const handleGenderChange = (e) => setGender(e.target.value);
 
   const handleSubmit = async (event) => {
+    // ... (logika submit tetap sama)
     event.preventDefault();
-
     if (!passwordMatch) {
       alert("Konfirmasi kata sandi tidak sesuai!");
       return;
     }
-
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
+      if (!token) throw new Error("No authentication token found");
       const apiUrl =
         import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
-
-      // Upload avatar jika ada file baru
       if (avatarFile) {
         const formData = new FormData();
         formData.append("avatar", avatarFile);
-
         const avatarResponse = await fetch(
           `${apiUrl}/api/users/profile/avatar`,
           {
             method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
             body: formData,
           }
         );
-
         if (!avatarResponse.ok) {
           const text = await avatarResponse.text();
           throw new Error(
             `Upload avatar failed! status: ${avatarResponse.status} - ${text}`
           );
         }
-
         const avatarResult = await avatarResponse.json();
-        setAvatar(avatarResult.avatar); // Update avatar dari respons
+        setAvatar(avatarResult.avatar);
       }
-
-      // Update profil lainnya
-      const updatedData = {
-        name,
-        phoneNumber: phone,
-        email,
-        gender,
-      };
-
+      const updatedData = { name, phoneNumber: phone, email, gender };
       if (password) {
         updatedData.password = password;
       }
-
       const response = await fetch(`${apiUrl}/api/users/profile`, {
         method: "PUT",
         headers: {
@@ -147,12 +144,10 @@ const EditProfileCust = () => {
         },
         body: JSON.stringify(updatedData),
       });
-
       if (!response.ok) {
         const text = await response.text();
         throw new Error(`HTTP error! status: ${response.status} - ${text}`);
       }
-
       setShowSimpanModal(true);
     } catch (err) {
       setError(err.message);
@@ -160,9 +155,7 @@ const EditProfileCust = () => {
     }
   };
 
-  const handleBack = () => {
-    setShowModal(true);
-  };
+  const handleBack = () => setShowModal(true);
 
   if (loading) {
     return (
@@ -171,7 +164,6 @@ const EditProfileCust = () => {
       </div>
     );
   }
-
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-500">
@@ -206,7 +198,13 @@ const EditProfileCust = () => {
           </label>
         </div>
 
+        {/* --- PERUBAHAN DI SINI: Tampilkan pesan error jika ada --- */}
+        {avatarError && (
+          <p className="text-red-500 text-sm text-center mt-2">{avatarError}</p>
+        )}
+
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {/* ... (sisa form tetap sama) ... */}
           <div>
             <label className="block text-gray-700 font-medium">Nama</label>
             <input
@@ -312,7 +310,6 @@ const EditProfileCust = () => {
           cancelText="Batal"
         />
       )}
-
       {showSimpanModal && (
         <SimpanModal
           isOpen={showSimpanModal}

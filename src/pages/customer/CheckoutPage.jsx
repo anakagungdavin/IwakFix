@@ -9,6 +9,10 @@ import axios from "axios";
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 const DEFAULT_SHIPPING_COST = 25000;
 
+// --- PERUBAHAN DI SINI: Definisikan konstanta untuk batas ukuran file bukti pembayaran ---
+const MAX_PROOF_SIZE_BYTES = 150 * 1024; // 150 KB
+const MAX_PROOF_SIZE_TEXT = "150 KB";
+
 // Buat instance Axios untuk konsistensi
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -33,6 +37,7 @@ const CheckoutPage = () => {
   const [proofPayment, setProofPayment] = useState(null);
   const [proofPreview, setProofPreview] = useState(null);
   const [shippingCost, setShippingCost] = useState(DEFAULT_SHIPPING_COST);
+  const [fileError, setFileError] = useState("");
 
   // Ambil token di luar agar bisa jadi dependency
   const token = localStorage.getItem("token");
@@ -206,18 +211,30 @@ const CheckoutPage = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     log("Selected File:", file);
-    if (file) {
-      if (file.size > 0.5 * 1024 * 1024) {
-        setError("Ukuran file bukti pembayaran terlalu besar. Maksimum 0.5MB.");
-        setProofPayment(null);
-        setProofPreview(null);
-        event.target.value = null;
-        return;
-      }
-      setProofPayment(file);
-      setProofPreview(URL.createObjectURL(file));
-      setError(null);
+
+    // Selalu hapus pesan error file lama saat ada perubahan
+    setFileError("");
+
+    if (!file) {
+      return;
     }
+
+    // Validasi ukuran file menggunakan konstanta
+    if (file.size > MAX_PROOF_SIZE_BYTES) {
+      // Set pesan error di state khusus fileError
+      setFileError(`Ukuran file tidak boleh melebihi ${MAX_PROOF_SIZE_TEXT}.`);
+      setProofPayment(null);
+      setProofPreview(null);
+      event.target.value = null;
+
+      // Atur timer untuk menghilangkan pesan error setelah 5 detik
+      setTimeout(() => setFileError(""), 5000);
+      return; // Hentikan proses
+    }
+
+    // Jika file valid, lanjutkan seperti biasa
+    setProofPayment(file);
+    setProofPreview(URL.createObjectURL(file));
   };
 
   const handlePayment = async () => {
@@ -517,8 +534,12 @@ const CheckoutPage = () => {
                       className="w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Maksimum ukuran file: 0.5MB (JPEG, PNG, GIF, WEBP).
+                      Maksimum ukuran file: {MAX_PROOF_SIZE_TEXT} (JPEG, PNG,
+                      GIF, WEBP).
                     </p>
+                    {fileError && (
+                      <p className="text-red-600 text-sm mt-2">{fileError}</p>
+                    )}
                     {proofPreview && (
                       <div className="mt-4">
                         <h4 className="font-semibold text-sm">
