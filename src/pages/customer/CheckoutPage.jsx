@@ -7,7 +7,6 @@ import axios from "axios";
 
 // Pindahkan ke luar komponen agar tidak dibuat ulang setiap render
 const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
-const DEFAULT_SHIPPING_COST = 25000;
 
 // Buat instance Axios untuk konsistensi
 const apiClient = axios.create({
@@ -22,20 +21,18 @@ const CheckoutPage = () => {
   const productDataFromState = location.state?.product || null;
   const cartDataFromState = location.state?.cart || null;
 
-  // State Management yang disederhanakan untuk COD
+  // State Management yang disederhanakan
   const [cartItems, setCartItems] = useState([]);
-  const [paymentMethod, setPaymentMethod] = useState("COD"); // Langsung diatur ke COD
+  const [paymentMethod, setPaymentMethod] = useState("COD");
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const [shippingCost, setShippingCost] = useState(DEFAULT_SHIPPING_COST);
+  // --- PERUBAHAN DI SINI: State shippingCost dihapus ---
 
-  // Ambil token di luar agar bisa jadi dependency
   const token = localStorage.getItem("token");
 
-  // Gunakan useCallback untuk memastikan fungsi log stabil
   const log = useCallback((...args) => {
     if (process.env.NODE_ENV === "development") {
       console.log(...args);
@@ -115,10 +112,7 @@ const CheckoutPage = () => {
     fetchProfileAndAddress();
   }, [token, navigate, log]);
 
-  // Effect untuk ongkos kirim
-  useEffect(() => {
-    setShippingCost(DEFAULT_SHIPPING_COST);
-  }, []); // paymentMethod statis, jadi dependency bisa kosong
+  // --- PERUBAHAN DI SINI: Effect untuk ongkos kirim dihapus ---
 
   const getPriceDetails = useCallback(
     (item) => {
@@ -167,7 +161,8 @@ const CheckoutPage = () => {
       { totalPriceBeforeDiscount: 0, totalDiscount: 0, finalTotal: 0 }
     );
 
-  const grandTotal = finalTotal + shippingCost;
+  // --- PERUBAHAN DI SINI: grandTotal tidak lagi menambahkan shippingCost ---
+  const grandTotal = finalTotal;
 
   const handleSelectAddress = (address) => {
     setSelectedAddress(address);
@@ -202,7 +197,7 @@ const CheckoutPage = () => {
         })
       );
 
-      formData.append("paymentMethod", paymentMethod); // Akan selalu 'COD'
+      formData.append("paymentMethod", paymentMethod);
       formData.append("source", cartDataFromState ? "cart" : "buyNow");
 
       const orderItemsPayload = cartItems.map((item) => {
@@ -237,7 +232,8 @@ const CheckoutPage = () => {
 
       formData.append("items", JSON.stringify(orderItemsPayload));
       formData.append("totalAmount", grandTotal);
-      formData.append("shippingCost", shippingCost);
+      // --- PERUBAHAN DI SINI: shippingCost tidak lagi dikirim ke backend ---
+      formData.append("shippingCost", 0); // Kirim 0 agar backend tidak error jika mengharapkan field ini
 
       log("Mengirim FormData (COD):", Object.fromEntries(formData.entries()));
 
@@ -439,14 +435,7 @@ const CheckoutPage = () => {
                       <span>-Rp {totalDiscount.toLocaleString("id-ID")}</span>
                     </p>
                   )}
-                  <p className="flex justify-between">
-                    <span>Ongkos Kirim</span>
-                    <span>
-                      {shippingCost === 0
-                        ? "Gratis"
-                        : `Rp ${shippingCost.toLocaleString("id-ID")}`}
-                    </span>
-                  </p>
+                  {/* --- PERUBAHAN DI SINI: Baris Ongkos Kirim dihapus --- */}
                   <p className="font-bold text-lg mt-2 flex justify-between border-t pt-2">
                     <span>Total Akhir</span>
                     <span>Rp {grandTotal.toLocaleString("id-ID")}</span>
