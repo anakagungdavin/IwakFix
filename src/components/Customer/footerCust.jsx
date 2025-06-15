@@ -77,7 +77,7 @@ const FooterCust = () => {
       </div>
       {/* Bottom Copyright Section */}
       <div className="mt-6 border-t border-gray-600 pt-4 text-center text-gray-400">
-        <p>© 2025 Siphiko. All rights reserved.</p>
+        <p>© 2025 Siphiko. All rights reserved. Siphiko v1.0.0</p>
       </div>
     </footer>
   );
