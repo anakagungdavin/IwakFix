@@ -146,7 +146,6 @@ const CheckoutPage = () => {
 
   const getPriceDetails = useCallback(
     (item) => {
-      // ... (kode Anda di sini sudah baik, tidak perlu diubah)
       log("Getting price details for item:", item);
       if (item.price && typeof item.price === "number" && item.satuan) {
         return {
@@ -154,26 +153,24 @@ const CheckoutPage = () => {
           discount: item.discount || 0,
           satuan: item.satuan,
         };
-      } else if (
-        item.product?.stocks &&
-        item.size &&
-        item.jenis &&
-        item.satuan
-      ) {
+      } else if (item.product?.stocks && item.size && item.jenis) {
         const sanitizedSize = item.size?.trim().toLowerCase() || "";
         const sanitizedJenis = item.jenis?.trim().toLowerCase() || "";
-        const sanitizedSatuan = item.satuan?.trim() || "";
+
+        // Cari HANYA berdasarkan jenis dan ukuran
         const stockEntry = item.product.stocks.find(
           (stock) =>
             stock.size?.trim().toLowerCase() === sanitizedSize &&
-            stock.jenis?.trim().toLowerCase() === sanitizedJenis &&
-            stock.satuan?.trim() === sanitizedSatuan
+            stock.jenis?.trim().toLowerCase() === sanitizedJenis
         );
+
+        // Jika ditemukan, gunakan data dari entri tersebut
         if (stockEntry) {
+          log("Found matching stock entry in getPriceDetails:", stockEntry);
           return {
             price: stockEntry.price || 0,
             discount: stockEntry.discount || 0,
-            satuan: stockEntry.satuan || "kg",
+            satuan: stockEntry.satuan || "kg", // Ambil satuan dari entri yang ditemukan
           };
         }
       }
@@ -276,17 +273,36 @@ const CheckoutPage = () => {
       formData.append("proofOfPayment", proofPayment);
       formData.append("source", cartDataFromState ? "cart" : "buyNow");
 
+      // Buat payload yang 100% akurat dengan mencari ulang data stok
       const orderItemsPayload = cartItems.map((item) => {
-        const { price, discount, satuan } = getPriceDetails(item);
+        // Cari entri stok yang benar HANYA berdasarkan jenis dan ukuran
+        const stockData = item.product?.stocks.find(
+          (s) =>
+            s.jenis?.trim().toLowerCase() ===
+              item.jenis?.trim().toLowerCase() &&
+            s.size?.trim().toLowerCase() === item.size?.trim().toLowerCase()
+        );
+
+        // Jika karena suatu hal data stok tidak ditemukan, lempar error
+        if (!stockData) {
+          throw new Error(
+            `Informasi stok untuk ${item.product.name} (${item.jenis} - ${item.size}) tidak ditemukan. Harap muat ulang halaman.`
+          );
+        }
+
+        // Gunakan data dari stockData yang ditemukan, bukan dari getPriceDetails atau item langsung
+        const price = stockData.price;
+        const discount = stockData.discount || 0;
+
         return {
           product: item.product?._id || item._id,
           quantity: item.quantity || 1,
-          price,
-          discount,
+          price: price,
+          discount: discount,
           discountedPrice: price * (1 - discount / 100),
           size: item.size || "N/A",
           jenis: item.jenis || "N/A",
-          satuan,
+          satuan: stockData.satuan, // Ini kunci perbaikannya: gunakan satuan dari data stok yang benar
         };
       });
 
