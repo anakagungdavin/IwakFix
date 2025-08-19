@@ -294,27 +294,27 @@ const CartPage = () => {
     );
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
       <HeaderCust />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <h2 className="text-3xl sm:text-4xl font-bold text-yellow-500 mb-6">
+        <h2 className="text-3xl sm:text-4xl font-bold text-yellow-500 dark:text-yellow-400 mb-6">
           Keranjang
         </h2>
-        {loading && <p className="text-center">Memuat keranjang...</p>}
+        {loading && <p className="text-center text-gray-900 dark:text-white">Memuat keranjang...</p>}
         {error && (
-          <p className="text-center text-red-500 py-4 bg-red-100 rounded-lg">
+          <p className="text-center text-red-500 dark:text-red-400 py-4 bg-red-100 dark:bg-red-900/30 rounded-lg">
             {error}
           </p>
         )}
         {cartItems.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white p-4 sm:p-6 rounded-lg shadow-md">
+            <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-md">
               {cartItems.map((item, index) => {
                 if (!item.product) {
                   return (
                     <div
                       key={`${item._id}-${item.jenis}-${item.size}`}
-                      className="flex flex-col sm:flex-row items-center border-b py-4 last:border-b-0"
+                      className="flex flex-col sm:flex-row items-center border-b border-gray-200 dark:border-gray-700 py-4 last:border-b-0"
                     >
                       <img
                         src={defaultImage}
@@ -322,16 +322,16 @@ const CartPage = () => {
                         className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-md mb-3 sm:mb-0 sm:mr-4"
                       />
                       <div className="flex-grow text-center sm:text-left">
-                        <h4 className="text-lg font-semibold text-red-500">
+                        <h4 className="text-lg font-semibold text-red-500 dark:text-red-400">
                           Produk Tidak Tersedia
                         </h4>
-                        <p className="text-gray-500 text-sm">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">
                           Item ini mungkin telah dihapus atau tidak valid.
                         </p>
                       </div>
                       <div className="flex flex-col items-end">
                         <button
-                          className="text-red-500 hover:text-red-700 mt-3 sm:mt-0"
+                          className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 mt-3 sm:mt-0"
                           onClick={() => handleDelete(index)}
                         >
                           <FiTrash2 size={18} />
@@ -349,7 +349,7 @@ const CartPage = () => {
                 return (
                   <div
                     key={`${item.product._id}-${item.jenis}-${item.size}`}
-                    className="flex flex-col sm:flex-row items-center border-b py-4 last:border-b-0"
+                    className="flex flex-col sm:flex-row items-center border-b border-gray-200 dark:border-gray-700 py-4 last:border-b-0"
                   >
                     <img
                       src={image}
@@ -357,16 +357,16 @@ const CartPage = () => {
                       className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-md mb-3 sm:mb-0 sm:mr-4"
                     />
                     <div className="flex-grow text-center sm:text-left">
-                      <h4 className="text-lg font-semibold">
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                         {item.product.name}
                       </h4>
-                      <p className="text-gray-500 text-sm">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">
                         {item.product.description || "Deskripsi produk"}
                       </p>
-                      <p className="text-lg font-bold text-gray-900 mt-1">
+                      <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
                         Rp{discountedPrice.toLocaleString()}
                         {discount > 0 && (
-                          <span className="text-sm text-gray-500 line-through ml-2">
+                          <span className="text-sm text-gray-500 dark:text-gray-400 line-through ml-2">
                             Rp{price.toLocaleString()}
                           </span>
                         )}
@@ -377,7 +377,7 @@ const CartPage = () => {
                           onChange={(e) =>
                             handleJenisChange(index, e.target.value)
                           }
-                          className="border rounded-md px-2 py-1 text-sm"
+                          className="border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         >
                           {(
                             item.product.type?.jenis || ["Salmon Norwegia"]
@@ -392,7 +392,7 @@ const CartPage = () => {
                           onChange={(e) =>
                             handleSizeChange(index, e.target.value)
                           }
-                          className="border rounded-md px-2 py-1 text-sm"
+                          className="border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         >
                           {(
                             item.product.type?.size || [
@@ -405,17 +405,17 @@ const CartPage = () => {
                             </option>
                           ))}
                         </select>
-                        <div className="flex items-center border rounded-md">
+                        <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700">
                           <button
-                            className="px-2 py-1 text-sm"
+                            className="px-2 py-1 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
                             onClick={() => handleQuantityChange(index, -1)}
                             disabled={item.quantity <= 1}
                           >
                             -
                           </button>
-                          <span className="px-3">{item.quantity}</span>
+                          <span className="px-3 text-gray-900 dark:text-white">{item.quantity}</span>
                           <button
-                            className="px-2 py-1 text-sm"
+                            className="px-2 py-1 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
                             onClick={() => handleQuantityChange(index, 1)}
                             disabled={
                               item.quantity >=
@@ -433,7 +433,7 @@ const CartPage = () => {
                     </div>
                     <div className="flex flex-col items-end space-y-2">
                       <button
-                        className="text-red-500 hover:text-red-700 mt-3 sm:mt-0"
+                        className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 mt-3 sm:mt-0"
                         onClick={() => handleDelete(index)}
                       >
                         <FiTrash2 size={18} />
@@ -444,23 +444,23 @@ const CartPage = () => {
               })}
             </div>
 
-            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
+            <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
                 Ringkasan
               </h3>
-              <div className="flex justify-between text-gray-600 mb-2">
+              <div className="flex justify-between text-gray-600 dark:text-gray-400 mb-2">
                 <span>
                   Items ({cartItems.filter((item) => item.product).length})
                 </span>
                 <span>Rp{totalPriceBeforeDiscount.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-gray-600 mb-4">
+              <div className="flex justify-between text-gray-600 dark:text-gray-400 mb-4">
                 <span>Discounts</span>
-                <span className="text-red-500">
+                <span className="text-red-500 dark:text-red-400">
                   -Rp{totalDiscount.toLocaleString()}
                 </span>
               </div>
-              <div className="flex justify-between text-lg font-bold text-gray-900 border-t pt-2">
+              <div className="flex justify-between text-lg font-bold text-gray-900 dark:text-white border-t border-gray-200 dark:border-gray-700 pt-2">
                 <span>Total</span>
                 <span>Rp{finalTotal.toLocaleString()}</span>
               </div>
@@ -479,14 +479,14 @@ const CartPage = () => {
           </div>
         ) : (
           !loading && (
-            <div className="flex flex-col items-center text-center bg-white rounded-md mt-20 p-6">
+            <div className="flex flex-col items-center text-center bg-white dark:bg-gray-800 rounded-md mt-20 p-6">
               <img
                 src="/images/20943865.jpg"
                 alt="Keranjang Kosong"
                 className="w-48 h-48 sm:w-64 sm:h-64 object-cover"
               />
-              <p className="text-lg font-bold mt-4">Keranjang kamu kosong!</p>
-              <p className="text-gray-600 mt-2 text-sm sm:text-base">
+              <p className="text-lg font-bold mt-4 text-gray-900 dark:text-white">Keranjang kamu kosong!</p>
+              <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm sm:text-base">
                 Daripada dianggurin, isi saja dengan ikan - ikan menarik.
                 <br />
                 Lihat-lihat dulu, siapa tahu ada yang kamu butuhkan!

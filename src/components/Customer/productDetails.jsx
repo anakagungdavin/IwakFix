@@ -36,18 +36,18 @@ const ProductDetails = () => {
   return (
     <div className="p-6 pl-0 pr-4 max-w-5xl mx-auto">
       {/* Loading/Error State */}
-      {loading && <p className="text-center">Memuat detail produk...</p>}
-      {error && <p className="text-center text-red-500">{error}</p>}
+      {loading && <p className="text-center text-gray-900 dark:text-white">Memuat detail produk...</p>}
+      {error && <p className="text-center text-red-500 dark:text-red-400">{error}</p>}
 
       {/* Konten Produk */}
       {!loading && !error && product && (
         <>
-          <div className="flex border-gray-300 mb-4">
+          <div className="flex border-gray-300 dark:border-gray-600 mb-4">
             <h3
               className={`text-lg font-bold pb-2 mr-4 cursor-pointer ${
                 activeTab === "Deskripsi"
-                  ? "text-gray-900 border-b-2 border-gray-900"
-                  : "text-gray-400"
+                  ? "text-gray-900 dark:text-white border-b-2 border-gray-900 dark:border-white"
+                  : "text-gray-400 dark:text-gray-500"
               }`}
               onClick={() => setActiveTab("Deskripsi")}
             >
@@ -56,8 +56,8 @@ const ProductDetails = () => {
             <h3
               className={`text-lg font-bold pb-2 cursor-pointer ${
                 activeTab === "Spesifikasi"
-                  ? "text-gray-900 border-b-2 border-gray-900"
-                  : "text-gray-400"
+                  ? "text-gray-900 dark:text-white border-b-2 border-gray-900 dark:border-white"
+                  : "text-gray-400 dark:text-gray-500"
               }`}
               onClick={() => setActiveTab("Spesifikasi")}
             >
@@ -66,16 +66,16 @@ const ProductDetails = () => {
           </div>
 
           {activeTab === "Deskripsi" ? (
-            <p className="text-gray-800 leading-relaxed mb-4">
+            <p className="text-gray-800 dark:text-gray-200 leading-relaxed mb-4">
               {product.description ||
                 "Deskripsi tidak tersedia untuk produk ini."}
             </p>
           ) : (
             <div>
-              <h4 className="text-lg font-bold text-gray-900 mb-2">
+              <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                 Spesifikasi
               </h4>
-              <ul className="text-gray-800">
+              <ul className="text-gray-800 dark:text-gray-200">
                 <li>
                   <span className="font-semibold">Berat:</span>{" "}
                   {product.weight ? `${product.weight}kg` : "Tidak tersedia"}

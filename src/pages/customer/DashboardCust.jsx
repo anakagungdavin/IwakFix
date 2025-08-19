@@ -146,8 +146,8 @@ const DashboardCust = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="sticky top-0 z-50 bg-white shadow-md">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md">
         <HeaderCust />
       </div>
 

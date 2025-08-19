@@ -323,9 +323,9 @@ const ProductOverview = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-16">
-      {loading && <p className="text-center">Memuat detail produk...</p>}
+      {loading && <p className="text-center text-gray-900 dark:text-white">Memuat detail produk...</p>}
       {error && (
-        <p className="text-center text-red-500 py-4 bg-red-100 rounded-lg">
+        <p className="text-center text-red-500 dark:text-red-400 py-4 bg-red-100 dark:bg-red-900/30 rounded-lg">
           {error}
         </p>
       )}
@@ -334,7 +334,7 @@ const ProductOverview = () => {
           <div className="pt-8">
             <Breadcrumb pageName={product.name} />
           </div>
-          <div className="flex pb-10 gap-6 border-b justify-center">
+          <div className="flex pb-10 gap-6 border-b border-gray-200 dark:border-gray-700 justify-center">
             <div className="w-1/2">
               <img
                 src={selectedImage || "/images/placeholder.png"}
@@ -349,7 +349,7 @@ const ProductOverview = () => {
                     alt="Thumbnail"
                     className={`w-16 h-16 object-cover rounded-lg cursor-pointer border-2 ${
                       selectedImage === img
-                        ? "border-gray-500"
+                        ? "border-gray-500 dark:border-gray-400"
                         : "border-transparent"
                     }`}
                     onClick={() => {
@@ -361,36 +361,36 @@ const ProductOverview = () => {
               </div>
             </div>
             <div className="w-1/2 pl-6">
-              <h2 className="text-2xl font-bold text-black">{product.name}</h2>
+              <h2 className="text-2xl font-bold text-black dark:text-white">{product.name}</h2>
               <div className="mt-4">
                 {selectedJenis && selectedSize ? (
                   <div className="flex items-center gap-2">
                     {discount > 0 ? (
                       <>
-                        <p className="text-2xl font-bold text-[#003D47]">
+                        <p className="text-2xl font-bold text-[#003D47] dark:text-[#FFBC00]">
                           Rp{discountedPrice.toLocaleString("id-ID")}/{satuan}
                         </p>
-                        <p className="text-base text-gray-400 line-through">
+                        <p className="text-base text-gray-400 dark:text-gray-500 line-through">
                           Rp{originalPrice.toLocaleString("id-ID")}/{satuan}
                         </p>
-                        <span className="text-red-500 text-base">
+                        <span className="text-red-500 dark:text-red-400 text-base">
                           -{discount}%
                         </span>
                       </>
                     ) : (
-                      <p className="text-2xl font-bold text-[#003D47]">
+                      <p className="text-2xl font-bold text-[#003D47] dark:text-[#FFBC00]">
                         Rp{originalPrice.toLocaleString("id-ID")}/{satuan}
                       </p>
                     )}
                   </div>
                 ) : (
-                  <p className="text-base text-gray-600">
+                  <p className="text-base text-gray-600 dark:text-gray-400">
                     Pilih jenis dan ukuran untuk melihat harga
                   </p>
                 )}
               </div>
               <div className="mt-4">
-                <label className="block font-semibold">Jenis</label>
+                <label className="block font-semibold text-gray-900 dark:text-white">Jenis</label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {availableJenis.map((jenis) => (
                     <button
@@ -398,7 +398,7 @@ const ProductOverview = () => {
                       className={`px-4 py-2 border rounded-lg transition-all ${
                         selectedJenis === jenis
                           ? "bg-[#FFBC00] text-white"
-                          : "bg-gray-100"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                       }`}
                       onClick={() => {
                         setSelectedJenis(jenis);
@@ -411,7 +411,7 @@ const ProductOverview = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <label className="block font-semibold">Ukuran</label>
+                <label className="block font-semibold text-gray-900 dark:text-white">Ukuran</label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {availableSizes.map((size) => (
                     <button
@@ -419,7 +419,7 @@ const ProductOverview = () => {
                       className={`px-4 py-2 border rounded-lg transition-all ${
                         selectedSize === size
                           ? "bg-[#FFBC00] text-white"
-                          : "bg-gray-100"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                       }`}
                       onClick={() => {
                         setSelectedSize(size);
@@ -431,11 +431,11 @@ const ProductOverview = () => {
                   ))}
                 </div>
               </div>
-              <div className="mt-4 p-4 border rounded-lg w-fit">
-                <span className="block font-semibold mb-2">Atur Jumlah</span>
+              <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg w-fit bg-white dark:bg-gray-800">
+                <span className="block font-semibold mb-2 text-gray-900 dark:text-white">Atur Jumlah</span>
                 <div className="flex items-center gap-4">
                   <button
-                    className="px-3 py-1 border rounded"
+                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                     onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
                   >
                     -
@@ -444,21 +444,21 @@ const ProductOverview = () => {
                     type="number"
                     value={quantity}
                     onChange={(e) => handleQuantityChange(e.target.value)}
-                    className="quantity-input w-16 text-center border rounded py-1 text-base"
+                    className="quantity-input w-16 text-center border border-gray-300 dark:border-gray-600 rounded py-1 text-base bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     min="1"
                     max={stock}
                   />
                   <button
-                    className="px-3 py-1 border rounded"
+                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                     onClick={() =>
                       setQuantity((prev) => Math.min(stock, prev + 1))
                     }
                   >
                     +
                   </button>
-                  <span className="ml-4 text-gray-600">
+                  <span className="ml-4 text-gray-600 dark:text-gray-400">
                     Stok Tersedia:{" "}
-                    <b>
+                    <b className="text-gray-900 dark:text-white">
                       {selectedJenis && selectedSize
                         ? `${stock.toLocaleString("id-ID")} ${satuan}`
                         : "Pilih jenis dan ukuran"}
@@ -468,14 +468,14 @@ const ProductOverview = () => {
               </div>
               <div className="mt-4 flex flex-grow gap-4 w-[325px]">
                 <button
-                  className="border-2 border-[#003D47] text-black px-6 py-2 rounded-lg w-full cursor-pointer"
+                  className="border-2 border-[#003D47] dark:border-[#FFBC00] text-black dark:text-white px-6 py-2 rounded-lg w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   onClick={handleBuyNow}
                   disabled={!selectedJenis || !selectedSize || isAddingToCart} // Disable saat loading juga
                 >
                   Beli
                 </button>
                 <button
-                  className={`bg-[#003D47] text-white px-6 py-2 rounded-lg w-full cursor-pointer flex items-center justify-center ${
+                  className={`bg-[#003D47] dark:bg-[#FFBC00] text-white dark:text-black px-6 py-2 rounded-lg w-full cursor-pointer flex items-center justify-center ${
                     isAddingToCart ? "opacity-70" : ""
                   }`}
                   onClick={handleAddToCart}

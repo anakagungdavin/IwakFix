@@ -6,13 +6,13 @@ const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com";
 
 // Komponen Placeholder untuk animasi loading (bisa ditaruh di file terpisah jika sering digunakan)
 const ProductCardSkeleton = () => (
-  <div className="bg-white p-2 sm:p-3 md:p-4 rounded-lg shadow animate-pulse">
-    <div className="w-full aspect-square overflow-hidden rounded bg-gray-300 mb-2"></div>
-    <div className="h-5 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>{" "}
+  <div className="bg-white dark:bg-gray-800 p-2 sm:p-3 md:p-4 rounded-lg shadow animate-pulse">
+    <div className="w-full aspect-square overflow-hidden rounded bg-gray-300 dark:bg-gray-600 mb-2"></div>
+    <div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mx-auto mb-2"></div>{" "}
     {/* Sesuaikan tinggi */}
-    <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto mb-1"></div>{" "}
+    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mx-auto mb-1"></div>{" "}
     {/* Sesuaikan tinggi */}
-    <div className="h-5 bg-gray-300 rounded w-1/3 mx-auto"></div>{" "}
+    <div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-1/3 mx-auto"></div>{" "}
     {/* Sesuaikan tinggi */}
   </div>
 );
@@ -185,7 +185,7 @@ const FishStore = () => {
   };
 
   return (
-    <div className="p-3 sm:p-4 md:p-6 bg-gray-100 min-h-screen">
+    <div className="p-3 sm:p-4 md:p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-0">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
           <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-center sm:justify-start">
@@ -193,7 +193,7 @@ const FishStore = () => {
               className={`px-2 sm:px-4 py-2 text-sm sm:text-base rounded ${
                 sortBy === "terlaris"
                   ? "bg-[#003D47] text-white"
-                  : "bg-white text-black hover:bg-gray-200"
+                  : "bg-white dark:bg-gray-700 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
               }`}
               onClick={() => handleSortChange("terlaris")}
             >
@@ -203,7 +203,7 @@ const FishStore = () => {
               className={`px-2 sm:px-4 py-2 text-sm sm:text-base rounded ${
                 sortBy === "terbaru"
                   ? "bg-[#003D47] text-white"
-                  : "bg-white text-black hover:bg-gray-200"
+                  : "bg-white dark:bg-gray-700 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
               }`}
               onClick={() => handleSortChange("terbaru")}
             >
@@ -213,7 +213,7 @@ const FishStore = () => {
               className={`border rounded px-2 sm:px-3 py-2 text-sm sm:text-base cursor-pointer ${
                 sortBy === "harga-rendah" || sortBy === "harga-tinggi"
                   ? "bg-[#003D47] text-white"
-                  : "bg-white text-black"
+                  : "bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600"
               }`}
               value={sortBy} // Pastikan value sesuai dengan opsi yang ada atau default
               onChange={(e) => handleSortChange(e.target.value)}
@@ -225,7 +225,7 @@ const FishStore = () => {
             </select>
           </div>
           {!loading && !error && (
-            <span className="text-gray-600 text-sm sm:text-base mt-2 sm:mt-0">
+            <span className="text-gray-600 dark:text-gray-400 text-sm sm:text-base mt-2 sm:mt-0">
               Menampilkan {products.length} hasil
               {location.search &&
                 ` untuk "${new URLSearchParams(location.search).get(
@@ -251,7 +251,7 @@ const FishStore = () => {
 
         {/* Tampilan Error */}
         {!loading && error && (
-          <p className="text-center text-red-500 py-10">{error}</p>
+          <p className="text-center text-red-500 dark:text-red-400 py-10">{error}</p>
         )}
 
         {/* Tampilan Produk */}
@@ -266,7 +266,7 @@ const FishStore = () => {
               return (
                 <div
                   key={product._id}
-                  className="bg-white p-2 sm:p-3 md:p-4 rounded-lg shadow flex flex-col justify-between cursor-pointer hover:shadow-md transition-shadow"
+                  className="bg-white dark:bg-gray-800 p-2 sm:p-3 md:p-4 rounded-lg shadow flex flex-col justify-between cursor-pointer hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700"
                   onClick={() => navigate(`/product/${product._id}`)}
                 >
                   <div className="w-full aspect-square overflow-hidden rounded">
@@ -281,7 +281,7 @@ const FishStore = () => {
                   <div className="text-center mt-2 flex-grow flex flex-col justify-end">
                     {" "}
                     {/* Penyesuaian untuk tata letak teks */}
-                    <h3 className="text-sm sm:text-base md:text-lg font-semibold truncate mb-0.5">
+                    <h3 className="text-sm sm:text-base md:text-lg font-semibold truncate mb-0.5 text-gray-900 dark:text-white">
                       {product.name}
                     </h3>
                     <div className="flex justify-center items-center gap-1 sm:gap-2 min-h-[1.2em]">
@@ -290,16 +290,16 @@ const FishStore = () => {
                       {discountPercentage > 0 &&
                         product.originalPrice > 0 && ( // Tambah cek originalPrice
                           <>
-                            <p className="text-xs sm:text-sm text-gray-400 line-through">
+                            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 line-through">
                               Rp{formatPrice(product.originalPrice)}
                             </p>
-                            <span className="text-red-500 text-xs sm:text-sm bg-red-100 px-1 rounded">
+                            <span className="text-red-500 dark:text-red-400 text-xs sm:text-sm bg-red-100 dark:bg-red-900/30 px-1 rounded">
                               {discountPercentage}%
                             </span>
                           </>
                         )}
                     </div>
-                    <p className="text-sm sm:text-base md:text-lg font-bold text-[#003D47] mt-0.5">
+                    <p className="text-sm sm:text-base md:text-lg font-bold text-[#003D47] dark:text-[#FFBC00] mt-0.5">
                       Rp{formatPrice(product.discountedPrice)}/
                       {product.satuan || "kg"}
                     </p>
@@ -312,7 +312,7 @@ const FishStore = () => {
 
         {/* Pesan Jika Tidak Ada Produk */}
         {!loading && !error && products.length === 0 && (
-          <p className="text-center text-gray-600 py-10">
+          <p className="text-center text-gray-600 dark:text-gray-400 py-10">
             Tidak ada produk ditemukan.
           </p>
         )}
@@ -321,7 +321,7 @@ const FishStore = () => {
         {!loading && !error && products.length > 0 && totalPages > 1 && (
           <div className="flex justify-center items-center flex-wrap gap-1 sm:gap-2 mt-6 sm:mt-8">
             <button
-              className="bg-gray-300 hover:bg-gray-400 px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
               onClick={() => handlePageChange(Math.max(1, page - 1))}
               disabled={page === 1}
             >
@@ -337,7 +337,7 @@ const FishStore = () => {
                   className={`px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded ${
                     page === pageNum
                       ? "bg-[#003D47] text-white"
-                      : "bg-gray-200 hover:bg-gray-300"
+                      : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
                   }`}
                   onClick={() => handlePageChange(pageNum)}
                 >
@@ -346,7 +346,7 @@ const FishStore = () => {
               );
             })}
             <button
-              className="bg-gray-300 hover:bg-gray-400 px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 px-2 sm:px-4 py-1 sm:py-2 text-sm sm:text-base rounded disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-300"
               onClick={() => handlePageChange(Math.min(page + 1, totalPages))}
               disabled={page === totalPages}
             >

@@ -98,8 +98,8 @@ const CustProfile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
       </div>
     );
   }
@@ -107,7 +107,7 @@ const CustProfile = () => {
   if (error && !userData) {
     // Hanya tampilkan error besar jika user data tidak ada
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-500 p-4">
+      <div className="min-h-screen flex items-center justify-center text-red-500 dark:text-red-400 p-4 bg-gray-100 dark:bg-gray-900">
         Error: {error} <br />
         <button
           onClick={() => navigate("/login")}
@@ -120,26 +120,26 @@ const CustProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg flex flex-col md:flex-row gap-4 md:gap-8">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 md:p-8">
+      <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg flex flex-col md:flex-row gap-4 md:gap-8">
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex justify-between items-center p-4 bg-white rounded-t-lg shadow-sm">
+        <div className="md:hidden flex justify-between items-center p-4 bg-white dark:bg-gray-800 rounded-t-lg shadow-sm">
           <div className="flex items-center gap-2">
             <img
               src={userData?.avatar || "https://via.placeholder.com/80"}
               alt="User Avatar"
-              className="w-10 h-10 rounded-full border-2 border-gray-300"
+              className="w-10 h-10 rounded-full border-2 border-gray-300 dark:border-gray-600"
             />
             <div>
-              <p className="text-sm text-gray-600">Hello,</p>
-              <h2 className="text-base font-semibold">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Hello,</p>
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                 {userData?.name || "User"}
               </h2>
             </div>
           </div>
           <button
             onClick={toggleMenu}
-            className="text-gray-600 hover:text-gray-900 focus:outline-none"
+            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 focus:outline-none"
           >
             <svg
               className="w-6 h-6"
@@ -171,7 +171,7 @@ const CustProfile = () => {
         <div
           className={`${
             menuOpen ? "block" : "hidden"
-          } md:block md:w-1/4 bg-white md:shadow-md p-4 md:p-6 md:rounded-l-lg ${
+          } md:block md:w-1/4 bg-white dark:bg-gray-800 md:shadow-md p-4 md:p-6 md:rounded-l-lg ${
             menuOpen ? "rounded-b-lg shadow-md" : ""
           }`}
         >
@@ -181,10 +181,10 @@ const CustProfile = () => {
             <img
               src={userData?.avatar || "https://via.placeholder.com/80"}
               alt="User Avatar"
-              className="w-16 md:w-20 h-16 md:h-20 rounded-full border-4 border-gray-300"
+              className="w-16 md:w-20 h-16 md:h-20 rounded-full border-4 border-gray-300 dark:border-gray-600"
             />
-            <p className="mt-3 text-gray-600">Hello,</p>
-            <h2 className="text-lg font-semibold">
+            <p className="mt-3 text-gray-600 dark:text-gray-400">Hello,</p>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               {userData?.name || "User"}
             </h2>
           </div>
@@ -197,7 +197,7 @@ const CustProfile = () => {
                   className={`flex items-center gap-2 p-2 md:p-3 rounded-md cursor-pointer font-semibold ${
                     activeMenu === item.name
                       ? "bg-[#003D47] text-white"
-                      : "text-gray-600 hover:bg-gray-200"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
                   }`}
                 >
                   <i className={item.icon}></i> {item.name}
@@ -205,7 +205,7 @@ const CustProfile = () => {
               ))}
               <li
                 onClick={handleLogout}
-                className="flex items-center gap-2 p-2 md:p-3 text-red-500 font-semibold hover:bg-red-100 rounded-md cursor-pointer"
+                className="flex items-center gap-2 p-2 md:p-3 text-red-500 dark:text-red-400 font-semibold hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md cursor-pointer"
               >
                 <i className="fas fa-sign-out-alt"></i> Keluar
               </li>
@@ -214,8 +214,8 @@ const CustProfile = () => {
         </div>
 
         {/* Main Content */}
-        <div className="w-full md:w-3/4 bg-white p-4 md:p-6 rounded-b-lg md:rounded-r-lg md:rounded-bl-none shadow-md">
-          <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
+        <div className="w-full md:w-3/4 bg-white dark:bg-gray-800 p-4 md:p-6 rounded-b-lg md:rounded-r-lg md:rounded-bl-none shadow-md">
+          <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-gray-900 dark:text-white">
             {activeMenu}
           </h2>
           {activeMenu === "Profile Saya" && userData && (
@@ -235,7 +235,7 @@ const CustProfile = () => {
           )}
           {/* Tampilkan pesan error fetch profil di sini jika ada, tapi konten lain masih bisa tampil */}
           {error && userData && (
-            <div className="mt-4 text-sm text-red-600 bg-red-100 p-3 rounded">
+            <div className="mt-4 text-sm text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 p-3 rounded">
               Update profil terakhir mungkin gagal: {error}
             </div>
           )}

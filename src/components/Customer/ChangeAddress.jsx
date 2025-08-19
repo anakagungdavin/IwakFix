@@ -40,22 +40,22 @@ const ChangeAddress = ({ onClose, onSelectAddress }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-xl bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full relative">
         <button
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+          className="absolute top-3 right-3 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
           onClick={onClose}
         >
           <X size={24} />
         </button>
 
-        <h2 className="text-xl font-bold mb-4 text-center">Pilih Alamat</h2>
+        <h2 className="text-xl font-bold mb-4 text-center text-gray-900 dark:text-white">Pilih Alamat</h2>
         {loading && (
-          <p key="loading" className="text-center">
+          <p key="loading" className="text-center text-gray-900 dark:text-white">
             Memuat...
           </p>
         )}
         {error && (
-          <p key="error" className="text-center text-red-500">
+          <p key="error" className="text-center text-red-500 dark:text-red-400">
             {error}
           </p>
         )}
@@ -65,19 +65,19 @@ const ChangeAddress = ({ onClose, onSelectAddress }) => {
             addresses.map((address) => (
               <div
                 key={address.id}
-                className="p-4 border rounded-lg mb-2 cursor-pointer hover:bg-gray-100"
+                className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg mb-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 bg-white dark:bg-gray-800"
                 onClick={() => onSelectAddress(address)}
               >
-                <p className="font-bold">{address.recipientName}</p>
-                <p className="text-sm">{address.phoneNumber}</p>
-                <p className="text-sm">
+                <p className="font-bold text-gray-900 dark:text-white">{address.recipientName}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{address.phoneNumber}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   {address.streetAddress}, {address.city}, {address.province},{" "}
                   {address.postalCode}
                 </p>
               </div>
             ))
           ) : (
-            <p key="no-address" className="text-gray-500 text-sm">
+            <p key="no-address" className="text-gray-500 dark:text-gray-400 text-sm">
               Tidak ada alamat tersedia.
             </p>
           )}

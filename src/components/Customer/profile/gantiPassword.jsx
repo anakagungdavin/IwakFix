@@ -233,10 +233,10 @@ const ChangePassword = () => {
     (isNewPasswordFilled && isConfirmPasswordFilled && !passwordsMatch); // Jika keduanya diisi tapi tidak cocok
 
   return (
-    <div className="bg-white p-0 md:p-6 rounded-lg">
+    <div className="bg-white dark:bg-gray-800 p-0 md:p-6 rounded-lg">
       {error && (
         <div
-          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded"
+          className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-400 p-4 mb-4 rounded"
           role="alert"
         >
           <p className="font-bold">Error</p>
@@ -245,7 +245,7 @@ const ChangePassword = () => {
       )}
       {success && (
         <div
-          className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded"
+          className="bg-green-100 dark:bg-green-900/30 border-l-4 border-green-500 text-green-700 dark:text-green-400 p-4 mb-4 rounded"
           role="alert"
         >
           <p className="font-bold">Sukses</p>
@@ -256,7 +256,7 @@ const ChangePassword = () => {
         <div>
           <label
             htmlFor="oldPassword"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Password Lama <span className="text-red-500">*</span>
           </label>
@@ -268,13 +268,13 @@ const ChangePassword = () => {
               value={formData.oldPassword}
               onChange={handleChange}
               required
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               disabled={loading}
             />
             <button
               type="button"
               onClick={() => toggleShowPassword("old")}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
               aria-label={
                 showPassword.old ? "Sembunyikan password" : "Tampilkan password"
               }
@@ -292,7 +292,7 @@ const ChangePassword = () => {
         <div>
           <label
             htmlFor="newPassword"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Password Baru <span className="text-red-500">*</span>
           </label>
@@ -304,13 +304,13 @@ const ChangePassword = () => {
               value={formData.newPassword}
               onChange={handleChange}
               required
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               disabled={loading}
             />
             <button
               type="button"
               onClick={() => toggleShowPassword("new")}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
               aria-label={
                 showPassword.new
                   ? "Sembunyikan password baru"
@@ -331,7 +331,7 @@ const ChangePassword = () => {
         <div>
           <label
             htmlFor="confirmNewPassword"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             Konfirmasi Password Baru <span className="text-red-500">*</span>
           </label>
@@ -343,9 +343,9 @@ const ChangePassword = () => {
               value={formData.confirmNewPassword}
               onChange={handleChange}
               required
-              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm ${
+              className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                 !formData.confirmNewPassword || passwordsMatch // Gunakan `passwordsMatch`
-                  ? "border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                  ? "border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500"
                   : "border-red-500 focus:ring-red-500 focus:border-red-500"
               }`}
               disabled={loading}
@@ -353,7 +353,7 @@ const ChangePassword = () => {
             <button
               type="button"
               onClick={() => toggleShowPassword("confirm")}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none"
               aria-label={
                 showPassword.confirm
                   ? "Sembunyikan konfirmasi password"
@@ -370,7 +370,7 @@ const ChangePassword = () => {
           </div>
           {formData.confirmNewPassword &&
             !passwordsMatch && ( // Gunakan `passwordsMatch`
-              <p className="text-red-500 text-xs mt-1">
+              <p className="text-red-500 dark:text-red-400 text-xs mt-1">
                 Konfirmasi password tidak cocok.
               </p>
             )}
@@ -380,12 +380,12 @@ const ChangePassword = () => {
           <button
             type="submit"
             disabled={isSubmitDisabled}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#003D47] hover:bg-[#002c33] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white dark:text-black bg-[#003D47] dark:bg-[#FFBC00] hover:bg-[#002c33] dark:hover:bg-[#e6a800] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
                 <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white dark:text-black"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"

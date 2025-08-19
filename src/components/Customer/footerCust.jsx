@@ -10,17 +10,17 @@ const FooterCust = () => {
           {/* Left Section - Brand, Address, and WhatsApp */}
           <div className="text-center sm:text-left">
             <h2 className="text-2xl font-bold text-yellow-400">Siphiko</h2>
-            <p className="mt-2 text-gray-300">
+            <p className="mt-2 text-gray-300 dark:text-gray-400">
               Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari <br />
               Kota Surakarta
             </p>
-            <p className="text-white">
+            <p className="text-white dark:text-gray-200">
               <span className="font-semibold">Waktu Pelayanan:</span> <br />
               Senin-Kamis: 8:00 - 15:00 <br />
               Jumat: 8:00 - 13:00
             </p>
-            <p className="mt-2 text-gray-300">Telepon: (0271)716461</p>
-            <p className="mt-2 text-gray-300">WhatsApp: 085713561686</p>
+            <p className="mt-2 text-gray-300 dark:text-gray-400">Telepon: (0271)716461</p>
+            <p className="mt-2 text-gray-300 dark:text-gray-400">WhatsApp: 085713561686</p>
             <a
               href="https://wa.me/6285713561686"
               target="_blank"
@@ -40,22 +40,22 @@ const FooterCust = () => {
           </div>
           {/* Middle Section - Links */}
           <div className="text-center sm:text-left">
-            <h3 className="text-lg font-semibold text-gray-200">Links</h3>
+            <h3 className="text-lg font-semibold text-gray-200 dark:text-gray-300">Links</h3>
             <ul className="mt-2 space-y-2">
               <li>
-                <a href="/" className="text-yellow-400 hover:text-gray-300">
+                <a href="/" className="text-yellow-400 hover:text-gray-300 dark:hover:text-gray-400">
                   Beranda
                 </a>
               </li>
               <li>
-                <a href="/shop" className="text-yellow-400 hover:text-gray-300">
+                <a href="/shop" className="text-yellow-400 hover:text-gray-300 dark:hover:text-gray-400">
                   Produk
                 </a>
               </li>
               <li>
                 <a
                   href="/about"
-                  className="text-yellow-400 hover:text-gray-300"
+                  className="text-yellow-400 hover:text-gray-300 dark:hover:text-gray-400"
                 >
                   Tentang Kami
                 </a>
@@ -69,14 +69,14 @@ const FooterCust = () => {
               alt="AUP"
               className="w-50 h-auto object-contain"
             />
-            <h3 className="text-base font-semibold text-gray-200">
+            <h3 className="text-base font-semibold text-gray-200 dark:text-gray-300">
               UPTD Aneka Usaha Perikanan
             </h3>
           </div>
         </div>
       </div>
       {/* Bottom Copyright Section */}
-      <div className="mt-6 border-t border-gray-600 pt-4 text-center text-gray-400">
+      <div className="mt-6 border-t border-gray-600 dark:border-gray-500 pt-4 text-center text-gray-400 dark:text-gray-500">
         <p>© 2025 Siphiko. All rights reserved. Siphiko v1.0.0</p>
       </div>
     </footer>

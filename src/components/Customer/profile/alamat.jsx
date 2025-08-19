@@ -92,7 +92,7 @@ const Alamat = ({ userData, onDataUpdate }) => {
     <div className="w-full">
       <button
         onClick={() => setIsAddOpen(true)}
-        className="flex items-center px-3 py-2 md:px-4 md:py-2 bg-[#003D47] text-white hover:bg-[#4a6265] transition rounded-md text-sm md:text-base"
+        className="flex items-center px-3 py-2 md:px-4 md:py-2 bg-[#003D47] dark:bg-[#FFBC00] text-white dark:text-black hover:bg-[#4a6265] dark:hover:bg-[#e6a800] transition rounded-md text-sm md:text-base"
       >
         <svg
           className="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2"
@@ -113,13 +113,13 @@ const Alamat = ({ userData, onDataUpdate }) => {
           addresses.map((address) => (
             <div
               key={address._id}
-              className="flex flex-col md:flex-row md:justify-between md:items-center p-3 md:p-4 bg-white rounded-lg shadow-md border"
+              className="flex flex-col md:flex-row md:justify-between md:items-center p-3 md:p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
             >
               <div className="mb-2 md:mb-0">
-                <h3 className="font-semibold text-gray-800 text-sm md:text-base">
+                <h3 className="font-semibold text-gray-800 dark:text-white text-sm md:text-base">
                   {address.recipientName}
                 </h3>
-                <p className="text-gray-500 text-xs md:text-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
                   {address.streetAddress}, {address.city}, {address.province},{" "}
                   {address.postalCode}
                 </p>
@@ -127,13 +127,13 @@ const Alamat = ({ userData, onDataUpdate }) => {
               <div className="flex gap-2 justify-end md:justify-start">
                 <button
                   onClick={() => handleEditClick(address)}
-                  className="flex items-center gap-1 bg-[#fdfbe7] text-[#ff9d00] px-2 py-1 md:px-3 md:py-1 rounded-lg shadow-md hover:bg-yellow-400 transition text-xs md:text-sm"
+                  className="flex items-center gap-1 bg-[#fdfbe7] dark:bg-yellow-900/30 text-[#ff9d00] dark:text-yellow-400 px-2 py-1 md:px-3 md:py-1 rounded-lg shadow-md hover:bg-yellow-400 dark:hover:bg-yellow-800/50 transition text-xs md:text-sm"
                 >
                   <Pencil size={12} className="md:w-4 md:h-4" /> Edit
                 </button>
                 <button
                   onClick={() => handleDeleteClick(address)}
-                  className="flex items-center gap-1 bg-[#FEECEE] text-[#EB3D4D] px-2 py-1 md:px-3 md:py-1 rounded-lg shadow-md hover:bg-red-300 transition text-xs md:text-sm"
+                  className="flex items-center gap-1 bg-[#FEECEE] dark:bg-red-900/30 text-[#EB3D4D] dark:text-red-400 px-2 py-1 md:px-3 md:py-1 rounded-lg shadow-md hover:bg-red-300 dark:hover:bg-red-800/50 transition text-xs md:text-sm"
                 >
                   <Trash2 size={12} className="md:w-4 md:h-4" /> Hapus
                 </button>
@@ -141,7 +141,7 @@ const Alamat = ({ userData, onDataUpdate }) => {
             </div>
           ))
         ) : (
-          <p>Tidak ada alamat yang tersedia.</p>
+          <p className="text-gray-900 dark:text-white">Tidak ada alamat yang tersedia.</p>
         )}
       </div>
       {isEditOpen && ( // Render modal hanya jika isEditOpen true

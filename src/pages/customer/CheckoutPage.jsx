@@ -269,14 +269,14 @@ const CheckoutPage = () => {
   };
 
   return (
-    <div>
+    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
       <HeaderCust />
       <div className="max-w-6xl mx-auto px-6 py-10">
-        <h2 className="text-3xl font-bold text-yellow-500 mb-6">Pembayaran</h2>
+        <h2 className="text-3xl font-bold text-yellow-500 dark:text-yellow-400 mb-6">Pembayaran</h2>
         {loading && (
           <div className="text-center py-4">
             <svg
-              className="animate-spin h-8 w-8 text-blue-600 mx-auto"
+              className="animate-spin h-8 w-8 text-blue-600 dark:text-blue-400 mx-auto"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -295,41 +295,41 @@ const CheckoutPage = () => {
                 d="M4 12a8 8 0 018-8v8h8a8 8 0 01-16 0z"
               />
             </svg>
-            <p className="mt-2 text-gray-600">Memuat...</p>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">Memuat...</p>
           </div>
         )}
         {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+          <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-400 p-4 mb-6 rounded">
             <p className="whitespace-pre-line">{error}</p>
           </div>
         )}
         {successMessage && (
-          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
+          <div className="bg-green-100 dark:bg-green-900/30 border-l-4 border-green-500 text-green-700 dark:text-green-400 p-4 mb-6 rounded">
             <p className="whitespace-pre-line">{successMessage}</p>
           </div>
         )}
 
         {!loading && !successMessage && cartItems.length > 0 && (
           <>
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h3 className="font-bold text-lg">Alamat Pengiriman</h3>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+              <h3 className="font-bold text-lg text-gray-900 dark:text-white">Alamat Pengiriman</h3>
               {selectedAddress ? (
                 <>
-                  <p className="text-gray-700 font-semibold">
+                  <p className="text-gray-700 dark:text-gray-300 font-semibold">
                     {selectedAddress.recipientName}
                   </p>
-                  <p className="text-gray-500 text-sm">
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">
                     {selectedAddress.phoneNumber}
                   </p>
-                  <p className="text-gray-500 text-sm">{`${selectedAddress.streetAddress}, ${selectedAddress.city}, ${selectedAddress.province}, ${selectedAddress.postalCode}`}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">{`${selectedAddress.streetAddress}, ${selectedAddress.city}, ${selectedAddress.province}, ${selectedAddress.postalCode}`}</p>
                 </>
               ) : (
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
                   Tidak ada alamat yang dipilih.
                 </p>
               )}
               <button
-                className="mt-2 text-blue-600 hover:underline"
+                className="mt-2 text-blue-600 dark:text-blue-400 hover:underline"
                 onClick={() => setShowAddressModal(true)}
               >
                 Ganti Alamat
@@ -342,8 +342,8 @@ const CheckoutPage = () => {
               )}
             </div>
 
-            <div className="bg-white p-4 mt-6 rounded-lg shadow-lg">
-              <h3 className="font-bold text-lg mb-4">Detail Pesanan</h3>
+            <div className="bg-white dark:bg-gray-800 p-4 mt-6 rounded-lg shadow-lg">
+              <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">Detail Pesanan</h3>
               {cartItems.map((item, index) => {
                 const { price, discount, satuan } = getPriceDetails(item);
                 const itemPrice = typeof price === "number" ? price : 0;
@@ -357,7 +357,7 @@ const CheckoutPage = () => {
                     key={`${item.product?._id || item._id || `item-${index}`}-${
                       item.size
                     }-${item.jenis}`}
-                    className="flex items-start border-b pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0"
+                    className="flex items-start border-b border-gray-200 dark:border-gray-700 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0"
                   >
                     <img
                       src={
@@ -372,27 +372,27 @@ const CheckoutPage = () => {
                       }
                     />
                     <div className="flex-grow">
-                      <h4 className="font-semibold text-md">
+                      <h4 className="font-semibold text-md text-gray-900 dark:text-white">
                         {item.product?.name ||
                           item.name ||
                           "Nama Produk Tidak Tersedia"}
                       </h4>
-                      <p className="text-sm">
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
                         Harga: Rp{" "}
                         {discountedPricePerUnit.toLocaleString("id-ID")}/
                         {satuan}
                         {itemDiscount > 0 && (
-                          <span className="text-xs text-gray-500 line-through ml-2">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 line-through ml-2">
                             Rp {itemPrice.toLocaleString("id-ID")}/{satuan}
                           </span>
                         )}
                       </p>
-                      <p className="text-sm">Jenis: {item.jenis || "N/A"}</p>
-                      <p className="text-sm">Ukuran: {item.size || "N/A"}</p>
-                      <p className="text-sm">
+                      <p className="text-sm text-gray-700 dark:text-gray-300">Jenis: {item.jenis || "N/A"}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">Ukuran: {item.size || "N/A"}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
                         Jumlah: {quantity.toLocaleString("id-ID")} {satuan}
                       </p>
-                      <p className="font-semibold text-sm mt-1">
+                      <p className="font-semibold text-sm mt-1 text-gray-900 dark:text-white">
                         Subtotal: Rp{" "}
                         {(discountedPricePerUnit * quantity).toLocaleString(
                           "id-ID"
@@ -404,15 +404,15 @@ const CheckoutPage = () => {
               })}
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-lg mt-6">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mt-6">
               <div className="grid grid-cols-1">
                 <div>
-                  <h3 className="font-bold text-lg mb-2">Metode Pembayaran</h3>
-                  <div className="p-3 bg-gray-100 border border-gray-200 rounded-md">
-                    <p className="font-semibold text-gray-800">
+                  <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-white">Metode Pembayaran</h3>
+                  <div className="p-3 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md">
+                    <p className="font-semibold text-gray-800 dark:text-gray-200">
                       Bayar di Tempat (COD)
                     </p>
-                    <p className="text-xs text-gray-600 mt-1">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                       Siapkan uang tunai sesuai total tagihan untuk diserahkan
                       kepada kurir saat pesanan tiba.
                     </p>
@@ -420,23 +420,23 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              <div className="mt-8 border-t pt-6">
-                <h3 className="font-bold text-xl mb-3">Ringkasan Pesanan</h3>
+              <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 className="font-bold text-xl mb-3 text-gray-900 dark:text-white">Ringkasan Pesanan</h3>
                 <div className="space-y-2 text-sm">
-                  <p className="flex justify-between">
+                  <p className="flex justify-between text-gray-700 dark:text-gray-300">
                     <span>Subtotal ({cartItems.length} item)</span>
                     <span>
                       Rp {totalPriceBeforeDiscount.toLocaleString("id-ID")}
                     </span>
                   </p>
                   {totalDiscount > 0 && (
-                    <p className="flex justify-between text-red-600">
+                    <p className="flex justify-between text-red-600 dark:text-red-400">
                       <span>Total Diskon</span>
                       <span>-Rp {totalDiscount.toLocaleString("id-ID")}</span>
                     </p>
                   )}
                   {/* --- PERUBAHAN DI SINI: Baris Ongkos Kirim dihapus --- */}
-                  <p className="font-bold text-lg mt-2 flex justify-between border-t pt-2">
+                  <p className="font-bold text-lg mt-2 flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2 text-gray-900 dark:text-white">
                     <span>Total Akhir</span>
                     <span>Rp {grandTotal.toLocaleString("id-ID")}</span>
                   </p>

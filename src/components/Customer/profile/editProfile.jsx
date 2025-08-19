@@ -159,29 +159,29 @@ const EditProfileCust = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="text-gray-900 dark:text-white">Loading...</div>
       </div>
     );
   }
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
+      <div className="min-h-screen flex items-center justify-center text-red-500 dark:text-red-400 bg-gray-100 dark:bg-gray-900">
         Error: {error}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Edit Profil</h2>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
+      <div className="max-w-lg mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Edit Profil</h2>
 
         <div className="relative w-24 h-24 mx-auto">
           <img
             src={avatar || "https://via.placeholder.com/80"}
             alt="Avatar"
-            className="w-full h-full object-cover rounded-full border-2 border-gray-300"
+            className="w-full h-full object-cover rounded-full border-2 border-gray-300 dark:border-gray-600"
           />
           <input
             type="file"
@@ -192,7 +192,7 @@ const EditProfileCust = () => {
           />
           <label
             htmlFor="avatarUpload"
-            className="absolute bottom-0 right-0 bg-gray-700 p-2 rounded-full border border-white cursor-pointer hover:bg-gray-600 transition"
+            className="absolute bottom-0 right-0 bg-gray-700 dark:bg-gray-600 p-2 rounded-full border border-white dark:border-gray-300 cursor-pointer hover:bg-gray-600 dark:hover:bg-gray-500 transition"
           >
             <Pencil size={16} color="white" />
           </label>
@@ -200,48 +200,48 @@ const EditProfileCust = () => {
 
         {/* --- PERUBAHAN DI SINI: Tampilkan pesan error jika ada --- */}
         {avatarError && (
-          <p className="text-red-500 text-sm text-center mt-2">{avatarError}</p>
+          <p className="text-red-500 dark:text-red-400 text-sm text-center mt-2">{avatarError}</p>
         )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {/* ... (sisa form tetap sama) ... */}
           <div>
-            <label className="block text-gray-700 font-medium">Nama</label>
+            <label className="block text-gray-700 dark:text-gray-300 font-medium">Nama</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 dark:text-gray-300 font-medium">
               No Telepon
             </label>
             <input
               type="text"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium">Email</label>
+            <label className="block text-gray-700 dark:text-gray-300 font-medium">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 dark:text-gray-300 font-medium">
               Jenis Kelamin
             </label>
             <select
               value={gender}
               onChange={handleGenderChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="Laki-laki">Laki-laki</option>
               <option value="Perempuan">Perempuan</option>
@@ -249,34 +249,34 @@ const EditProfileCust = () => {
             </select>
           </div>
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 dark:text-gray-300 font-medium">
               Kata Sandi Baru
             </label>
             <input
               type="password"
               value={password}
               onChange={handlePasswordChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Masukkan kata sandi baru (kosongkan jika tidak diubah)"
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-medium">
+            <label className="block text-gray-700 dark:text-gray-300 font-medium">
               Konfirmasi Kata Sandi Baru
             </label>
             <input
               type="password"
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
-              className={`w-full p-3 border rounded-lg focus:ring-2 outline-none ${
+              className={`w-full p-3 border rounded-lg focus:ring-2 outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                 passwordMatch
-                  ? "border-gray-300 focus:ring-blue-500"
+                  ? "border-gray-300 dark:border-gray-600 focus:ring-blue-500"
                   : "border-red-500 focus:ring-red-500"
               }`}
               placeholder="Ulangi kata sandi baru"
             />
             {!passwordMatch && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                 Konfirmasi kata sandi tidak cocok.
               </p>
             )}
@@ -285,13 +285,13 @@ const EditProfileCust = () => {
             <button
               type="button"
               onClick={handleBack}
-              className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition"
+              className="bg-gray-500 dark:bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-600 dark:hover:bg-gray-700 transition"
             >
               Kembali
             </button>
             <button
               type="submit"
-              className="bg-[#003D47] text-white px-6 py-2 rounded-lg hover:bg-[#4a6265] transition"
+              className="bg-[#003D47] dark:bg-[#FFBC00] text-white dark:text-black px-6 py-2 rounded-lg hover:bg-[#4a6265] dark:hover:bg-[#e6a800] transition"
             >
               Simpan Perubahan
             </button>

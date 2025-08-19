@@ -6,11 +6,11 @@ const API_URL = import.meta.env.VITE_API_URL || "https://iwak.onrender.com"; // 
 
 // Komponen Placeholder untuk animasi loading
 const ProductCardSkeleton = () => (
-  <div className="bg-white p-4 rounded-2xl shadow-lg w-full animate-pulse">
-    <div className="relative w-full h-36 sm:h-40 md:h-48 mb-3 rounded overflow-hidden bg-gray-300"></div>
-    <div className="h-6 bg-gray-300 rounded w-3/4 mx-auto mb-2"></div>
-    <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto mb-1"></div>
-    <div className="h-6 bg-gray-300 rounded w-1/3 mx-auto"></div>
+  <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-lg w-full animate-pulse">
+    <div className="relative w-full h-36 sm:h-40 md:h-48 mb-3 rounded overflow-hidden bg-gray-300 dark:bg-gray-600"></div>
+    <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mx-auto mb-2"></div>
+    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mx-auto mb-1"></div>
+    <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded w-1/3 mx-auto"></div>
   </div>
 );
 
@@ -223,7 +223,7 @@ const ProductRecommendations = () => {
       {/* <h3 className="text-blue-600 text-sm text-center mb-1">
         Temukan bibit ikanmu.
       </h3> */}
-      <h3 className="text-2xl font-bold text-center mb-6">
+      <h3 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">
         Bibit Ikan Terfavorit
       </h3>
 
@@ -239,7 +239,7 @@ const ProductRecommendations = () => {
 
       {/* Tampilan Error */}
       {!loading && error && (
-        <p className="text-center text-red-500 py-10">{error}</p>
+        <p className="text-center text-red-500 dark:text-red-400 py-10">{error}</p>
       )}
 
       {/* Tampilan Rekomendasi Produk */}
@@ -255,7 +255,7 @@ const ProductRecommendations = () => {
             return (
               <div
                 key={item._id}
-                className="bg-white p-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 w-full cursor-pointer flex flex-col justify-between"
+                className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 w-full cursor-pointer flex flex-col justify-between border border-gray-200 dark:border-gray-700"
                 onClick={() => handleNavigate(item._id)}
               >
                 <div>
@@ -268,7 +268,7 @@ const ProductRecommendations = () => {
                       loading="lazy"
                     />
                   </div>
-                  <h4 className="font-bold text-center text-base md:text-lg truncate mb-1">
+                  <h4 className="font-bold text-center text-base md:text-lg truncate mb-1 text-gray-900 dark:text-white">
                     {item.name}
                   </h4>
                 </div>
@@ -276,16 +276,16 @@ const ProductRecommendations = () => {
                   <div className="flex justify-center items-baseline gap-2 min-h-[20px]">
                     {discountPercentage > 0 && item.originalPrice > 0 && (
                       <>
-                        <p className="text-gray-500 line-through text-xs sm:text-sm">
+                        <p className="text-gray-500 dark:text-gray-400 line-through text-xs sm:text-sm">
                           Rp{formatPrice(item.originalPrice)}
                         </p>
-                        <span className="text-red-500 text-xs bg-red-100 px-1 rounded">
+                        <span className="text-red-500 dark:text-red-400 text-xs bg-red-100 dark:bg-red-900/30 px-1 rounded">
                           {discountPercentage}%
                         </span>
                       </>
                     )}
                   </div>
-                  <p className="text-[#003D47] font-bold text-sm sm:text-base md:text-lg">
+                  <p className="text-[#003D47] dark:text-[#FFBC00] font-bold text-sm sm:text-base md:text-lg">
                     Rp{formatPrice(item.discountedPrice)}/{item.satuan || "kg"}
                   </p>
                 </div>
@@ -297,14 +297,14 @@ const ProductRecommendations = () => {
 
       {/* Pesan jika tidak ada rekomendasi */}
       {!loading && !error && recommendations.length === 0 && (
-        <p className="text-center text-gray-600 py-10">
+        <p className="text-center text-gray-600 dark:text-gray-400 py-10">
           Belum ada rekomendasi produk yang dapat ditampilkan saat ini.
         </p>
       )}
 
       <div className="text-center mt-8">
         <button
-          className="border border-gray-300 px-6 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-200 cursor-pointer" // Tambahkan cursor-pointer di sini
+          className="border border-gray-300 dark:border-gray-600 px-6 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200 cursor-pointer bg-white dark:bg-gray-800" // Tambahkan cursor-pointer di sini
           onClick={handleShowMore}
         >
           Lihat Semua Produk

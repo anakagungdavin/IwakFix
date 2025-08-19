@@ -5,9 +5,9 @@ import FooterCust from "../../components/Customer/footerCust";
 
 const TokoPage = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
       {/* Header Sticky */}
-      <div className="sticky top-0 z-50 bg-white shadow-md w-full">
+      <div className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md w-full">
         <HeaderCust />
       </div>
 

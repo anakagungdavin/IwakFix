@@ -61,7 +61,7 @@ const HeaderCust = () => {
               placeholder="Cari bibit unggulan"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white text-black rounded-lg focus:outline-none"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-700 text-black dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             />
           </form>
         </div>
@@ -149,7 +149,7 @@ const HeaderCust = () => {
               placeholder="Cari bibit unggulan"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white text-black rounded-lg focus:outline-none"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-700 text-black dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             />
           </form>
         </div>

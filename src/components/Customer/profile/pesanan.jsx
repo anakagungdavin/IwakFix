@@ -24,7 +24,7 @@ const TransactionCard = ({
   const itemCount = items.length;
 
   return (
-    <div className="p-3 md:p-4 bg-white rounded-lg shadow-md border flex flex-col md:flex-row md:justify-between md:items-center">
+    <div className="p-3 md:p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:justify-between md:items-center">
       <div className="flex items-center gap-2 md:gap-4 mb-3 md:mb-0">
         <img
           src={imageSrc}
@@ -33,7 +33,7 @@ const TransactionCard = ({
           onError={(e) => (e.target.src = "/images/placeholder.png")}
         />
         <div>
-          <p className="text-gray-500 text-xs md:text-sm">
+          <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
             {new Date(date).toLocaleDateString("id-ID", {
               day: "numeric",
               month: "long",
@@ -41,30 +41,30 @@ const TransactionCard = ({
             })}
           </p>
           <div className="flex items-center gap-1 md:gap-2 flex-wrap">
-            <span className="px-1 py-0.5 md:px-2 md:py-1 bg-yellow-100 text-[#d9a002] text-xs rounded-md">
+            <span className="px-1 py-0.5 md:px-2 md:py-1 bg-yellow-100 dark:bg-yellow-900/30 text-[#d9a002] dark:text-yellow-400 text-xs rounded-md">
               {status || "N/A"}
             </span>
-            <p className="text-gray-400 text-xs">{code || "N/A"}</p>
+            <p className="text-gray-400 dark:text-gray-500 text-xs">{code || "N/A"}</p>
           </div>
-          <h3 className="text-base md:text-lg font-semibold text-gray-800">
+          <h3 className="text-base md:text-lg font-semibold text-gray-800 dark:text-white">
             {name} {/* Gunakan itemCount yang sudah dicek */}
             {name === "N/A" &&
               itemCount === 0 &&
               "(Data produk tidak tersedia)"}
             {itemCount > 1 && ` (+${itemCount - 1} produk lainnya)`}
           </h3>
-          <p className="text-gray-500 text-xs md:text-sm">
+          <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
             {quantity} x Rp{(originalPrice || 0).toLocaleString("id-ID")}
           </p>
         </div>
       </div>
       <div className="text-right flex flex-row justify-between md:flex-col md:justify-center items-center md:items-end">
-        <p className="text-lg md:text-xl font-semibold text-gray-800 order-2 md:order-1">
+        <p className="text-lg md:text-xl font-semibold text-gray-800 dark:text-white order-2 md:order-1">
           Rp{(totalAmount || 0).toLocaleString("id-ID")}
         </p>
         <div className="mt-0 md:mt-2 order-1 md:order-2">
           <button
-            className="text-[#FFBC00] text-xs md:text-sm font-bold cursor-pointer hover:underline"
+            className="text-[#FFBC00] dark:text-yellow-400 text-xs md:text-sm font-bold cursor-pointer hover:underline"
             onClick={onViewDetail}
           >
             Lihat Detail Transaksi
@@ -217,15 +217,15 @@ const TransactionList = () => {
   });
 
   if (loading) {
-    return <div className="p-6 text-center">Memuat riwayat transaksi...</div>;
+    return <div className="p-6 text-center text-gray-900 dark:text-white">Memuat riwayat transaksi...</div>;
   }
 
   if (error) {
-    return <div className="p-6 text-center text-red-500">Error: {error}</div>;
+    return <div className="p-6 text-center text-red-500 dark:text-red-400">Error: {error}</div>;
   }
 
   return (
-    <div className="p-2 md:p-6 min-h-screen bg-gray-50">
+    <div className="p-2 md:p-6 min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-wrap gap-2 md:gap-4 mb-4 md:mb-6">
         {[
           "Semua",
@@ -239,8 +239,8 @@ const TransactionList = () => {
             className={`px-3 py-1 md:px-6 md:py-2 border rounded-md text-xs md:text-sm transition-colors duration-150
               ${
                 filter === filterName
-                  ? "text-yellow-700 bg-yellow-100 border-yellow-300 font-semibold"
-                  : "text-gray-600 hover:bg-gray-100 border-gray-300"
+                  ? "text-yellow-700 dark:text-yellow-300 bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-600 font-semibold"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-600"
               }`}
             onClick={() => setFilter(filterName)}
           >
@@ -249,7 +249,7 @@ const TransactionList = () => {
         ))}
       </div>
       <button
-        className="flex items-center px-3 py-1 md:px-4 md:py-2 bg-[#003D47] text-white hover:bg-[#005f73] transition rounded-md text-xs md:text-sm shadow"
+        className="flex items-center px-3 py-1 md:px-4 md:py-2 bg-[#003D47] dark:bg-[#FFBC00] text-white dark:text-black hover:bg-[#005f73] dark:hover:bg-[#e6a800] transition rounded-md text-xs md:text-sm shadow"
         onClick={toggleModalReport}
       >
         <svg
@@ -292,7 +292,7 @@ const TransactionList = () => {
             )
           )
         ) : (
-          <p className="text-center text-gray-500 py-8">
+          <p className="text-center text-gray-500 dark:text-gray-400 py-8">
             Tidak ada transaksi yang ditemukan untuk filter "{filter}".
           </p>
         )}
@@ -370,16 +370,16 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-opacity-50 bg-gray-900 z-50 p-4">
-      <div className="bg-white p-5 md:p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
-        <div className="flex justify-between items-center border-b pb-3 mb-4">
+      <div className="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-700">
+        <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-800 text-2xl font-light"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-2xl font-light"
             aria-label="Close modal"
           >
             ×
           </button>
-          <h2 className="text-xl font-semibold text-gray-800">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
             Detail Transaksi
           </h2>
           <div></div>
@@ -390,24 +390,24 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
             className={`px-3 py-1 text-xs font-medium rounded-full
             ${
               status === "Selesai"
-                ? "bg-green-100 text-green-700"
+                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
                 : status === "Dibatalkan"
-                ? "bg-red-100 text-red-700"
+                ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
                 : status === "Menunggu Konfirmasi"
-                ? "bg-orange-100 text-orange-700"
-                : "bg-yellow-100 text-yellow-700"
+                ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
+                : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
             }`}
           >
             {status || "N/A"}
           </span>
           <div className="text-right">
-            <p className="text-xs text-gray-500">ID: {_id || "N/A"}</p>
-            <p className="text-xs text-gray-500">{formatDate(orderDate)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">ID: {_id || "N/A"}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(orderDate)}</p>
           </div>
         </div>
 
-        <div className="mb-4 border-b pb-4">
-          <h3 className="text-md font-semibold text-gray-700 mb-2">
+        <div className="mb-4 border-b border-gray-200 dark:border-gray-700 pb-4">
+          <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Item Pesanan
           </h3>
           {items.length > 0 ? (
@@ -419,14 +419,14 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                 <img
                   src={item.product?.images?.[0] || "/images/placeholder.png"}
                   alt={item.product?.name || "Produk"}
-                  className="w-16 h-16 object-cover rounded-md border"
+                  className="w-16 h-16 object-cover rounded-md border border-gray-200 dark:border-gray-600"
                   onError={(e) => (e.target.src = "/images/placeholder.png")}
                 />
                 <div className="flex-grow">
-                  <h4 className="text-sm font-semibold text-gray-800">
+                  <h4 className="text-sm font-semibold text-gray-800 dark:text-white">
                     {item.product?.name || "Produk Tidak Tersedia"}
                   </h4>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
                     {item.quantity
                       ? `${item.quantity.toLocaleString("id-ID")} ${
                           item.satuan || "kg"
@@ -435,18 +435,18 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                     {" x "}
                     Rp{(item.price || 0).toLocaleString("id-ID")}
                     {item.discount > 0 && (
-                      <span className="text-red-500 text-xs ml-1">
+                      <span className="text-red-500 dark:text-red-400 text-xs ml-1">
                         (-{item.discount}%)
                       </span>
                     )}
                   </p>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
                     Jenis:{" "}
                     <span className="font-medium">{item.jenis || "N/A"}</span>,
                     Ukuran:{" "}
                     <span className="font-medium">{item.size || "N/A"}</span>
                   </p>
-                  <p className="text-xs text-gray-700 font-semibold">
+                  <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">
                     Subtotal Item: Rp
                     {(
                       (item.discountedPrice || item.price || 0) *
@@ -457,23 +457,23 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
               </div>
             ))
           ) : (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Tidak ada item dalam transaksi ini.
             </p>
           )}
         </div>
 
         <div className="mb-4">
-          <h3 className="text-md font-semibold text-gray-700 mb-1">
+          <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-1">
             Info Pengiriman
           </h3>
-          <p className="text-sm font-semibold text-gray-800">
+          <p className="text-sm font-semibold text-gray-800 dark:text-white">
             {shippingAddress.recipientName || "N/A"}
           </p>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-600 dark:text-gray-400">
             {shippingAddress.phoneNumber || "N/A"}
           </p>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-600 dark:text-gray-400">
             {shippingAddress.streetAddress
               ? `${shippingAddress.streetAddress}, ${
                   shippingAddress.city || ""
@@ -487,38 +487,38 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
           {trackingNumber &&
             trackingNumber !== "N/A" &&
             trackingNumber !== "Belum tersedia" && (
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                 <strong>No. Resi:</strong> {trackingNumber}
               </p>
             )}
         </div>
 
-        <div className="border-t pt-4">
-          <h3 className="text-md font-semibold text-gray-700 mb-2">
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <h3 className="text-md font-semibold text-gray-700 dark:text-gray-300 mb-2">
             Rincian Pembayaran
           </h3>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between">
-              <span>Metode Pembayaran</span>
-              <span className="font-semibold text-gray-800">
+              <span className="text-gray-700 dark:text-gray-300">Metode Pembayaran</span>
+              <span className="font-semibold text-gray-800 dark:text-white">
                 {formatPaymentMethod(paymentMethod)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Subtotal Item ({items.length})</span>
-              <span>Rp{subtotal.toLocaleString("id-ID")}</span>
+              <span className="text-gray-700 dark:text-gray-300">Subtotal Item ({items.length})</span>
+              <span className="text-gray-700 dark:text-gray-300">Rp{subtotal.toLocaleString("id-ID")}</span>
             </div>
             {totalDiscount > 0 && (
-              <div className="flex justify-between text-red-600">
+              <div className="flex justify-between text-red-600 dark:text-red-400">
                 <span>Total Diskon</span>
                 <span>-Rp{totalDiscount.toLocaleString("id-ID")}</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span>Ongkos Kirim</span>
-              <span>Rp{(shippingCost || 0).toLocaleString("id-ID")}</span>
+              <span className="text-gray-700 dark:text-gray-300">Ongkos Kirim</span>
+              <span className="text-gray-700 dark:text-gray-300">Rp{(shippingCost || 0).toLocaleString("id-ID")}</span>
             </div>
-            <div className="flex justify-between font-bold text-gray-800 text-sm mt-2 pt-2 border-t">
+            <div className="flex justify-between font-bold text-gray-800 dark:text-white text-sm mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
               <span>TOTAL PEMBAYARAN</span>
               <span>Rp{(totalAmount || 0).toLocaleString("id-ID")}</span>
             </div>
@@ -543,31 +543,31 @@ const CustReportModal = ({ isOpen, onClose, transactions }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-opacity-50 bg-gray-900 z-50 p-4">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-        <div className="flex justify-between items-center border-b pb-3 mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
+        <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
             Download Riwayat Transaksi
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-800 text-2xl font-light"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-2xl font-light"
           >
             ×
           </button>
         </div>
-        <p className="text-sm text-gray-700 mb-4">
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
           Apakah Anda yakin ingin men-download riwayat semua transaksi?
         </p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md"
           >
             Batal
           </button>
           <button
             onClick={handleDownload}
-            className="px-4 py-2 text-sm font-medium text-white bg-[#003D47] hover:bg-[#005f73] rounded-md"
+            className="px-4 py-2 text-sm font-medium text-white dark:text-black bg-[#003D47] dark:bg-[#FFBC00] hover:bg-[#005f73] dark:hover:bg-[#e6a800] rounded-md"
           >
             Download
           </button>

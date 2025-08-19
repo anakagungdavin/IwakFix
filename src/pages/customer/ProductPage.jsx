@@ -11,8 +11,8 @@ const ProductPage = () => {
   const fish = location.state?.fish || null;
 
   return (
-    <div>
-        <div className="sticky top-0 z-50 bg-white shadow-md">
+    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
+        <div className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md">
           <HeaderCust />
         </div>
         <ProductOverview fish={fish} />

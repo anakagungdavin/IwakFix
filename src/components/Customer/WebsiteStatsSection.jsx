@@ -55,7 +55,7 @@ const WebsiteStatsSection = () => {
 
   if (loading) {
     return (
-      <div className="py-12 px-4 text-center text-gray-500">
+      <div className="py-12 px-4 text-center text-gray-500 dark:text-gray-400">
         {" "}
         {/* Sedikit padding lebih */}
         Memuat statistik pengunjung...
@@ -113,7 +113,7 @@ const WebsiteStatsSection = () => {
         <div className="mb-8 md:mb-12 text-center">
           {" "}
           {/* Judul di tengah */}
-          <h2 className="text-2xl font-bold text-center mb-6">
+          <h2 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">
             Statistik Pengunjung Website
           </h2>
         </div>

@@ -22,14 +22,14 @@ const AboutPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-white shadow-md">
+      <div className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md">
         <HeaderCust />
       </div>
 
       {/* About Section */}
-      <section className="relative text-black py-24 px-30 lg:px-30 rounded-br-[100px]">
+      <section className="relative text-black dark:text-white py-24 px-30 lg:px-30 rounded-br-[100px]">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center">
           {/* Left Image  */}
           <div className="lg:w-1/2 flex justify-center">
@@ -45,7 +45,7 @@ const AboutPage = () => {
             <h1 className="text-4xl lg:text-5xl font-bold text-yellow-400 leading-tight">
               Tentang Kami
             </h1>
-            <p className="mt-4 text-lg text-justify">
+            <p className="mt-4 text-lg text-justify text-gray-800 dark:text-gray-200">
               UPTD Aneka Usaha Perikanan merupakan Unit Pelaksana Teknis Daerah
               yang berada di lingkup Dinas Ketahanan Pangan dan Pertanian Kota
               Surakarta. UPTD Aneka Usaha Perikanan atau yang disingkat UPTD AUP
@@ -66,12 +66,12 @@ const AboutPage = () => {
       </section>
 
       {/* Hubungi Kami Section */}
-      <section className="py-5">
+      <section className="py-5 bg-white dark:bg-gray-800">
         <div className="max-w-6xl mx-auto lg:px-30">
-          <h2 className="text-4xl font-bold text-center text-[#003D47]">
+          <h2 className="text-4xl font-bold text-center text-[#003D47] dark:text-[#FFBC00]">
             Hubungi Kami
           </h2>
-          <p className="text-center text-gray-600 mt-2">
+          <p className="text-center text-gray-600 dark:text-gray-400 mt-2">
             Silakan hubungi kami untuk informasi lebih lanjut mengenai produk
             kami.
           </p>
@@ -79,9 +79,9 @@ const AboutPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mt-10 text-center">
             {/* Alamat */}
             <div className="flex flex-col items-center">
-              <MapPinIcon className="h-10 w-10 text-[#003D47]" />
-              <h3 className="text-xl font-semibold mt-3">Alamat</h3>
-              <p className="text-gray-600">
+              <MapPinIcon className="h-10 w-10 text-[#003D47] dark:text-[#FFBC00]" />
+              <h3 className="text-xl font-semibold mt-3 text-gray-900 dark:text-white">Alamat</h3>
+              <p className="text-gray-600 dark:text-gray-400">
                 Jalan Pleret Raya, Kelurahan Sumber, Kecamatan Banjarsari, Kota
                 Surakarta
               </p>
@@ -89,17 +89,17 @@ const AboutPage = () => {
 
             {/* Telepon */}
             <div className="flex flex-col items-center">
-              <PhoneIcon className="h-10 w-10 text-[#003D47]" />
-              <h3 className="text-xl font-semibold mt-3">Telepon</h3>
-              <p className="text-gray-600">Mobile: 085713561686</p>
+              <PhoneIcon className="h-10 w-10 text-[#003D47] dark:text-[#FFBC00]" />
+              <h3 className="text-xl font-semibold mt-3 text-gray-900 dark:text-white">Telepon</h3>
+              <p className="text-gray-600 dark:text-gray-400">Mobile: 085713561686</p>
             </div>
 
             {/* Jam Kerja */}
             <div className="flex flex-col items-center">
-              <ClockIcon className="h-10 w-10 text-[#003D47]" />
-              <h3 className="text-xl font-semibold mt-3">Waktu Pelayanan</h3>
-              <p className="text-gray-600">Senin-Kamis: 8:00 - 15:00</p>
-              <p className="text-gray-600">Jumat: 8:00 - 13:00</p>
+              <ClockIcon className="h-10 w-10 text-[#003D47] dark:text-[#FFBC00]" />
+              <h3 className="text-xl font-semibold mt-3 text-gray-900 dark:text-white">Waktu Pelayanan</h3>
+              <p className="text-gray-600 dark:text-gray-400">Senin-Kamis: 8:00 - 15:00</p>
+              <p className="text-gray-600 dark:text-gray-400">Jumat: 8:00 - 13:00</p>
             </div>
           </div>
         </div>
