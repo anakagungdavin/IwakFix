@@ -122,7 +122,6 @@
 //     return pattern.test(phoneNumber);
 //   };
 
-
 //   const validatePassword = (password) => {
 //     // ... (fungsi validatePassword tetap sama)
 //     const minLength = /.{8,}/;
@@ -658,7 +657,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark">
+    <div className="rounded-sm border-stroke bg-white dark:bg-gray-900 px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="max-w-full overflow-x-auto">
         <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
           <span className="mb-1.5 block font-medium text-black dark:text-white">
@@ -726,7 +725,7 @@ const SignUp = () => {
                     placeholder="Masukan nama anda"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500 dark:border-strokedark dark:bg-form-input dark:text-white dark:focus:border-blue-500"
+                    className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:placeholder-gray-400"
                     required
                     disabled={loading}
                   />
@@ -742,7 +741,7 @@ const SignUp = () => {
                     placeholder="Masukan email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500 dark:border-strokedark dark:bg-form-input dark:text-white dark:focus:border-blue-500"
+                    className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:placeholder-gray-400"
                     required
                     disabled={loading}
                   />
@@ -760,7 +759,7 @@ const SignUp = () => {
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     required
-                    className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500 dark:border-strokedark dark:bg-form-input dark:text-white dark:focus:border-blue-500"
+                    className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:placeholder-gray-400"
                     disabled={loading}
                   />
                 </div>
@@ -776,7 +775,7 @@ const SignUp = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500 dark:border-strokedark dark:bg-form-input dark:text-white dark:focus:border-blue-500"
+                    className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400 dark:placeholder-gray-400"
                     disabled={loading}
                   />
                   <span
@@ -790,16 +789,17 @@ const SignUp = () => {
                     )}
                   </span>
                 </div>
+                // Replace this section in your code (around lines 270-330):
                 <div className="text-sm mt-3">
-                  <p className="text-gray-600 dark:text-gray-400 mb-2">
+                  <p className="text-gray-600 dark:text-gray-300 mb-2">
                     Kata sandi harus terdiri dari:
                   </p>
-                  <ul className="space-y-1 ml-1 text-gray-600 dark:text-gray-400">
+                  <ul className="space-y-1 ml-1">
                     <li
                       className={`flex items-center ${
                         passwordValidation.minLength
-                          ? "text-green-500"
-                          : "text-red-500"
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
                       }`}
                     >
                       <span className="mr-1">
@@ -810,8 +810,8 @@ const SignUp = () => {
                     <li
                       className={`flex items-center ${
                         passwordValidation.hasUpperCase
-                          ? "text-green-500"
-                          : "text-red-500"
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
                       }`}
                     >
                       <span className="mr-1">
@@ -822,8 +822,8 @@ const SignUp = () => {
                     <li
                       className={`flex items-center ${
                         passwordValidation.hasLowerCase
-                          ? "text-green-500"
-                          : "text-red-500"
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
                       }`}
                     >
                       <span className="mr-1">
@@ -834,8 +834,8 @@ const SignUp = () => {
                     <li
                       className={`flex items-center ${
                         passwordValidation.hasNumber
-                          ? "text-green-500"
-                          : "text-red-500"
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
                       }`}
                     >
                       <span className="mr-1">
@@ -846,8 +846,8 @@ const SignUp = () => {
                     <li
                       className={`flex items-center ${
                         passwordValidation.hasSpecialChar
-                          ? "text-green-500"
-                          : "text-red-500"
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
                       }`}
                     >
                       <span className="mr-1">
@@ -858,8 +858,8 @@ const SignUp = () => {
                     <li
                       className={`flex items-center ${
                         passwordValidation.noSpaces
-                          ? "text-green-500"
-                          : "text-red-500"
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
                       }`}
                     >
                       <span className="mr-1">
@@ -881,12 +881,11 @@ const SignUp = () => {
                     value={confirmPassword}
                     onChange={handleConfirmPasswordChange}
                     required
-                    className={`w-full rounded-md border bg-white py-3 px-5 text-black focus:right-2 outline-none dark:bg-form-input dark:text-white ${
+                    className={`w-full rounded-md border bg-white py-3 px-5 text-black outline-none dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 ${
                       passwordMatch
-                        ? "border-gray-300 focus:border-blue-500 dark:border-strokedark dark:focus:border-blue-500"
-                        : "border-red-500 focus:border-red-500 dark:border-red-500 dark:focus:border-red-500"
+                        ? "border-gray-300 focus:border-blue-500 dark:border-gray-600 dark:focus:border-blue-400"
+                        : "border-red-500 focus:border-red-500 dark:border-red-400 dark:focus:border-red-400"
                     }`}
-                    disabled={loading}
                   />
                   {!passwordMatch && (
                     <p className="text-red-500 text-sm mt-1">

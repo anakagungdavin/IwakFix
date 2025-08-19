@@ -109,7 +109,7 @@ const SignIn = () => {
   };
 
   return (
-    <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
+    <div className="rounded-sm border-stroke bg-white dark:bg-[#262626] px-5 pt-6 pb-2.5 shadow-default">
       <div className="max-w-full overflow-x-auto">
         <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
           <span className="mb-1.5 block font-medium">Selamat Datang</span>

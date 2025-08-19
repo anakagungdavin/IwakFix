@@ -26,16 +26,16 @@ import SignUp from "../../components/forms/auth/signUp";
 
 const SignUpPage = () => {
   return (
-    <div className="bg-gray-200 min-h-screen py-6 px-4 sm:px-6 md:px-8">
+    <div className="bg-gray-200 dark:bg-gray-800 min-h-screen py-6 px-4 sm:px-6 md:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-center">
           <div className="w-full md:w-3/4 lg:w-2/3 xl:w-1/2">
-            <div className="bg-white shadow-md rounded-lg">
+            <div className="bg-white dark:bg-gray-900 shadow-md rounded-lg">
               <SignUp />
             </div>
           </div>
         </div>
- </div>
+      </div>
     </div>
   );
 };

@@ -192,8 +192,8 @@ const TableOne = () => {
 
   return (
     <div>
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold text-gray-800 text-left">
+      <div className="dark:text-gray-800 mb-4">
+        <h2 className="dark:text-white text-lg font-semibold text-gray-800 text-left">
           Transaksi Terakhir (7 Hari)
         </h2>
       </div>

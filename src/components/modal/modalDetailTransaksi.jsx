@@ -159,27 +159,27 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
           <h3 className="text-md font-semibold text-gray-800">
             Rincian Pembayaran
           </h3>
-          <div className="flex justify-between text-sm">
+          <div className="dark:text-gray-800 flex justify-between text-sm">
             <span>Metode Pembayaran</span>
             <span className="font-semibold">
               {formatPaymentMethod(paymentMethod)}
             </span>
           </div>
-          <div className="flex justify-between text-sm mt-2">
+          <div className="dark:text-gray-800 flex justify-between text-sm mt-2">
             <span>Items ({items.length})</span>
             <span>Rp{subtotal.toLocaleString("id-ID")}</span>
           </div>
           {discount > 0 && (
-            <div className="flex justify-between text-sm text-red-500 mt-2">
+            <div className="dark:text-gray-800 flex justify-between text-sm text-red-500 mt-2">
               <span>Discounts</span>
               <span>-Rp{discount.toLocaleString("id-ID")}</span>
             </div>
           )}
-          <div className="flex justify-between text-sm mt-2">
+          <div className="dark:text-gray-800 flex justify-between text-sm mt-2">
             <span>Ongkir</span>
             <span>Rp{(shippingCost || 0).toLocaleString("id-ID")}</span>
           </div>
-          <div className="flex justify-between font-semibold text-lg mt-2">
+          <div className="dark:text-gray-800 flex justify-between font-semibold text-lg mt-2">
             <span>Total</span>
             <span>Rp{(totalAmount || 0).toLocaleString("id-ID")}</span>
           </div>

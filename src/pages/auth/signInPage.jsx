@@ -24,9 +24,9 @@ import SignIn from "../../components/forms/auth/signIn";
 
 const SignInPage = () => {
   return (
-    <div className="bg-gray-200 min-h-screen flex items-center justify-center px-4">
+    <div className="bg-gray-200 dark:bg-[#121212] min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="bg-white dark:bg-[#1A1A1A] shadow-md rounded-lg p-6">
           <SignIn />
         </div>
       </div>
