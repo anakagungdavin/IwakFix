@@ -683,7 +683,7 @@ const SalesReportModal = ({ onClose }) => {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full border-gray-300 shadow-sm rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border-gray-300 shadow-sm rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 dark:text-black"
             />
           </div>
           <div>
@@ -698,7 +698,7 @@ const SalesReportModal = ({ onClose }) => {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full border-gray-300 shadow-sm rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border-gray-300 shadow-sm rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 dark:text-black"
             />
           </div>
         </div>

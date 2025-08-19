@@ -191,7 +191,7 @@ const EditUserProfile = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors dark:text-black"
                   required
                 />
               </div>
@@ -205,7 +205,7 @@ const EditUserProfile = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors dark:text-black"
                   required
                 />
               </div>
@@ -219,7 +219,7 @@ const EditUserProfile = () => {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors dark:text-black"
                   required
                 />
               </div>
@@ -245,7 +245,7 @@ const EditUserProfile = () => {
                   name="recipientName"
                   value={formData.recipientName}
                   onChange={handleChange}
-                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors dark:text-black"
                   required={formData.streetAddress}
                 />
               </div>
@@ -259,7 +259,7 @@ const EditUserProfile = () => {
                   name="addressPhoneNumber"
                   value={formData.addressPhoneNumber}
                   onChange={handleChange}
-                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors dark:text-black"
                   required={formData.streetAddress}
                 />
               </div>
@@ -273,7 +273,7 @@ const EditUserProfile = () => {
                   name="streetAddress"
                   value={formData.streetAddress}
                   onChange={handleChange}
-                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors dark:text-black"
                 />
               </div>
 
@@ -286,7 +286,7 @@ const EditUserProfile = () => {
                   name="postalCode"
                   value={formData.postalCode}
                   onChange={handleChange}
-                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors dark:text-black"
                   required={formData.streetAddress}
                 />
               </div>
@@ -300,7 +300,7 @@ const EditUserProfile = () => {
                   name="province"
                   value={formData.province}
                   onChange={handleChange}
-                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors dark:text-black"
                   required={formData.streetAddress}
                 />
               </div>
@@ -314,7 +314,7 @@ const EditUserProfile = () => {
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors"
+                  className="block w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-colors dark:text-black"
                   required={formData.streetAddress}
                 />
               </div>

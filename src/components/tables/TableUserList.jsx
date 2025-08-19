@@ -46,9 +46,9 @@ const TableUserList = ({
 
   return (
     <div className="overflow-x-auto p-6">
-      <table className="w-full border-collapse text-left text-gray-700">
+      <table className="w-full border-collapse text-left text-gray-700 dark:text-white">
         <thead>
-          <tr className="border-b border-gray-300 text-gray-500 text-sm">
+          <tr className="border-b border-gray-300 text-gray-500 dark:text-white text-sm">
             <th
               className="p-4 cursor-pointer hover:bg-gray-100"
               onClick={() => onSortChange("name")}
@@ -73,7 +73,10 @@ const TableUserList = ({
         <tbody>
           {data.length === 0 ? (
             <tr>
-              <td colSpan="4" className="p-4 text-center text-gray-500">
+              <td
+                colSpan="4"
+                className="p-4 text-center text-gray-500 dark:text-white"
+              >
                 Tidak ada data pengguna
               </td>
             </tr>
@@ -81,18 +84,20 @@ const TableUserList = ({
             data.map((item, index) => (
               <tr
                 key={item._id || index}
-                className="border-b border-gray-200 text-sm hover:bg-gray-50"
+                className="border-b border-gray-200 text-sm hover:bg-gray-50 dark:text-white"
               >
                 <td className="p-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-500 font-semibold">
+                      <span className="text-blue-500 font-semibold dark:text-white">
                         {item.name[0]}
                       </span>
                     </div>
                     <div>
                       <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-gray-500">{item.email}</p>
+                      <p className="text-sm text-gray-500 dark:text-white">
+                        {item.email}
+                      </p>
                     </div>
                   </div>
                 </td>
@@ -110,19 +115,19 @@ const TableUserList = ({
                       onClick={() => onView(item)}
                       className="text-[#003D47] cursor-pointer hover:underline"
                     >
-                      <EyeIcon className="w-5 h-5" />
+                      <EyeIcon className="w-5 h-5 dark:fill-white " />
                     </button>
                     <button
                       onClick={() => onEdit(item)}
                       className="text-[#003D47] cursor-pointer hover:underline"
                     >
-                      <PencilIcon className="w-5 h-5" />
+                      <PencilIcon className="w-5 h-5 dark:fill-white" />
                     </button>
                     <button
                       onClick={() => handleDeleteClick(item)}
                       className="text-[#003D47] cursor-pointer hover:underline"
                     >
-                      <TrashIcon className="w-5 h-5" />
+                      <TrashIcon className="w-5 h-5 dark:fill-white" />
                     </button>
                   </div>
                 </td>
@@ -144,7 +149,7 @@ const TableUserList = ({
       <div className="flex items-center justify-center space-x-2 mt-4">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
-          className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-sm font-medium disabled:opacity-50"
+          className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-sm dark:text-white font-medium disabled:opacity-50"
           disabled={currentPage === 1}
         >
           Previous
