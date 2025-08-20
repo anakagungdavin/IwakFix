@@ -789,7 +789,6 @@ const SignUp = () => {
                     )}
                   </span>
                 </div>
-                // Replace this section in your code (around lines 270-330):
                 <div className="text-sm mt-3">
                   <p className="text-gray-600 dark:text-gray-300 mb-2">
                     Kata sandi harus terdiri dari:

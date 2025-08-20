@@ -160,7 +160,6 @@ const styles = StyleSheet.create({
 });
 
 const MyDocument = ({ startDate, endDate, orders }) => {
-  // ... (definisi MyDocument tidak berubah, sama seperti sebelumnya)
   const start = new Date(startDate);
   start.setHours(0, 0, 0, 0);
   const end = new Date(endDate);
@@ -168,7 +167,9 @@ const MyDocument = ({ startDate, endDate, orders }) => {
 
   const filteredOrders = orders.filter((order) => {
     const orderDate = new Date(order.createdAt);
-    return orderDate >= start && orderDate <= end;
+    return (
+      orderDate >= start && orderDate <= end && order.status !== "Cancelled"
+    );
   });
 
   const totalInvoice = filteredOrders.reduce((sum, order) => {
@@ -256,20 +257,16 @@ const MyDocument = ({ startDate, endDate, orders }) => {
                         styles.tableCellCenter,
                       ]}
                     >
-                      {" "}
-                      {itemNo}{" "}
+                      {itemNo}
                     </Text>
                     <Text style={[styles.tableCell, styles.colTanggal]}>
-                      {" "}
-                      {getFormattedDate(order.createdAt)}{" "}
+                      {getFormattedDate(order.createdAt)}
                     </Text>
                     <Text style={[styles.tableCell, styles.colNamaPembeli]}>
-                      {" "}
-                      {buyerName}{" "}
+                      {buyerName}
                     </Text>
                     <Text style={[styles.tableCell, styles.colAlamat]}>
-                      {" "}
-                      {addressString}{" "}
+                      {addressString}
                     </Text>
                     <Text
                       style={[
@@ -278,8 +275,7 @@ const MyDocument = ({ startDate, endDate, orders }) => {
                         styles.tableCellCenter,
                       ]}
                     >
-                      {" "}
-                      {item.quantity} {item.satuan || ""}{" "}
+                      {item.quantity} {item.satuan || ""}
                     </Text>
                     <Text
                       style={[
@@ -288,11 +284,10 @@ const MyDocument = ({ startDate, endDate, orders }) => {
                         styles.tableCellAmount,
                       ]}
                     >
-                      {" "}
                       Rp{" "}
                       {(item.discountedPrice || item.price || 0).toLocaleString(
                         "id-ID"
-                      )}{" "}
+                      )}
                     </Text>
                     <Text
                       style={[
@@ -301,12 +296,11 @@ const MyDocument = ({ startDate, endDate, orders }) => {
                         styles.tableCellAmount,
                       ]}
                     >
-                      {" "}
                       Rp{" "}
                       {(
                         (item.quantity || 0) *
                         (item.discountedPrice || item.price || 0)
-                      ).toLocaleString("id-ID")}{" "}
+                      ).toLocaleString("id-ID")}
                     </Text>
                   </View>
                 );
@@ -320,8 +314,7 @@ const MyDocument = ({ startDate, endDate, orders }) => {
                   { width: "100%", textAlign: "center", fontStyle: "italic" },
                 ]}
               >
-                {" "}
-                Tidak ada data penjualan pada periode ini.{" "}
+                Tidak ada data penjualan pada periode ini.
               </Text>
             </View>
           )}
@@ -349,6 +342,7 @@ const MyDocument = ({ startDate, endDate, orders }) => {
 };
 
 const generateExcelData = (startDate, endDate, orders) => {
+  // ... (Fungsi ini tidak memiliki error dan tidak diubah)
   const start = new Date(startDate);
   start.setHours(0, 0, 0, 0);
   const end = new Date(endDate);
@@ -356,7 +350,9 @@ const generateExcelData = (startDate, endDate, orders) => {
 
   const filteredOrders = orders.filter((order) => {
     const orderDate = new Date(order.createdAt);
-    return orderDate >= start && orderDate <= end;
+    return (
+      orderDate >= start && orderDate <= end && order.status !== "Cancelled"
+    );
   });
 
   const excelData = [];
@@ -509,7 +505,6 @@ const downloadExcel = (startDate, endDate, orders) => {
 };
 
 const SalesReportModal = ({ onClose }) => {
-  // ... (state dan useEffect hooks tidak berubah dari sebelumnya)
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [orders, setOrders] = useState([]);
@@ -628,7 +623,9 @@ const SalesReportModal = ({ onClose }) => {
     start.setHours(0, 0, 0, 0);
     const endD = new Date(endDate);
     endD.setHours(23, 59, 59, 999);
-    return orderDate >= start && orderDate <= endD;
+    return (
+      orderDate >= start && orderDate <= endD && order.status !== "Cancelled"
+    );
   });
 
   const displayedItemsForPreview = filteredOrdersForPreview
@@ -649,7 +646,6 @@ const SalesReportModal = ({ onClose }) => {
     0
   );
 
-  // JSX untuk modal (tidak berubah dari sebelumnya)
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-[60] p-2 sm:p-4">
       <div className="bg-white shadow-xl rounded-lg p-5 sm:p-6 w-full max-w-4xl mx-auto relative overflow-y-auto max-h-[95vh] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
@@ -667,8 +663,7 @@ const SalesReportModal = ({ onClose }) => {
           </svg>
         </button>
         <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 text-left mb-4 sm:mb-5">
-          {" "}
-          Laporan Penjualan Ikan{" "}
+          Laporan Penjualan Ikan
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           <div>
@@ -703,13 +698,12 @@ const SalesReportModal = ({ onClose }) => {
           </div>
         </div>
         <p className="text-left text-gray-600 text-sm sm:text-base mb-6">
-          {" "}
           Laporan untuk periode:{" "}
           <strong className="text-gray-700">
             {startDate && endDate
               ? `${getFormattedDate(startDate)} - ${getFormattedDate(endDate)}`
               : "Pilih rentang waktu"}
-          </strong>{" "}
+          </strong>
         </p>
         <div className="flex flex-col sm:flex-row justify-start gap-3 sm:gap-4 mb-6">
           {startDate && endDate && (
@@ -809,8 +803,7 @@ const SalesReportModal = ({ onClose }) => {
                               idx === 5 || idx === 6 ? "text-right" : ""
                             } `}
                           >
-                            {" "}
-                            {header}{" "}
+                            {header}
                           </th>
                         ))}
                       </tr>
@@ -834,25 +827,22 @@ const SalesReportModal = ({ onClose }) => {
                             {item.shippingFullAddress}
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-center">
-                            {" "}
-                            {item.quantity} {item.satuan || ""}{" "}
+                            {item.quantity} {item.satuan || ""}
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-right">
-                            {" "}
                             Rp{" "}
                             {(
                               item.discountedPrice ||
                               item.price ||
                               0
-                            ).toLocaleString("id-ID")}{" "}
+                            ).toLocaleString("id-ID")}
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 font-medium text-right">
-                            {" "}
                             Rp{" "}
                             {(
                               (item.quantity || 0) *
                               (item.discountedPrice || item.price || 0)
-                            ).toLocaleString("id-ID")}{" "}
+                            ).toLocaleString("id-ID")}
                           </td>
                         </tr>
                       ))}
@@ -861,9 +851,8 @@ const SalesReportModal = ({ onClose }) => {
                 </div>
                 {totalItemsInFilteredRange > 5 && (
                   <div className="p-3 text-center text-xs text-gray-500 bg-gray-50 border-t border-gray-200">
-                    {" "}
                     Menampilkan 5 dari {totalItemsInFilteredRange} item. Unduh
-                    laporan untuk data lengkap.{" "}
+                    laporan untuk data lengkap.
                   </div>
                 )}
               </div>
@@ -874,8 +863,7 @@ const SalesReportModal = ({ onClose }) => {
           displayedItemsForPreview.length === 0 &&
           !loading && (
             <p className="text-center text-gray-500 mt-6">
-              {" "}
-              Tidak ada data penjualan untuk periode yang dipilih.{" "}
+              Tidak ada data penjualan untuk periode yang dipilih.
             </p>
           )}
       </div>

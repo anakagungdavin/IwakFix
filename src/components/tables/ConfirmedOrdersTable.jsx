@@ -40,7 +40,7 @@ const ConfirmedOrdersTable = ({
   );
 
   const shippedOrders = useMemo(
-    () => ordersData.filter((order) => order.status === "Shipped"),
+    () => ordersData.filter((order) => order.status === "Delivered"),
     [ordersData]
   );
 
@@ -122,7 +122,7 @@ const ConfirmedOrdersTable = ({
         return;
       }
       payload = {
-        status: "Shipped",
+        status: "Delivered",
         trackingNumber: resiNumber,
         shippingMethod: "courier",
       };
@@ -137,7 +137,7 @@ const ConfirmedOrdersTable = ({
         });
         return;
       }
-      formData.append("status", "Shipped");
+      formData.append("status", "Delivered");
       formData.append("shippingMethod", "COD");
       formData.append("codProof", codImageFile);
       payload = formData;
@@ -158,7 +158,7 @@ const ConfirmedOrdersTable = ({
         payload,
         requestConfig
       );
-      alert("Status pesanan berhasil diperbarui menjadi 'Shipped'.");
+      alert("Status pesanan berhasil diperbarui menjadi 'Delivered'.");
 
       setResiNumbers((prev) => {
         const newState = { ...prev };

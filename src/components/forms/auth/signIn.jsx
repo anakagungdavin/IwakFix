@@ -241,7 +241,7 @@ const SignIn = () => {
                 Belum punya akun?{" "}
                 <Link
                   to="/register"
-                  className={`cursor-pointer text-[#003D47] ${
+                  className={`cursor-pointer text-[#FFBC00] hover:underline ${
                     loading ? "pointer-events-none opacity-50" : ""
                   }`}
                 >
@@ -251,7 +251,7 @@ const SignIn = () => {
               <p className="mt-2">
                 <Link
                   to="/forgot-password"
-                  className={`cursor-pointer text-[#003D47] ${
+                  className={`cursor-pointer text-[#FFBC00] hover:underline ${
                     loading ? "pointer-events-none opacity-50" : ""
                   }`}
                 >
