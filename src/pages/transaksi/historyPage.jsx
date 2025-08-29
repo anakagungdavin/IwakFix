@@ -11,13 +11,16 @@ const HistoryPage = () => {
   };
   return (
     <>
-      <div className="bg-gray-200 min-h-screen py-6">
-        <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
+      {/* Perubahan: Latar belakang utama halaman */}
+      <div className="bg-gray-100 dark:bg-gray-900 min-h-screen py-6">
+        {/* Perubahan: Latar belakang kontainer utama */}
+        <div className="max-w-7xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
           <Breadcrumb pageName="Transaction History" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="flex justify-between items-center">
+          <div className="grid grid-cols-1 gap-6 mt-4">
+            <div className="flex justify-start items-center">
+              {/* Perubahan: Styling tombol cetak di dark mode */}
               <button
-                className="flex items-center px-4 py-2 bg-[#003D47] text-white hover:bg-[#4a6265] transition rounded-md"
+                className="flex items-center px-4 py-2 bg-[#003D47] text-white hover:bg-[#005f73] dark:bg-yellow-400 dark:text-black dark:hover:bg-yellow-500 transition rounded-md"
                 onClick={toggleModal}
               >
                 <svg
@@ -36,11 +39,9 @@ const HistoryPage = () => {
                 Cetak History Transaksi
               </button>
             </div>
-            <div className="col-span-4">
-              <div className="bg-white shadow-md rounded-lg p-4">
-                <TableHistory />
-                {/* <SalesReport/> */}
-              </div>
+            {/* Wrapper untuk tabel disederhanakan agar tidak ada double card */}
+            <div className="w-full">
+              <TableHistory />
             </div>
           </div>
         </div>

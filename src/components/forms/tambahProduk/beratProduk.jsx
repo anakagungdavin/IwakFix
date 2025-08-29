@@ -41,73 +41,69 @@ const BeratProduk = ({ data = {}, onChange = () => {} }) => {
   };
 
   return (
-    <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
-      <div className="max-w-full overflow-x-auto">
-        <h3 className="font-medium text-black dark:text-black">Berat Ikan</h3>
-        <form action="#">
-          <div className="p-6.5">
-            <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
-              <div className="w-full xl:w-1/3">
-                <label className="mb-2.5 block text-black dark:text-black">
-                  Berat (kg)
-                </label>
-                <input
-                  type="number"
-                  placeholder="Masukan berat Produk"
-                  value={formData.weight}
-                  onChange={(e) =>
-                    handleChange(
-                      "weight",
-                      e.target.value === ""
-                        ? ""
-                        : parseFloat(e.target.value) || 0
-                    )
-                  }
-                  className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
-                />
-              </div>
-              <div className="w-full xl:w-1/3">
-                <label className="mb-2.5 block text-black dark:text-black">
-                  Tinggi (cm)
-                </label>
-                <input
-                  type="number"
-                  placeholder="Masukan tinggi produk"
-                  value={formData.dimensions.height}
-                  onChange={(e) =>
-                    handleDimensionChange(
-                      "height",
-                      e.target.value === ""
-                        ? ""
-                        : parseFloat(e.target.value) || 0
-                    )
-                  }
-                  className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
-                />
-              </div>
-              <div className="w-full xl:w-1/3">
-                <label className="mb-2.5 block text-black dark:text-white">
-                  Panjang (cm)
-                </label>
-                <input
-                  type="number"
-                  placeholder="Masukan panjang produk"
-                  value={formData.dimensions.length}
-                  onChange={(e) =>
-                    handleDimensionChange(
-                      "length",
-                      e.target.value === ""
-                        ? ""
-                        : parseFloat(e.target.value) || 0
-                    )
-                  }
-                  className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
-                />
-              </div>
-            </div>
+    // Kontainer utama disederhanakan, styling kartu sudah ada di parent.
+    <div>
+      {/* Perubahan: Warna teks judul */}
+      <h3 className="text-lg font-semibold text-black dark:text-white mb-4">
+        Berat & Dimensi Produk
+      </h3>
+      <form action="#">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            {/* Perubahan: Warna teks label */}
+            <label className="mb-2 block text-sm font-medium text-black dark:text-gray-300">
+              Berat (kg)
+            </label>
+            {/* Perubahan: Styling untuk input di dark mode */}
+            <input
+              type="number"
+              placeholder="Masukan berat"
+              value={formData.weight}
+              onChange={(e) =>
+                handleChange(
+                  "weight",
+                  e.target.value === "" ? "" : parseFloat(e.target.value) || 0
+                )
+              }
+              className="w-full rounded-md border border-gray-300 bg-gray-50 py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-blue-500"
+            />
           </div>
-        </form>
-      </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black dark:text-gray-300">
+              Tinggi (cm)
+            </label>
+            <input
+              type="number"
+              placeholder="Masukan tinggi"
+              value={formData.dimensions.height}
+              onChange={(e) =>
+                handleDimensionChange(
+                  "height",
+                  e.target.value === "" ? "" : parseFloat(e.target.value) || 0
+                )
+              }
+              className="w-full rounded-md border border-gray-300 bg-gray-50 py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-black dark:text-gray-300">
+              Panjang (cm)
+            </label>
+            <input
+              type="number"
+              placeholder="Masukan panjang"
+              value={formData.dimensions.length}
+              onChange={(e) =>
+                handleDimensionChange(
+                  "length",
+                  e.target.value === "" ? "" : parseFloat(e.target.value) || 0
+                )
+              }
+              className="w-full rounded-md border border-gray-300 bg-gray-50 py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-blue-500"
+            />
+          </div>
+        </div>
+      </form>
     </div>
   );
 };

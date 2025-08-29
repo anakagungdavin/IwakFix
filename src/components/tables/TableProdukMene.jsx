@@ -19,7 +19,6 @@ const TableMeneProduk = () => {
         const response = await getProducts();
         console.log("API Response:", response); // Debug log
 
-        // Check if response.products exists and is an array
         if (!response?.products || !Array.isArray(response.products)) {
           throw new Error(
             "Data produk tidak ditemukan atau respons tidak valid"
@@ -27,7 +26,6 @@ const TableMeneProduk = () => {
         }
 
         const formattedProducts = response.products.map((item) => {
-          // Calculate total stock from the stocks array
           const totalStock = Array.isArray(item.stocks)
             ? item.stocks.reduce((sum, stock) => sum + (stock.stock || 0), 0)
             : 0;
@@ -35,9 +33,9 @@ const TableMeneProduk = () => {
           const statusData = getStatus(totalStock, item.isPublished);
           return {
             ...item,
-            stock: totalStock, // Override stock with the total
+            stock: totalStock,
             status: statusData.label,
-            statusColor: statusData.jenis, // Use jenis for className as per getStatus
+            statusColor: statusData.jenis,
             image:
               item.images && item.images.length > 0 ? item.images[0] : null,
           };
@@ -78,29 +76,36 @@ const TableMeneProduk = () => {
   };
 
   return (
-    <div className="rounded-sm border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default">
+    // Perubahan: Latar belakang, border, dan warna teks kontainer
+    <div className="rounded-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 pt-6 pb-2.5 shadow-default">
       <div className="max-w-full overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
-            <tr style={{ backgroundColor: "#f2f2f2" }} className="text-left">
-              <th className="min-w-[220px] py-4 px-4 font-medium text-black">
+            {/* Perubahan: Ganti inline style dengan class Tailwind untuk header */}
+            <tr className="bg-gray-100 dark:bg-gray-700 text-left">
+              {/* Perubahan: Warna teks header */}
+              <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-gray-200">
                 Produk
               </th>
-              <th className="min-w-[120px] py-4 px-4 font-medium text-black">
+              <th className="min-w-[120px] py-4 px-4 font-medium text-black dark:text-gray-200">
                 Stok
               </th>
-              <th className="min-w-[120px] py-4 px-4 font-medium text-black">
+              <th className="min-w-[120px] py-4 px-4 font-medium text-black dark:text-gray-200">
                 Status
               </th>
-              <th className="py-4 px-4 font-medium text-black">Actions</th>
+              <th className="py-4 px-4 font-medium text-black dark:text-gray-200">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
             {data.map((packageItem, key) => (
               <tr key={key}>
-                {/* Kolom Nama & Image (Harga Removed) */}
-                <td className="border-b border-[#eee] py-5 px-4 pl-9">
-                  <h5 className="font-medium text-black">{packageItem.name}</h5>
+                {/* Perubahan: Border dan warna teks pada sel */}
+                <td className="border-b border-gray-200 dark:border-gray-700 py-5 px-4 pl-9">
+                  <h5 className="font-medium text-black dark:text-white">
+                    {packageItem.name}
+                  </h5>
                   {packageItem.image && (
                     <img
                       src={packageItem.image}
@@ -110,13 +115,11 @@ const TableMeneProduk = () => {
                   )}
                 </td>
 
-                {/* Kolom Stok (Total Stock) */}
-                <td className="border-b border-[#eee] py-5 px-4">
+                <td className="border-b border-gray-200 dark:border-gray-700 py-5 px-4 text-black dark:text-gray-300">
                   {packageItem.stock?.toLocaleString("id-ID") || 0}
                 </td>
 
-                {/* Kolom Status */}
-                <td className="border-b border-[#eee] py-5 px-4">
+                <td className="border-b border-gray-200 dark:border-gray-700 py-5 px-4">
                   <p
                     className={`inline-flex rounded-full py-1 px-3 text-sm font-medium ${
                       packageItem.statusColor || ""
@@ -126,23 +129,24 @@ const TableMeneProduk = () => {
                   </p>
                 </td>
 
-                <td className="border-b border-[#eee] py-5 px-4">
+                <td className="border-b border-gray-200 dark:border-gray-700 py-5 px-4">
                   <div className="flex items-center space-x-3.5">
+                    {/* Perubahan: Warna ikon pada dark mode */}
                     <button
                       onClick={() => handleViewDetails(packageItem)}
-                      className="text-[#003D47] cursor-pointer hover:underline"
+                      className="text-[#003D47] dark:text-yellow-400 cursor-pointer hover:underline"
                     >
                       <EyeIcon className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleEditClick(packageItem._id)}
-                      className="text-[#003D47] cursor-pointer hover:underline"
+                      className="text-[#003D47] dark:text-yellow-400 cursor-pointer hover:underline"
                     >
                       <PencilIcon className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleDeleteClick(packageItem)}
-                      className="text-[#003D47] cursor-pointer hover:underline"
+                      className="text-[#003D47] dark:text-yellow-400 cursor-pointer hover:underline"
                     >
                       <TrashIcon className="w-5 h-5" />
                     </button>

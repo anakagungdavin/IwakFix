@@ -34,23 +34,26 @@ const TableUserList = ({
     }
   };
 
-  // Sort icon component similar to TableHistory
+  // Perubahan: Menambahkan warna untuk dark mode pada ikon sort
   const SortIcon = ({ isActive, direction }) => {
-    if (!isActive) return <span className="ml-1 text-gray-300">↕</span>;
+    if (!isActive)
+      return <span className="ml-1 text-gray-300 dark:text-gray-600">↕</span>;
     return direction === "asc" ? (
-      <span className="ml-1 text-gray-600">↑</span>
+      <span className="ml-1 text-gray-600 dark:text-gray-300">↑</span>
     ) : (
-      <span className="ml-1 text-gray-600">↓</span>
+      <span className="ml-1 text-gray-600 dark:text-gray-300">↓</span>
     );
   };
 
   return (
-    <div className="overflow-x-auto p-6">
-      <table className="w-full border-collapse text-left text-gray-700 dark:text-white">
+    // Perubahan: Menambahkan background, border, dan shadow pada kontainer utama
+    <div className="overflow-x-auto bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+      <table className="w-full border-collapse text-left text-gray-700 dark:text-gray-300">
         <thead>
-          <tr className="border-b border-gray-300 text-gray-500 dark:text-white text-sm">
+          {/* Perubahan: Warna border dan teks header */}
+          <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 text-sm">
             <th
-              className="p-4 cursor-pointer hover:bg-gray-100"
+              className="p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
               onClick={() => onSortChange("name")}
             >
               NAMA
@@ -58,7 +61,7 @@ const TableUserList = ({
             </th>
             <th className="p-4">NO HP</th>
             <th
-              className="p-4 cursor-pointer hover:bg-gray-100"
+              className="p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
               onClick={() => onSortChange("registrationDate")}
             >
               TANGGAL REGISTRASI
@@ -75,7 +78,7 @@ const TableUserList = ({
             <tr>
               <td
                 colSpan="4"
-                className="p-4 text-center text-gray-500 dark:text-white"
+                className="p-4 text-center text-gray-500 dark:text-gray-400"
               >
                 Tidak ada data pengguna
               </td>
@@ -84,18 +87,23 @@ const TableUserList = ({
             data.map((item, index) => (
               <tr
                 key={item._id || index}
-                className="border-b border-gray-200 text-sm hover:bg-gray-50 dark:text-white"
+                // Perubahan: Warna border dan hover pada baris tabel
+                className="border-b border-gray-200 dark:border-gray-700 text-sm hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <td className="p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-500 font-semibold dark:text-white">
+                    {/* Perubahan: Warna avatar untuk dark mode */}
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+                      <span className="text-blue-500 dark:text-blue-300 font-semibold">
                         {item.name[0]}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-gray-500 dark:text-white">
+                      <p className="font-medium text-black dark:text-white">
+                        {item.name}
+                      </p>
+                      {/* Perubahan: Warna teks email */}
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {item.email}
                       </p>
                     </div>
@@ -110,24 +118,25 @@ const TableUserList = ({
                   })}
                 </td>
                 <td className="p-4">
+                  {/* Perubahan: Warna ikon action untuk dark mode */}
                   <div className="flex space-x-3">
                     <button
                       onClick={() => onView(item)}
-                      className="text-[#003D47] cursor-pointer hover:underline"
+                      className="text-[#003D47] dark:text-yellow-400 cursor-pointer hover:underline"
                     >
-                      <EyeIcon className="w-5 h-5 dark:fill-white " />
+                      <EyeIcon className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => onEdit(item)}
-                      className="text-[#003D47] cursor-pointer hover:underline"
+                      className="text-[#003D47] dark:text-yellow-400 cursor-pointer hover:underline"
                     >
-                      <PencilIcon className="w-5 h-5 dark:fill-white" />
+                      <PencilIcon className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleDeleteClick(item)}
-                      className="text-[#003D47] cursor-pointer hover:underline"
+                      className="text-[#003D47] dark:text-yellow-400 cursor-pointer hover:underline"
                     >
-                      <TrashIcon className="w-5 h-5 dark:fill-white" />
+                      <TrashIcon className="w-5 h-5" />
                     </button>
                   </div>
                 </td>
@@ -146,10 +155,11 @@ const TableUserList = ({
         />
       )}
 
+      {/* Perubahan: Styling paginasi untuk dark mode */}
       <div className="flex items-center justify-center space-x-2 mt-4">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
-          className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-sm dark:text-white font-medium disabled:opacity-50"
+          className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-sm text-gray-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={currentPage === 1}
         >
           Previous
@@ -160,8 +170,8 @@ const TableUserList = ({
             onClick={() => handlePageChange(pageIndex + 1)}
             className={`px-3 py-1 rounded-md text-sm font-medium ${
               currentPage === pageIndex + 1
-                ? "bg-gray-100 text-gray-700 font-bold"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                ? "bg-blue-600 text-white font-bold"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
             }`}
           >
             {pageIndex + 1}
@@ -169,7 +179,7 @@ const TableUserList = ({
         ))}
         <button
           onClick={() => handlePageChange(currentPage + 1)}
-          className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-sm font-medium disabled:opacity-50"
+          className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-sm text-gray-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={currentPage === totalPages}
         >
           Next

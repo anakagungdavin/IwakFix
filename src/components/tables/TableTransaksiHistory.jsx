@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"; // Import useMemo
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import ModalConfig from "../modal/ModalConfig"; // Pastikan path ini benar
 
@@ -9,10 +9,9 @@ const TableHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Sorting states
   const [sortConfig, setSortConfig] = useState({
-    key: "date", // Default sort by date
-    direction: "desc", // Default descending (terbaru dulu)
+    key: "date",
+    direction: "desc",
   });
 
   const token = localStorage.getItem("token");
@@ -28,7 +27,6 @@ const TableHistory = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      // Pastikan data yang diterima adalah array
       setOrders(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       setError(
@@ -46,16 +44,9 @@ const TableHistory = () => {
       setError("Token autentikasi tidak ditemukan.");
       setLoading(false);
     }
-  }, [token]); // Tambahkan token sebagai dependency
+  }, [token]);
 
   const openModal = (order) => {
-    // Langsung gunakan objek 'order' dari state/hasil sorting.
-    // ModalConfig sudah diatur untuk menerima 'transaction' prop dengan struktur ini.
-    // Pastikan 'order' ini berisi 'items' dengan 'product' yang terpopulate,
-    // dan setiap 'item' memiliki 'jenis', 'size', 'satuan'.
-    // Backend (/api/orders/all) seharusnya sudah menyediakan ini.
-
-    // console.log("Data order yang akan dikirim ke modal:", order); // Untuk debugging
     setSelectedOrder(order);
     setIsOpen(true);
   };
@@ -65,14 +56,11 @@ const TableHistory = () => {
     setSelectedOrder(null);
   };
 
-  // Sorting function
   const sortedOrders = useMemo(() => {
     let sortableOrders = [...orders];
     if (sortConfig.key !== null) {
       sortableOrders.sort((a, b) => {
         let valueA, valueB;
-
-        // Handle null or undefined values for sorting gracefully
         const getValue = (obj, path) => {
           const keys = path.split(".");
           let current = obj;
@@ -83,7 +71,6 @@ const TableHistory = () => {
           }
           return current;
         };
-
         switch (sortConfig.key) {
           case "id":
             valueA = a._id;
@@ -94,7 +81,7 @@ const TableHistory = () => {
             valueB = getValue(b, "user.name") || "Unknown";
             break;
           case "date":
-            valueA = new Date(a.createdAt || 0); // Fallback jika createdAt tidak ada
+            valueA = new Date(a.createdAt || 0);
             valueB = new Date(b.createdAt || 0);
             break;
           case "total":
@@ -112,13 +99,10 @@ const TableHistory = () => {
           default:
             return 0;
         }
-
-        // Type-aware comparison
         if (typeof valueA === "string" && typeof valueB === "string") {
           valueA = valueA.toLowerCase();
           valueB = valueB.toLowerCase();
         }
-
         if (valueA < valueB) return sortConfig.direction === "asc" ? -1 : 1;
         if (valueA > valueB) return sortConfig.direction === "asc" ? 1 : -1;
         return 0;
@@ -131,52 +115,62 @@ const TableHistory = () => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
       direction = "desc";
-    } else if (sortConfig.key === key && sortConfig.direction === "desc") {
-      // Optional: Cycle back to no sort or remove key
-      // setSortConfig({ key: null, direction: "asc" });
-      // return;
-      direction = "asc"; // Atau reset ke asc
     }
     setSortConfig({ key, direction });
   };
 
+  // Perubahan: Styling untuk ikon sort di dark mode
   const SortIcon = ({ columnKey }) => {
     if (sortConfig.key !== columnKey) {
-      return <span className="ml-1 text-gray-300">↕</span>;
+      return <span className="ml-1 text-gray-300 dark:text-gray-600">↕</span>;
     }
     return sortConfig.direction === "asc" ? (
-      <span className="ml-1 text-gray-600">↑</span>
+      <span className="ml-1 text-gray-600 dark:text-gray-300">↑</span>
     ) : (
-      <span className="ml-1 text-gray-600">↓</span>
+      <span className="ml-1 text-gray-600 dark:text-gray-300">↓</span>
     );
   };
 
+  // Perubahan: Menambahkan kelas dark mode untuk setiap status
   const getStatusColorClass = (status) => {
-    if (!status) return "text-gray-500";
+    if (!status) return "text-gray-500 dark:text-gray-400";
     const lowerStatus = status.toLowerCase();
     if (lowerStatus === "delivered" || lowerStatus === "paid")
-      return "text-green-600 bg-green-100";
+      return "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30";
     if (lowerStatus === "pending" || lowerStatus === "processing")
-      return "text-yellow-600 bg-yellow-100";
-    if (lowerStatus === "shipped") return "text-blue-600 bg-blue-100";
-    if (lowerStatus === "cancelled") return "text-red-600 bg-red-100";
-    return "text-gray-700 bg-gray-100";
+      return "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30";
+    if (lowerStatus === "shipped")
+      return "text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30";
+    if (lowerStatus === "cancelled")
+      return "text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30";
+    return "text-gray-700 bg-gray-100 dark:text-gray-300 dark:bg-gray-700";
   };
 
+  // Perubahan: Menambahkan background dan warna teks untuk dark mode
   if (loading)
-    return <p className="p-6 text-center">Memuat riwayat transaksi...</p>;
+    return (
+      <div className="p-6 text-center bg-gray-100 dark:bg-gray-900 min-h-screen text-black dark:text-white">
+        Memuat riwayat transaksi...
+      </div>
+    );
   if (error)
-    return <p className="p-6 text-red-500 text-center">Error: {error}</p>;
+    return (
+      <div className="p-6 text-center bg-gray-100 dark:bg-gray-900 min-h-screen text-red-500 dark:text-red-400">
+        Error: {error}
+      </div>
+    );
 
   return (
-    <div className="overflow-x-auto p-4 sm:p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">
+    // Perubahan: Styling untuk kontainer utama
+    <div className="p-4 sm:p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg">
+      <h2 className="text-xl font-semibold text-gray-700 dark:text-white mb-4">
         Riwayat Semua Transaksi
       </h2>
-      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-        <table className="w-full min-w-[800px] border-collapse text-left text-gray-700">
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-700">
+        <table className="w-full min-w-[800px] border-collapse text-left text-gray-700 dark:text-gray-300">
           <thead>
-            <tr className="border-b-2 border-gray-300 bg-gray-50 text-gray-600 text-xs sm:text-sm uppercase tracking-wider">
+            {/* Perubahan: Styling untuk header tabel */}
+            <tr className="border-b-2 border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 text-xs sm:text-sm uppercase tracking-wider">
               {[
                 { label: "ID", key: "id" },
                 { label: "Customer", key: "customer" },
@@ -187,7 +181,7 @@ const TableHistory = () => {
               ].map((col) => (
                 <th
                   key={col.key}
-                  className="p-3 sm:p-4 cursor-pointer hover:bg-gray-200 transition-colors duration-150"
+                  className="p-3 sm:p-4 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-150"
                   onClick={() => requestSort(col.key)}
                 >
                   {col.label}
@@ -200,7 +194,10 @@ const TableHistory = () => {
           <tbody>
             {sortedOrders.length === 0 ? (
               <tr>
-                <td colSpan="7" className="p-4 text-center text-gray-500">
+                <td
+                  colSpan="7"
+                  className="p-4 text-center text-gray-500 dark:text-gray-400"
+                >
                   Tidak ada riwayat transaksi ditemukan.
                 </td>
               </tr>
@@ -208,13 +205,12 @@ const TableHistory = () => {
               sortedOrders.map((order) => (
                 <tr
                   key={order._id}
-                  className="border-b border-gray-200 text-sm hover:bg-gray-50 transition-colors duration-150"
+                  className="border-b border-gray-200 dark:border-gray-700 text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                 >
-                  <td className="p-3 sm:p-4 whitespace-nowrap">
-                    {order._id.slice(-8)}
-                  </td>{" "}
-                  {/* Tampilkan 8 digit terakhir ID */}
-                  <td className="p-3 sm:p-4">
+                  <td className="p-3 sm:p-4 whitespace-nowrap font-mono text-xs">
+                    ...{order._id.slice(-8)}
+                  </td>
+                  <td className="p-3 sm:p-4 font-medium text-black dark:text-white">
                     {order.user?.name || "Tidak diketahui"}
                   </td>
                   <td className="p-3 sm:p-4 whitespace-nowrap">
@@ -224,7 +220,7 @@ const TableHistory = () => {
                       year: "numeric",
                     })}
                   </td>
-                  <td className="p-3 sm:p-4 whitespace-nowrap">
+                  <td className="p-3 sm:p-4 whitespace-nowrap font-medium text-black dark:text-white">
                     Rp {(order.totalAmount || 0).toLocaleString("id-ID")}
                   </td>
                   <td className="p-3 sm:p-4">{order.paymentMethod || "N/A"}</td>
@@ -239,7 +235,7 @@ const TableHistory = () => {
                   </td>
                   <td className="p-3 sm:p-4">
                     <button
-                      className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                      className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline font-medium"
                       onClick={() => openModal(order)}
                     >
                       Lihat Detail
@@ -252,7 +248,6 @@ const TableHistory = () => {
         </table>
       </div>
 
-      {/* Menggunakan 'transaction' prop untuk ModalConfig */}
       <ModalConfig
         isOpen={isOpen}
         onClose={closeModal}

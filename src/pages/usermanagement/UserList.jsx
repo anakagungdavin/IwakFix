@@ -61,7 +61,7 @@ const UserList = () => {
     navigate(url, { state: { user }, replace: true });
     setTimeout(() => {
       console.log("Current URL after navigate:", window.location.pathname);
-    }, 100); // Cek URL setelah sedikit delay
+    }, 100);
   };
 
   const handleDelete = async (user) => {
@@ -94,15 +94,33 @@ const UserList = () => {
     setSortOrder(newOrder);
   };
 
-  if (loading) return <div className="p-6">Loading...</div>;
-  if (error) return <div className="p-6 text-red-500">Error: {error}</div>;
+  // Perubahan: Styling untuk state loading di dark mode
+  if (loading)
+    return (
+      <div className="p-6 min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
+        Loading...
+      </div>
+    );
+  // Perubahan: Styling untuk state error di dark mode
+  if (error)
+    return (
+      <div className="p-6 min-h-screen bg-gray-100 dark:bg-gray-900 text-red-500 dark:text-red-400">
+        Error: {error}
+      </div>
+    );
 
   return (
-    <div className="p-6 space-y-4">
+    // Perubahan: Latar belakang utama dan warna teks
+    <div className="p-6 space-y-4 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <Breadcrumb pageName="User List" />
-      <h1 className="text-2xl font-bold">Customer List</h1>
+      <h1 className="text-2xl font-bold text-black dark:text-white">
+        Customer List
+      </h1>
       {customers.length === 0 ? (
-        <p className="text-gray-500">Tidak ada data customer tersedia.</p>
+        // Perubahan: Warna teks untuk pesan "tidak ada data"
+        <p className="text-gray-500 dark:text-gray-400">
+          Tidak ada data customer tersedia.
+        </p>
       ) : (
         <TableUserList
           data={customers}

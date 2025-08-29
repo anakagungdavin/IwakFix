@@ -10,17 +10,29 @@ import UploadSuccessModal from "../../components/modal/modalBerhasilUpload";
 import SimpanModal from "../../components/modal/modalBerhasilSimpan";
 import { addProduct } from "../../services/api";
 
-// Fungsi getStatus tetap sama dan bisa digunakan jika diperlukan di sini,
-// namun umumnya status baru ada setelah produk dibuat.
-// Untuk konsistensi, kita bisa menyimpannya.
+// Perubahan: Menambahkan kelas dark mode untuk setiap status
 export function getStatus(stok, isPublished) {
   if (!isPublished)
-    return { label: "Draft", jenis: "bg-[#F0F1F3] text-[#667085]" };
+    return {
+      label: "Draft",
+      jenis: "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400",
+    };
   if (stok === 0)
-    return { label: "Out of Stock", jenis: "bg-[#FEECEE] text-[#EB3D4D]" };
+    return {
+      label: "Out of Stock",
+      jenis: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    };
   if (stok < 10)
-    return { label: "Low Stock", jenis: "bg-[#FFF0EA] text-[#F86624]" };
-  return { label: "Published", jenis: "bg-[#E9FAF7] text-[#1A9882]" };
+    return {
+      label: "Low Stock",
+      jenis:
+        "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+    };
+  return {
+    label: "Published",
+    jenis:
+      "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  };
 }
 
 const AddProduct = () => {
@@ -31,9 +43,9 @@ const AddProduct = () => {
   const [product, setProduct] = useState({
     name: "",
     description: "",
-    stock: 0, // Ini mungkin lebih relevan untuk produk sederhana tanpa varian
-    price: 0, // Untuk produk sederhana tanpa varian
-    discount: 0, // Untuk produk sederhana tanpa varian
+    stock: 0,
+    price: 0,
+    discount: 0,
     images: [],
     imageFiles: [],
     weight: 0,
@@ -46,10 +58,11 @@ const AddProduct = () => {
       size: [],
     },
     seller: localStorage.getItem("sellerId") || "default-seller-id",
-    isPublished: true, // Defaultnya true untuk tombol "Tambah Produk"
-    stocks: [], // Untuk produk dengan varian
+    isPublished: true,
+    stocks: [],
   });
 
+  // ... (semua fungsi handler seperti handleInputChange, handleAddImage, dll. tetap sama)
   const handleInputChange = (e) => {
     if (e && e.target) {
       const { name, value, type: inputType, checked } = e.target;
@@ -63,7 +76,6 @@ const AddProduct = () => {
           },
         }));
       } else if (inputType === "checkbox" && name === "isPublished") {
-        // Jika ada toggle untuk isPublished di form, ini akan menanganinya
         setProduct((prevState) => ({
           ...prevState,
           isPublished: checked,
@@ -76,12 +88,10 @@ const AddProduct = () => {
               ? parseFloat(value) || 0
               : value,
           };
-          // console.log(`Updated ${name}:`, newState[name]);
           return newState;
         });
       }
     } else if (e && e.weight !== undefined && e.dimensions !== undefined) {
-      // Dari BeratProduk
       setProduct((prevState) => ({
         ...prevState,
         weight: parseFloat(e.weight) || 0,
@@ -91,7 +101,6 @@ const AddProduct = () => {
         },
       }));
     } else if (e && e.type !== undefined && e.stocks !== undefined) {
-      // Dari JenisProduk
       const updatedStocks = Array.isArray(e.stocks)
         ? e.stocks.map((stock) => ({
             jenis: stock.jenis,
@@ -133,12 +142,11 @@ const AddProduct = () => {
         const fileUrl = URL.createObjectURL(file);
         const match = fileUrl === removedImageUrl;
         if (match) {
-          URL.revokeObjectURL(fileUrl); // Revoke object URL if it's the one being removed
+          URL.revokeObjectURL(fileUrl);
         }
         return !match;
       });
 
-      // Jika URL yang dihapus adalah blob, revoke juga
       if (removedImageUrl && removedImageUrl.startsWith("blob:")) {
         URL.revokeObjectURL(removedImageUrl);
       }
@@ -177,9 +185,6 @@ const AddProduct = () => {
       formData.append("images", file);
     });
 
-    // Jika tidak ada varian (type.jenis dan type.size kosong),
-    // dan ada harga/stok utama, kita bisa menambahkannya sebagai satu stock item
-    // Ini asumsi, backend harus bisa menangani ini atau validasi lebih lanjut diperlukan
     if (
       product.type.jenis.length === 0 &&
       product.type.size.length === 0 &&
@@ -187,20 +192,18 @@ const AddProduct = () => {
     ) {
       if (product.price > 0 || product.stock > 0) {
         const defaultStockItem = {
-          jenis: "Default", // Atau biarkan kosong jika backend menangani
-          size: "Default", // Atau biarkan kosong
-          satuan: "pcs", // Satuan default
+          jenis: "Default",
+          size: "Default",
+          satuan: "pcs",
           stock: product.stock || 0,
           price: product.price || 0,
           discount: product.discount || 0,
         };
         formData.set("stocks", JSON.stringify([defaultStockItem]));
-        // Juga, jika type kosong, pastikan tidak mengirim array kosong yang membingungkan
         formData.set("type", JSON.stringify({ jenis: [], size: [] }));
       }
     }
 
-    // Log FormData untuk debugging
     const formDataLog = {};
     for (const [key, value] of formData.entries()) {
       formDataLog[key] = value instanceof File ? value.name : value;
@@ -223,7 +226,6 @@ const AddProduct = () => {
       return false;
     }
 
-    // Validasi stocks jika jenis atau ukuran dipilih
     if (product.type.jenis.length > 0 || product.type.size.length > 0) {
       if (!product.stocks || product.stocks.length === 0) {
         alert(
@@ -269,8 +271,6 @@ const AddProduct = () => {
         }
       }
     } else {
-      // Validasi untuk produk sederhana (tanpa varian)
-      // Jika price ada, harus > 0. Stok boleh 0.
       if (product.price < 0) {
         alert("Harga produk tidak boleh negatif.");
         return false;
@@ -293,14 +293,14 @@ const AddProduct = () => {
       return;
     }
     try {
-      const formData = commonFormDataSetup(false); // isPublished = false
+      const formData = commonFormDataSetup(false);
       const response = await addProduct(formData);
       if (!response) throw new Error("Gagal menyimpan draft produk");
 
       setProduct((prevState) => ({
         ...prevState,
-        images: response.images || prevState.images, // Jika API mengembalikan URL gambar
-        imageFiles: [], // Kosongkan file baru setelah simpan
+        images: response.images || prevState.images,
+        imageFiles: [],
         isPublished: false,
       }));
       setSimpanSuccess(true);
@@ -314,7 +314,7 @@ const AddProduct = () => {
     if (!validateProductData()) return;
 
     try {
-      const formData = commonFormDataSetup(true); // isPublished = true
+      const formData = commonFormDataSetup(true);
       const response = await addProduct(formData);
       if (!response) throw new Error("Gagal menambahkan produk");
 
@@ -329,11 +329,9 @@ const AddProduct = () => {
       alert(`Gagal menambahkan produk: ${error.message}`);
     }
   };
-
   const handleCancel = () => {
     setIsModalOpen(true);
   };
-
   const confirmCancel = () => {
     setIsModalOpen(false);
     navigate(-1);
@@ -350,7 +348,7 @@ const AddProduct = () => {
         isOpen={isUploadSuccess}
         onClose={() => {
           setUploadSuccess(false);
-          navigate("/admin/products"); // Arahkan ke daftar produk setelah sukses
+          navigate("/admin/products");
         }}
         message="Produk berhasil ditambahkan!"
       />
@@ -358,23 +356,21 @@ const AddProduct = () => {
         isOpen={isSimpanSuccess}
         onClose={() => {
           setSimpanSuccess(false);
-          // Opsional: navigate("/admin/products/drafts") atau serupa jika ada halaman draft
         }}
         message="Produk berhasil disimpan sebagai draft!"
       />
 
-      <div className="bg-gray-100 min-h-screen py-6">
-        <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+      {/* Perubahan: Latar belakang utama halaman */}
+      <div className="bg-gray-100 dark:bg-gray-900 min-h-screen py-6">
+        {/* Perubahan: Latar belakang kontainer form */}
+        <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
           <Breadcrumb pageName="Tambah Produk" />
           <div className="grid grid-cols-1 gap-6 mt-6">
-            <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 md:p-6">
-              <InformasiProduk
-                data={product}
-                // setData={setProduct} // Sebaiknya tidak pass setData langsung
-                onChange={handleInputChange}
-              />
+            {/* Perubahan: Latar belakang dan border untuk setiap kartu bagian */}
+            <div className="bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 rounded-lg p-4 md:p-6">
+              <InformasiProduk data={product} onChange={handleInputChange} />
             </div>
-            <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 md:p-6">
+            <div className="bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 rounded-lg p-4 md:p-6">
               <UploadGambar
                 data={{
                   images: product.images,
@@ -382,33 +378,28 @@ const AddProduct = () => {
                 }}
                 onUpload={handleAddImage}
                 onRemove={handleRemoveImage}
-                mode="add" // Mode tetap "add" untuk AddProduct
+                mode="add"
               />
             </div>
-            <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 md:p-6">
-              <JenisProduk
-                data={product}
-                onChange={handleInputChange} // Gunakan handleInputChange yang sudah menghandle jenis dan stocks
-              />
+            <div className="bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 rounded-lg p-4 md:p-6">
+              <JenisProduk data={product} onChange={handleInputChange} />
             </div>
-            <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 md:p-6">
-              <BeratProduk
-                data={product}
-                onChange={handleInputChange} // Gunakan handleInputChange yang sudah menghandle berat dan dimensi
-              />
+            <div className="bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 rounded-lg p-4 md:p-6">
+              <BeratProduk data={product} onChange={handleInputChange} />
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-gray-200">
+          {/* Perubahan: Border pemisah dan warna tombol */}
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-600">
             <button
               onClick={handleCancel}
-              className="px-4 py-2 text-sm font-medium text-red-600 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
+              className="px-4 py-2 text-sm font-medium text-red-600 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 rounded-md transition-colors"
             >
               Batalkan
             </button>
             <button
               onClick={handleSaveDraft}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500 rounded-md transition-colors"
             >
               Simpan sebagai Draft
             </button>

@@ -4,41 +4,24 @@ const JenisProduk = ({
   data = { type: { jenis: [], size: [] }, stocks: [] },
   onChange = () => {},
 }) => {
-  // Log data.stocks mentah untuk debugging
-  console.log(
-    "Raw data.stocks dari prop:",
-    JSON.stringify(data.stocks, null, 2)
-  );
-
+  // ... (semua state dan logika fungsi tetap sama)
   const [jenisProduk, setJenisProduk] = useState({
     jenis: Array.isArray(data.type?.jenis) ? [...data.type.jenis] : [],
     size: Array.isArray(data.type?.size) ? [...data.type.size] : [],
   });
-
   const [currentStep, setCurrentStep] = useState("jenis");
   const [stocks, setStocks] = useState(() => {
     const initialStocks = Array.isArray(data.stocks)
-      ? data.stocks.map((stock) => {
-          if (!stock.satuan) {
-            console.warn(
-              `Stock item ${stock.jenis}-${stock.size} tidak memiliki satuan di database, menggunakan default 'kg'`
-            );
-          }
-          return {
-            _id: stock._id || undefined,
-            jenis: stock.jenis,
-            size: stock.size,
-            stock: stock.stock || 0,
-            price: stock.price || 0,
-            discount: stock.discount || 0,
-            satuan: stock.satuan || "kg", // Default hanya jika satuan benar-benar tidak ada
-          };
-        })
+      ? data.stocks.map((stock) => ({
+          _id: stock._id || undefined,
+          jenis: stock.jenis,
+          size: stock.size,
+          stock: stock.stock || 0,
+          price: stock.price || 0,
+          discount: stock.discount || 0,
+          satuan: stock.satuan || "kg",
+        }))
       : [];
-    console.log(
-      "Initial stocks di useState:",
-      JSON.stringify(initialStocks, null, 2)
-    );
     return initialStocks;
   });
   const [selectedJenis, setSelectedJenis] = useState(null);
@@ -51,27 +34,16 @@ const JenisProduk = ({
     setJenisProduk({ jenis: newJenis, size: newSize });
 
     const transformedStocks = Array.isArray(data.stocks)
-      ? data.stocks.map((stock) => {
-          if (!stock.satuan) {
-            console.warn(
-              `Stock item ${stock.jenis}-${stock.size} tidak memiliki satuan di database, menggunakan default 'kg'`
-            );
-          }
-          return {
-            _id: stock._id || undefined,
-            jenis: stock.jenis,
-            size: stock.size,
-            stock: stock.stock || 0,
-            price: stock.price || 0,
-            discount: stock.discount || 0,
-            satuan: stock.satuan || "kg",
-          };
-        })
+      ? data.stocks.map((stock) => ({
+          _id: stock._id || undefined,
+          jenis: stock.jenis,
+          size: stock.size,
+          stock: stock.stock || 0,
+          price: stock.price || 0,
+          discount: stock.discount || 0,
+          satuan: stock.satuan || "kg",
+        }))
       : [];
-    console.log(
-      "Transformed stocks di useEffect:",
-      JSON.stringify(transformedStocks, null, 2)
-    );
     setStocks(transformedStocks);
 
     const validInitialJenis = newJenis.filter((j) => j && j.trim() !== "");
@@ -247,11 +219,6 @@ const JenisProduk = ({
           );
 
           if (databaseStockItem) {
-            if (!databaseStockItem.satuan) {
-              console.warn(
-                `Database stock item ${currentJenis}-${currentSize} tidak memiliki satuan, menggunakan default 'kg'`
-              );
-            }
             newStocksArray.push({
               _id: databaseStockItem._id || undefined,
               jenis: databaseStockItem.jenis,
@@ -276,11 +243,6 @@ const JenisProduk = ({
           }
         });
       });
-
-      console.log(
-        "New stocks array di generateStockCombinations:",
-        JSON.stringify(newStocksArray, null, 2)
-      );
       setStocks(newStocksArray);
       onChange({ type: jenisProduk, stocks: newStocksArray });
     } else {
@@ -289,18 +251,23 @@ const JenisProduk = ({
   };
 
   const renderJenisStep = () => (
-    <div className="p-5">
-      <h2 className="text-lg font-semibold text-gray-700 mb-4">Jenis Produk</h2>
+    <div>
+      {/* Perubahan: Warna teks judul */}
+      <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+        Jenis Produk
+      </h2>
       {Object.keys(jenisProduk).map((tipeKey) => (
-        <div key={tipeKey} className="mb-4 border-b pb-4">
-          <label className="block text-gray-600 mb-1">
+        <div key={tipeKey} className="mb-4 border-b dark:border-gray-600 pb-4">
+          {/* Perubahan: Warna teks label */}
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {tipeKey === "jenis" ? "Jenis Ikan" : "Ukuran"}
           </label>
           {jenisProduk[tipeKey].map((variasi, index) => (
             <div key={index} className="flex items-center mb-2">
+              {/* Perubahan: Styling input untuk dark mode */}
               <input
                 type="text"
-                className="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-black outline-none focus:border-blue-500"
+                className="w-full rounded-md border border-gray-300 bg-gray-50 py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-blue-500"
                 placeholder={`Masukkan ${
                   tipeKey === "jenis" ? "Jenis Ikan" : "Ukuran"
                 }`}
@@ -311,16 +278,17 @@ const JenisProduk = ({
               />
               <button
                 type="button"
-                className="ml-2 text-red-500"
+                className="ml-2 text-red-500 hover:text-red-700 dark:hover:text-red-400 cursor-pointer"
                 onClick={() => handleRemoveVariasi(tipeKey, index)}
               >
                 ✖
               </button>
             </div>
           ))}
+          {/* Perubahan: Styling tombol tambah untuk dark mode */}
           <button
             type="button"
-            className="mt-2 px-4 py-1 bg-[#E9FAF7] text-[#1A9882]"
+            className="mt-2 px-4 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 dark:bg-green-900/40 dark:text-green-300 dark:hover:bg-green-900/60 cursor-pointer"
             onClick={() => handleAddVariasi(tipeKey)}
           >
             + Tambah {tipeKey === "jenis" ? "Jenis Ikan" : "Ukuran"}
@@ -332,7 +300,7 @@ const JenisProduk = ({
         jenisProduk.size.some((s) => s && s.trim() !== "") && (
           <button
             type="button"
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             onClick={generateStockCombinations}
           >
             Atur Stok dan Harga
@@ -355,22 +323,27 @@ const JenisProduk = ({
     }
 
     return (
-      <div className="p-5">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">
+      <div>
+        {/* Perubahan: Warna teks judul */}
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
           Atur Stok dan Harga
         </h2>
 
-        <div className="flex mb-6">
-          <div className="w-1/3 pr-4">
-            <h3 className="font-medium text-gray-700 mb-2">Jenis Ikan</h3>
-            <div className="border rounded-md overflow-hidden">
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="w-full md:w-1/3">
+            {/* Perubahan: Warna teks sub-judul */}
+            <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Jenis Ikan
+            </h3>
+            {/* Perubahan: Styling list untuk dark mode */}
+            <div className="border dark:border-gray-600 rounded-md overflow-hidden">
               {validJenisToRender.map((jenisItem, index) => (
                 <div
                   key={index}
-                  className={`p-3 cursor-pointer hover:bg-gray-100 ${
+                  className={`p-3 cursor-pointer hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 ${
                     selectedJenis === jenisItem
-                      ? "bg-blue-100 border-l-4 border-blue-500"
-                      : ""
+                      ? "bg-blue-100 border-l-4 border-blue-500 dark:bg-blue-900/50 dark:border-blue-400 font-semibold"
+                      : "border-l-4 border-transparent"
                   }`}
                   onClick={() => setSelectedJenis(jenisItem)}
                 >
@@ -380,35 +353,48 @@ const JenisProduk = ({
             </div>
           </div>
 
-          <div className="w-2/3">
+          <div className="w-full md:w-2/3">
             {selectedJenis && validJenisToRender.includes(selectedJenis) ? (
               <>
-                <h3 className="font-medium text-gray-700 mb-2">
+                <h3 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Ukuran untuk {selectedJenis}
                 </h3>
                 {validSizesToRender.length > 0 ? (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white">
+                    {/* Perubahan: Styling tabel untuk dark mode */}
+                    <table className="min-w-full bg-white dark:bg-gray-800 border dark:border-gray-600">
                       <thead>
-                        <tr className="bg-gray-100">
-                          <th className="py-2 px-4 border">Ukuran</th>
-                          <th className="py-2 px-4 border">Stok</th>
-                          <th className="py-2 px-4 border">Satuan</th>
-                          <th className="py-2 px-4 border">Harga</th>
-                          <th className="py-2 px-4 border">Diskon (%)</th>
+                        <tr className="bg-gray-100 dark:bg-gray-700">
+                          <th className="py-2 px-4 border-b dark:border-gray-600 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
+                            Ukuran
+                          </th>
+                          <th className="py-2 px-4 border-b dark:border-gray-600 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
+                            Stok
+                          </th>
+                          <th className="py-2 px-4 border-b dark:border-gray-600 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
+                            Satuan
+                          </th>
+                          <th className="py-2 px-4 border-b dark:border-gray-600 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
+                            Harga
+                          </th>
+                          <th className="py-2 px-4 border-b dark:border-gray-600 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
+                            Diskon (%)
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {validSizesToRender.map((sizeItem, index) => (
                           <tr
                             key={`${selectedJenis}-${sizeItem}-${index}`}
-                            className="border-b"
+                            className="border-b dark:border-gray-700"
                           >
-                            <td className="py-2 px-4 border">{sizeItem}</td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-2 px-4 text-gray-800 dark:text-gray-200">
+                              {sizeItem}
+                            </td>
+                            <td className="py-2 px-4">
                               <input
                                 type="number"
-                                className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500"
+                                className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
                                 value={getStockValue(
                                   selectedJenis,
                                   sizeItem,
@@ -425,9 +411,9 @@ const JenisProduk = ({
                                 min="0"
                               />
                             </td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-2 px-4">
                               <select
-                                className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500"
+                                className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
                                 value={getStockValue(
                                   selectedJenis,
                                   sizeItem,
@@ -446,10 +432,10 @@ const JenisProduk = ({
                                 <option value="ekor">Ekor</option>
                               </select>
                             </td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-2 px-4">
                               <input
                                 type="number"
-                                className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500"
+                                className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
                                 value={getStockValue(
                                   selectedJenis,
                                   sizeItem,
@@ -467,10 +453,10 @@ const JenisProduk = ({
                                 step="any"
                               />
                             </td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-2 px-4">
                               <input
                                 type="number"
-                                className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500"
+                                className="w-full rounded-md border border-gray-300 bg-white py-1 px-2 text-black outline-none focus:border-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
                                 value={getStockValue(
                                   selectedJenis,
                                   sizeItem,
@@ -494,13 +480,13 @@ const JenisProduk = ({
                     </table>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-32 text-gray-500">
+                  <div className="flex items-center justify-center h-32 text-gray-500 dark:text-gray-400">
                     Mohon tambahkan ukuran untuk jenis ikan ini.
                   </div>
                 )}
               </>
             ) : (
-              <div className="flex items-center justify-center h-32 text-gray-500">
+              <div className="flex items-center justify-center h-32 text-gray-500 dark:text-gray-400">
                 {validJenisToRender.length > 0
                   ? "Pilih jenis ikan."
                   : "Mohon isi dan pilih jenis ikan di langkah sebelumnya."}
@@ -511,7 +497,7 @@ const JenisProduk = ({
 
         <button
           type="button"
-          className="mt-4 px-4 py-2 bg-gray-500 text-white rounded-md"
+          className="mt-6 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
           onClick={() => setCurrentStep("jenis")}
         >
           Kembali

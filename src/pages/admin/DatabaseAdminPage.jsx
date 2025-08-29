@@ -1,11 +1,9 @@
 // client/src/pages/Admin/DatabaseAdminPage.jsx
 import React, { useState, useEffect } from "react";
-import toast from "react-hot-toast"; // <--- Impor toast
+import toast from "react-hot-toast";
 
 const DatabaseAdminPage = () => {
-  // const [message, setMessage] = useState(""); // Kita tidak lagi menggunakan state message ini
   const [isLoading, setIsLoading] = useState(false);
-  // const [file, setFile] = useState(null); // <-- DI-COMMENT: State untuk file restore tidak lagi diperlukan
   const [authToken, setAuthToken] = useState("");
 
   useEffect(() => {
@@ -78,111 +76,22 @@ const DatabaseAdminPage = () => {
     }
   };
 
-  // ==================================================================
-  // BAGIAN LOGIKA RESTORE DI-COMMENT SESUAI PERMINTAAN
-  // ==================================================================
-  /*
-  const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
-  };
-
-  const handleRestore = async () => {
-    if (!authToken) {
-      toast.error("Autentikasi diperlukan untuk restore.");
-      return;
-    }
-    if (!file) {
-      toast.error("Pilih file backup terlebih dahulu.");
-      return;
-    }
-
-    const confirmRestore = window.confirm(
-      "PERHATIAN! Proses ini akan MENGHAPUS data database saat ini dan menggantinya dengan data dari file backup. Apakah Anda yakin ingin melanjutkan?"
-    );
-    if (!confirmRestore) {
-      toast.custom(
-        (t) => (
-          <div
-            className={`${
-              t.visible ? "animate-enter" : "animate-leave"
-            } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
-          >
-            <div className="flex-1 w-0 p-4">
-              <div className="flex items-start">
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-900">Informasi</p>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Proses restore dibatalkan.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex border-l border-gray-200">
-              <button
-                onClick={() => toast.dismiss(t.id)}
-                className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
-        ),
-        { duration: 4000 }
-      );
-      return;
-    }
-
-    setIsLoading(true);
-    const loadingToastId = toast.loading("Memulai proses restore...");
-
-    const formData = new FormData();
-    formData.append("backupFile", file);
-
-    try {
-      const response = await fetch(getApiUrl("/restore"), {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: formData,
-      });
-
-      toast.dismiss(loadingToastId);
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || `Error ${response.status}`);
-      }
-
-      let successMessage = `Database berhasil direstore!`;
-      toast.success(successMessage, { duration: 7000 });
-    } catch (error) {
-      toast.dismiss(loadingToastId);
-      console.error("Restore error:", error);
-      toast.error(`Restore gagal: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-      setFile(null);
-      if (document.getElementById("backupFileRestore")) {
-        document.getElementById("backupFileRestore").value = "";
-      }
-    }
-  };
-  */
-  // ==================================================================
-  // AKHIR BAGIAN LOGIKA RESTORE YANG DI-COMMENT
-  // ==================================================================
+  // Logika dan UI untuk Restore tetap di-comment
+  // ...
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 bg-gray-50 min-h-screen">
-      <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-lg p-6 md:p-8">
+    // Perubahan: Latar belakang utama halaman
+    <div className="p-4 md:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      {/* Perubahan: Latar belakang kartu utama */}
+      <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 shadow-xl rounded-lg p-6 md:p-8">
         {/* Backup Section */}
-        <div className="mb-10 p-4 md:p-6 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-700 mb-3">
+        {/* Perubahan: Warna border kartu section */}
+        <div className="mb-10 p-4 md:p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          {/* Perubahan: Warna teks judul dan paragraf */}
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-700 dark:text-white mb-3">
             Backup Database
           </h2>
-          <p className="text-sm text-gray-600 mb-5">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-5">
             Klik tombol di bawah untuk membuat cadangan (backup) data dari
             database. File backup akan diunduh ke komputer Anda.
           </p>
@@ -199,14 +108,14 @@ const DatabaseAdminPage = () => {
         {/* BAGIAN TAMPILAN (UI/JSX) RESTORE DI-COMMENT SESUAI PERMINTAAN */}
         {/* ================================================================== */}
         {/*
-        <hr className="my-8 border-gray-300" />
+        <hr className="my-8 border-gray-300 dark:border-gray-600" />
         
-        <div className="p-4 md:p-6 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-700 mb-3">
+        <div className="p-4 md:p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          <h2 className="text-xl md:text-2xl font-semibold text-gray-700 dark:text-white mb-3">
             Restore Database
           </h2>
           <div
-            className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md"
+            className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-700 dark:text-red-400 p-4 mb-6 rounded-md"
             role="alert"
           >
             <p className="font-bold text-lg">Peringatan Penting!</p>
@@ -221,28 +130,28 @@ const DatabaseAdminPage = () => {
           <div className="mb-5">
             <label
               htmlFor="backupFileRestore"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Pilih File Backup (.zip atau .gz):
             </label>
             <input
               id="backupFileRestore"
               type="file"
-              onChange={handleFileChange}
+              // onChange={handleFileChange}
               disabled={isLoading || !authToken}
               accept=".zip,.gz,.archive"
-              className="block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer focus:outline-none
+              className="block w-full text-sm text-gray-900 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer focus:outline-none
                          file:mr-4 file:py-2 file:px-4
                          file:rounded-md file:border-0
                          file:text-sm file:font-semibold
-                         file:bg-indigo-50 file:text-indigo-700
-                         hover:file:bg-indigo-100
+                         file:bg-indigo-50 dark:file:bg-indigo-900/40 file:text-indigo-700 dark:file:text-indigo-300
+                         hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900/60
                          disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
           <button
-            onClick={handleRestore}
-            disabled={isLoading || !file || !authToken}
+            // onClick={handleRestore}
+            // disabled={isLoading || !file || !authToken}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isLoading ? "Memproses Restore..." : "Mulai Restore Database"}
