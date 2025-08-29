@@ -1,6 +1,5 @@
 // modalEditAlamat.jsx
 import { useState, useEffect } from "react";
-// Hapus useNavigate jika tidak digunakan langsung di sini
 import CancelModal from "./modalCancel";
 import SimpanModal from "./modalBerhasilSimpan";
 
@@ -8,13 +7,9 @@ export default function EditAddressModal({
   isOpen,
   onClose,
   address,
-  // Hapus setAddresses dan addresses jika tidak digunakan lagi secara langsung
-  // setAddresses,
-  // addresses,
-  onAddressUpdated, // Prop baru dari Alamat.jsx
+  onAddressUpdated,
 }) {
   const [isCancelOpen, setIsCancelOpen] = useState(false);
-  // const navigate = useNavigate(); // Hapus jika tidak digunakan
   const [isSimpanOpen, setIsSimpanOpen] = useState(false);
   const [recipientName, setRecipientName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -25,7 +20,6 @@ export default function EditAddressModal({
 
   useEffect(() => {
     if (isOpen && address) {
-      // Pastikan modal terbuka dan address ada
       setRecipientName(address.recipientName || "");
       setPhoneNumber(address.phoneNumber || "");
       setStreetAddress(address.streetAddress || "");
@@ -33,7 +27,6 @@ export default function EditAddressModal({
       setProvince(address.province || "");
       setCity(address.city || "");
     } else if (!isOpen) {
-      // Reset jika modal ditutup
       setRecipientName("");
       setPhoneNumber("");
       setStreetAddress("");
@@ -41,7 +34,7 @@ export default function EditAddressModal({
       setProvince("");
       setCity("");
     }
-  }, [isOpen, address]); // Re-run jika isOpen atau address berubah
+  }, [isOpen, address]);
 
   const handlePostalCodeChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
@@ -86,11 +79,6 @@ export default function EditAddressModal({
       if (!response.ok) {
         throw new Error(result.message || "Failed to update address");
       }
-
-      // Tidak perlu update state 'addresses' di sini lagi
-      // setAddresses(
-      //   addresses.map((addr) => (addr._id === address._id ? result.data : addr))
-      // );
       setIsSimpanOpen(true);
     } catch (err) {
       console.error("Failed to update address:", err);
@@ -101,10 +89,9 @@ export default function EditAddressModal({
   const handleConfirmSimpan = async () => {
     setIsSimpanOpen(false);
     if (onAddressUpdated) {
-      await onAddressUpdated(); // Panggil callback untuk refresh data di parent
+      await onAddressUpdated();
     }
-    onClose(); // Tutup modal edit alamat
-    // navigate("/profile?tab=address"); // Navigasi sudah ditangani oleh onClose di parent jika perlu
+    onClose();
   };
 
   const handleCancelAndClose = () => {
@@ -115,17 +102,22 @@ export default function EditAddressModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 backdrop-blur-xl bg-opacity-50 flex justify-center items-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-        <h2 className="text-2xl font-bold mb-4">Edit Alamat</h2>
+    <div className="fixed inset-0 backdrop-blur-xl bg-black bg-opacity-50 flex justify-center items-center p-4 z-50">
+      {/* Perubahan: Latar belakang modal dan warna teks utama */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+          Edit Alamat
+        </h2>
         <form className="space-y-4" onSubmit={handleSave}>
           <div>
-            <label className="block text-sm font-medium">
+            {/* Perubahan: Warna teks label */}
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Nama Penerima <span className="text-red-500">*</span>
             </label>
+            {/* Perubahan: Warna input, border, dan teks di dalamnya */}
             <input
               type="text"
-              className="w-full border rounded p-2"
+              className="mt-1 w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded p-2 placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="Nama Lengkap Penerima"
               value={recipientName}
               onChange={(e) => setRecipientName(e.target.value)}
@@ -133,12 +125,12 @@ export default function EditAddressModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               No Telepon <span className="text-red-500">*</span>
             </label>
             <input
               type="tel"
-              className="w-full border rounded p-2"
+              className="mt-1 w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded p-2 placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="No Telepon Penerima"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
@@ -146,13 +138,13 @@ export default function EditAddressModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Nama Jalan, Gedung, No. Rumah{" "}
               <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              className="w-full border rounded p-2"
+              className="mt-1 w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded p-2 placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="Detail Alamat Lengkap"
               value={streetAddress}
               onChange={(e) => setStreetAddress(e.target.value)}
@@ -160,12 +152,12 @@ export default function EditAddressModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Kode Pos <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              className="w-full border rounded p-2 appearance-none"
+              className="mt-1 w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded p-2 appearance-none placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="Kode Pos"
               value={postalCode}
               onChange={handlePostalCodeChange}
@@ -176,12 +168,12 @@ export default function EditAddressModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Provinsi <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              className="w-full border rounded p-2"
+              className="mt-1 w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded p-2 placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="Provinsi"
               value={province}
               onChange={(e) => setProvince(e.target.value)}
@@ -189,12 +181,12 @@ export default function EditAddressModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Kota <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              className="w-full border rounded p-2"
+              className="mt-1 w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white rounded p-2 placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="Kota/Kabupaten"
               value={city}
               onChange={(e) => setCity(e.target.value)}
@@ -202,10 +194,11 @@ export default function EditAddressModal({
             />
           </div>
           <div className="flex justify-between pt-4">
+            {/* Perubahan: Warna tombol Batal */}
             <button
               type="button"
               onClick={() => setIsCancelOpen(true)}
-              className="bg-gray-300 text-black hover:bg-gray-400 transition px-4 py-2 rounded"
+              className="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 hover:bg-gray-400 dark:hover:bg-gray-500 transition px-4 py-2 rounded"
             >
               Batal
             </button>

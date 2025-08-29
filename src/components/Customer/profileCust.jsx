@@ -126,7 +126,7 @@ const CustProfile = () => {
         <div className="md:hidden flex justify-between items-center p-4 bg-white dark:bg-gray-800 rounded-t-lg shadow-sm">
           <div className="flex items-center gap-2">
             <img
-              src={userData?.avatar || "https://via.placeholder.com/80"}
+              src={userData?.avatar || "/images/avatar_placeholder.webp"}
               alt="User Avatar"
               className="w-10 h-10 rounded-full border-2 border-gray-300 dark:border-gray-600"
             />
@@ -179,7 +179,7 @@ const CustProfile = () => {
             {" "}
             {/* Sembunyikan di mobile karena sudah ada di header mobile */}
             <img
-              src={userData?.avatar || "https://via.placeholder.com/80"}
+              src={userData?.avatar || "/images/avatar_placeholder.webp"}
               alt="User Avatar"
               className="w-16 md:w-20 h-16 md:h-20 rounded-full border-4 border-gray-300 dark:border-gray-600"
             />

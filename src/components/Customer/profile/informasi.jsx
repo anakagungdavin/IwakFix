@@ -5,7 +5,11 @@ const InformasiCust = ({ userData }) => {
   const navigate = useNavigate();
 
   if (!userData) {
-    return <div className="text-center py-4 text-gray-900 dark:text-white">No data available</div>;
+    return (
+      <div className="text-center py-4 text-gray-900 dark:text-white">
+        No data available
+      </div>
+    );
   }
 
   return (
@@ -13,7 +17,8 @@ const InformasiCust = ({ userData }) => {
       {/* Avatar */}
       <div className="relative w-16 h-16 md:w-24 md:h-24 mx-auto md:mx-0">
         <img
-          src={userData.avatar || "/default-avatar.png"}
+          // src={userData.avatar || "/default-avatar.png"}
+          src={userData?.avatar || "/images/avatar_placeholder.webp"}
           alt="Avatar"
           className="w-full h-full object-cover rounded-full border-2 border-gray-300 dark:border-gray-600"
         />
@@ -22,7 +27,9 @@ const InformasiCust = ({ userData }) => {
       {/* Form */}
       <div className="mt-4 md:mt-6 space-y-3 md:space-y-4">
         <div>
-          <label className="block text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium">Nama</label>
+          <label className="block text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium">
+            Nama
+          </label>
           <input
             type="text"
             value={userData.name || ""}
@@ -42,7 +49,9 @@ const InformasiCust = ({ userData }) => {
           />
         </div>
         <div>
-          <label className="block text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium">Email</label>
+          <label className="block text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium">
+            Email
+          </label>
           <input
             type="email"
             value={userData.email || ""}
@@ -51,7 +60,9 @@ const InformasiCust = ({ userData }) => {
           />
         </div>
         <div>
-          <label className="block text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium">Gender</label>
+          <label className="block text-gray-700 dark:text-gray-300 text-sm md:text-base font-medium">
+            Gender
+          </label>
           <input
             type="text"
             value={userData.gender || "Lainnya"}

@@ -1,4 +1,3 @@
-// pesanan.jsx
 import React, { useState, useEffect, useCallback } from "react";
 
 // =====================================================================================
@@ -44,7 +43,9 @@ const TransactionCard = ({
             <span className="px-1 py-0.5 md:px-2 md:py-1 bg-yellow-100 dark:bg-yellow-900/30 text-[#d9a002] dark:text-yellow-400 text-xs rounded-md">
               {status || "N/A"}
             </span>
-            <p className="text-gray-400 dark:text-gray-500 text-xs">{code || "N/A"}</p>
+            <p className="text-gray-400 dark:text-gray-500 text-xs">
+              {code || "N/A"}
+            </p>
           </div>
           <h3 className="text-base md:text-lg font-semibold text-gray-800 dark:text-white">
             {name} {/* Gunakan itemCount yang sudah dicek */}
@@ -217,11 +218,19 @@ const TransactionList = () => {
   });
 
   if (loading) {
-    return <div className="p-6 text-center text-gray-900 dark:text-white">Memuat riwayat transaksi...</div>;
+    return (
+      <div className="p-6 text-center text-gray-900 dark:text-white">
+        Memuat riwayat transaksi...
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="p-6 text-center text-red-500 dark:text-red-400">Error: {error}</div>;
+    return (
+      <div className="p-6 text-center text-red-500 dark:text-red-400">
+        Error: {error}
+      </div>
+    );
   }
 
   return (
@@ -248,7 +257,7 @@ const TransactionList = () => {
           </button>
         ))}
       </div>
-      <button
+      {/* <button
         className="flex items-center px-3 py-1 md:px-4 md:py-2 bg-[#003D47] dark:bg-[#FFBC00] text-white dark:text-black hover:bg-[#005f73] dark:hover:bg-[#e6a800] transition rounded-md text-xs md:text-sm shadow"
         onClick={toggleModalReport}
       >
@@ -262,7 +271,7 @@ const TransactionList = () => {
           <path d="M10 13L6 9H9V6H11V9H14L10 13Z" />
         </svg>
         Download Riwayat Transaksi
-      </button>
+      </button> */}
       {isReportModalOpen && (
         <CustReportModal
           isOpen={isReportModalOpen}
@@ -401,8 +410,12 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
             {status || "N/A"}
           </span>
           <div className="text-right">
-            <p className="text-xs text-gray-500 dark:text-gray-400">ID: {_id || "N/A"}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(orderDate)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              ID: {_id || "N/A"}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {formatDate(orderDate)}
+            </p>
           </div>
         </div>
 
@@ -499,14 +512,20 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
           </h3>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Metode Pembayaran</span>
+              <span className="text-gray-700 dark:text-gray-300">
+                Metode Pembayaran
+              </span>
               <span className="font-semibold text-gray-800 dark:text-white">
                 {formatPaymentMethod(paymentMethod)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Subtotal Item ({items.length})</span>
-              <span className="text-gray-700 dark:text-gray-300">Rp{subtotal.toLocaleString("id-ID")}</span>
+              <span className="text-gray-700 dark:text-gray-300">
+                Subtotal Item ({items.length})
+              </span>
+              <span className="text-gray-700 dark:text-gray-300">
+                Rp{subtotal.toLocaleString("id-ID")}
+              </span>
             </div>
             {totalDiscount > 0 && (
               <div className="flex justify-between text-red-600 dark:text-red-400">
@@ -515,8 +534,12 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-gray-700 dark:text-gray-300">Ongkos Kirim</span>
-              <span className="text-gray-700 dark:text-gray-300">Rp{(shippingCost || 0).toLocaleString("id-ID")}</span>
+              <span className="text-gray-700 dark:text-gray-300">
+                Ongkos Kirim
+              </span>
+              <span className="text-gray-700 dark:text-gray-300">
+                Rp{(shippingCost || 0).toLocaleString("id-ID")}
+              </span>
             </div>
             <div className="flex justify-between font-bold text-gray-800 dark:text-white text-sm mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
               <span>TOTAL PEMBAYARAN</span>

@@ -175,11 +175,13 @@ const EditProfileCust = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
       <div className="max-w-lg mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Edit Profil</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
+          Edit Profil
+        </h2>
 
         <div className="relative w-24 h-24 mx-auto">
           <img
-            src={avatar || "https://via.placeholder.com/80"}
+            src={avatar || "/images/avatar_placeholder.webp"}
             alt="Avatar"
             className="w-full h-full object-cover rounded-full border-2 border-gray-300 dark:border-gray-600"
           />
@@ -200,13 +202,17 @@ const EditProfileCust = () => {
 
         {/* --- PERUBAHAN DI SINI: Tampilkan pesan error jika ada --- */}
         {avatarError && (
-          <p className="text-red-500 dark:text-red-400 text-sm text-center mt-2">{avatarError}</p>
+          <p className="text-red-500 dark:text-red-400 text-sm text-center mt-2">
+            {avatarError}
+          </p>
         )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {/* ... (sisa form tetap sama) ... */}
           <div>
-            <label className="block text-gray-700 dark:text-gray-300 font-medium">Nama</label>
+            <label className="block text-gray-700 dark:text-gray-300 font-medium">
+              Nama
+            </label>
             <input
               type="text"
               value={name}
@@ -226,7 +232,9 @@ const EditProfileCust = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 dark:text-gray-300 font-medium">Email</label>
+            <label className="block text-gray-700 dark:text-gray-300 font-medium">
+              Email
+            </label>
             <input
               type="email"
               value={email}
