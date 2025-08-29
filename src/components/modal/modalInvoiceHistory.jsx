@@ -10,6 +10,7 @@ import {
 } from "@react-pdf/renderer";
 import * as XLSX from "xlsx";
 
+// Fungsi helper tidak memerlukan perubahan untuk dark mode
 const getFormattedDate = (dateInput) => {
   if (!dateInput) return "N/A";
   const date = new Date(dateInput);
@@ -32,14 +33,9 @@ const formatAddress = (address) => {
   return parts.join(", ") || "Alamat tidak lengkap";
 };
 
-// Desain untuk PDF (tidak berubah dari sebelumnya)
+// Komponen PDF tidak terpengaruh oleh dark mode HTML
 const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    fontFamily: "Helvetica",
-    fontSize: 9,
-    lineHeight: 1.3,
-  },
+  page: { padding: 30, fontFamily: "Helvetica", fontSize: 9, lineHeight: 1.3 },
   header: {
     borderBottomWidth: 1,
     borderBottomColor: "#333333",
@@ -51,20 +47,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
-  companyInfo: {
-    width: "60%",
-    fontSize: 9,
-  },
-  invoiceInfo: {
-    width: "35%",
-    textAlign: "right",
-    fontSize: 9,
-  },
-  logoPlaceholder: {
-    fontSize: 14,
-    fontWeight: "bold",
-    marginBottom: 3,
-  },
+  companyInfo: { width: "60%", fontSize: 9 },
+  invoiceInfo: { width: "35%", textAlign: "right", fontSize: 9 },
+  logoPlaceholder: { fontSize: 14, fontWeight: "bold", marginBottom: 3 },
   title: {
     fontSize: 14,
     fontWeight: "bold",
@@ -90,10 +75,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#bfbfbf",
   },
-  tableHeader: {
-    backgroundColor: "#f2f2f2",
-    fontWeight: "bold",
-  },
+  tableHeader: { backgroundColor: "#f2f2f2", fontWeight: "bold" },
   tableCell: {
     padding: 4,
     borderStyle: "solid",
@@ -112,19 +94,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
   },
-  tableCellAmount: {
-    textAlign: "right",
-  },
-  tableCellCenter: {
-    textAlign: "center",
-  },
+  tableCellAmount: { textAlign: "right" },
+  tableCellCenter: { textAlign: "center" },
   colNo: { width: "5%" },
-  colTanggal: { width: "13%" },
-  colNamaPembeli: { width: "17%" },
-  colAlamat: { width: "25%" },
-  colJumlah: { width: "10%" },
-  colHargaSatuan: { width: "15%" },
-  colHargaTotal: { width: "15%", borderRightWidth: 0 },
+  colTanggal: { width: "12%" },
+  colNamaPembeli: { width: "15%" },
+  colJenisBibit: { width: "18%" },
+  colAlamat: { width: "20%" },
+  colJumlah: { width: "8%" },
+  colHargaSatuan: { width: "11%" },
+  colHargaTotal: { width: "11%", borderRightWidth: 0 },
   totalSection: {
     marginTop: 15,
     borderTopWidth: 1,
@@ -164,27 +143,23 @@ const MyDocument = ({ startDate, endDate, orders }) => {
   start.setHours(0, 0, 0, 0);
   const end = new Date(endDate);
   end.setHours(23, 59, 59, 999);
-
   const filteredOrders = orders.filter((order) => {
     const orderDate = new Date(order.createdAt);
     return (
       orderDate >= start && orderDate <= end && order.status !== "Cancelled"
     );
   });
-
-  const totalInvoice = filteredOrders.reduce((sum, order) => {
-    return (
+  const totalInvoice = filteredOrders.reduce(
+    (sum, order) =>
       sum +
       order.items.reduce(
         (itemSum, item) =>
           itemSum + item.quantity * (item.discountedPrice || item.price || 0),
         0
-      )
-    );
-  }, 0);
-
+      ),
+    0
+  );
   let itemNo = 0;
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -206,12 +181,10 @@ const MyDocument = ({ startDate, endDate, orders }) => {
             </View>
           </View>
         </View>
-
         <Text style={styles.title}>Laporan Penjualan Bibit Ikan</Text>
         <Text style={styles.subtitle}>
           Periode: {getFormattedDate(startDate)} - {getFormattedDate(endDate)}
         </Text>
-
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
             <Text style={[styles.tableCellHeader, styles.colNo]}>No</Text>
@@ -220,6 +193,9 @@ const MyDocument = ({ startDate, endDate, orders }) => {
             </Text>
             <Text style={[styles.tableCellHeader, styles.colNamaPembeli]}>
               Nama Pembeli
+            </Text>
+            <Text style={[styles.tableCellHeader, styles.colJenisBibit]}>
+              Jenis Bibit
             </Text>
             <Text style={[styles.tableCellHeader, styles.colAlamat]}>
               Alamat
@@ -243,7 +219,6 @@ const MyDocument = ({ startDate, endDate, orders }) => {
                   order.user?.name ||
                   "N/A";
                 const addressString = formatAddress(order.shippingAddress);
-
                 return (
                   <View
                     key={`${order._id}-${itemNo}`}
@@ -264,6 +239,9 @@ const MyDocument = ({ startDate, endDate, orders }) => {
                     </Text>
                     <Text style={[styles.tableCell, styles.colNamaPembeli]}>
                       {buyerName}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.colJenisBibit]}>
+                      {item.product?.name || "N/A"}
                     </Text>
                     <Text style={[styles.tableCell, styles.colAlamat]}>
                       {addressString}
@@ -319,7 +297,6 @@ const MyDocument = ({ startDate, endDate, orders }) => {
             </View>
           )}
         </View>
-
         {filteredOrders.length > 0 && (
           <View style={styles.totalSection}>
             <View style={styles.totalRow}>
@@ -342,21 +319,18 @@ const MyDocument = ({ startDate, endDate, orders }) => {
 };
 
 const generateExcelData = (startDate, endDate, orders) => {
-  // ... (Fungsi ini tidak memiliki error dan tidak diubah)
+  // ... Fungsi ini tidak berubah karena tidak menghasilkan UI
   const start = new Date(startDate);
   start.setHours(0, 0, 0, 0);
   const end = new Date(endDate);
   end.setHours(23, 59, 59, 999);
-
   const filteredOrders = orders.filter((order) => {
     const orderDate = new Date(order.createdAt);
     return (
       orderDate >= start && orderDate <= end && order.status !== "Cancelled"
     );
   });
-
   const excelData = [];
-  // Informasi Perusahaan & Periode
   excelData.push(["UPTD Aneka Usaha - Laporan Penjualan Bibit Ikan"]);
   excelData.push([
     "Jalan Pleret Raya, Kel. Sumber, Kec. Banjarsari, Kota Surakarta",
@@ -365,50 +339,41 @@ const generateExcelData = (startDate, endDate, orders) => {
   excelData.push([
     `Periode: ${getFormattedDate(startDate)} - ${getFormattedDate(endDate)}`,
   ]);
-  excelData.push([]); // Spasi
-
-  // Header Tabel
+  excelData.push([]);
   const tableHeaders = [
     "No",
     "Tanggal",
     "Nama Pembeli",
+    "Jenis Bibit",
     "Alamat",
     "Jumlah",
     "Harga Satuan (Rp)",
     "Harga Total (Rp)",
   ];
   excelData.push(tableHeaders);
-
-  // Inisialisasi lebar kolom berdasarkan header
   let colWidths = tableHeaders.map((header) => header.length);
-
   let itemNo = 0;
   const dataRowsForExcel = [];
-
   filteredOrders.forEach((order) => {
     const buyerName =
       order.shippingAddress?.recipientName || order.user?.name || "N/A";
     const addressString = formatAddress(order.shippingAddress);
-
     order.items.forEach((item) => {
       itemNo++;
       const rowValues = [
         itemNo,
         getFormattedDate(order.createdAt),
         buyerName,
+        item.product?.name || "N/A",
         addressString,
         `${item.quantity} ${item.satuan || ""}`,
-        item.discountedPrice || item.price || 0, // Nilai numerik untuk Excel
-        (item.quantity || 0) * (item.discountedPrice || item.price || 0), // Nilai numerik
+        item.discountedPrice || item.price || 0,
+        (item.quantity || 0) * (item.discountedPrice || item.price || 0),
       ];
       dataRowsForExcel.push(rowValues);
-
-      // Update lebar kolom berdasarkan konten baris data
       rowValues.forEach((cell, index) => {
         let cellStringRepresentation;
-        if (index === 5 || index === 6) {
-          // Kolom Harga Satuan & Harga Total
-          // Untuk kalkulasi lebar, format sebagai string mata uang
+        if (index === 6 || index === 7) {
           cellStringRepresentation = `Rp ${Number(cell).toLocaleString(
             "id-ID"
           )}`;
@@ -422,9 +387,7 @@ const generateExcelData = (startDate, endDate, orders) => {
       });
     });
   });
-
-  excelData.push(...dataRowsForExcel); // Tambahkan semua baris data ke excelData
-
+  excelData.push(...dataRowsForExcel);
   const totalInvoice = filteredOrders.reduce((sum, order) => {
     return (
       sum +
@@ -435,9 +398,9 @@ const generateExcelData = (startDate, endDate, orders) => {
       )
     );
   }, 0);
-
-  excelData.push([]); // Spasi
+  excelData.push([]);
   const totalRowData = [
+    "",
     "",
     "",
     "",
@@ -447,14 +410,11 @@ const generateExcelData = (startDate, endDate, orders) => {
     totalInvoice,
   ];
   excelData.push(totalRowData);
-
-  // Update lebar kolom untuk baris total
   totalRowData.forEach((cell, index) => {
     if (cell === null || cell === undefined || String(cell).trim() === "")
       return;
     let cellStringRepresentation;
-    if (index === 6) {
-      // Kolom nilai total
+    if (index === 7) {
       cellStringRepresentation = `Rp ${Number(cell).toLocaleString("id-ID")}`;
     } else {
       cellStringRepresentation = String(cell);
@@ -465,18 +425,15 @@ const generateExcelData = (startDate, endDate, orders) => {
         cellStringRepresentation.length
       );
     } else {
-      // Jika kolom tidak ada di header tapi ada di total (seharusnya tidak terjadi)
       colWidths[index] = cellStringRepresentation.length;
     }
   });
-
-  // Tambahkan buffer kecil ke setiap lebar kolom dan format untuk `!cols`
-  const finalCalculatedWidths = colWidths.map((width) => ({ wch: width + 2 })); // buffer 2 karakter
-
+  const finalCalculatedWidths = colWidths.map((width) => ({ wch: width + 2 }));
   return { data: excelData, widths: finalCalculatedWidths };
 };
 
 const downloadExcel = (startDate, endDate, orders) => {
+  // ... Fungsi ini tidak berubah karena tidak menghasilkan UI
   if (!startDate || !endDate) {
     alert("Silakan pilih rentang tanggal terlebih dahulu.");
     return;
@@ -488,12 +445,9 @@ const downloadExcel = (startDate, endDate, orders) => {
   );
   const workbook = XLSX.utils.book_new();
   const worksheet = XLSX.utils.aoa_to_sheet(excelData);
-
-  // Terapkan lebar kolom yang sudah dihitung
   if (worksheet && calculatedWidths && calculatedWidths.length > 0) {
     worksheet["!cols"] = calculatedWidths;
   }
-
   XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Penjualan");
   XLSX.writeFile(
     workbook,
@@ -511,7 +465,6 @@ const SalesReportModal = ({ onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
-
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -543,7 +496,6 @@ const SalesReportModal = ({ onClose }) => {
     const today = new Date();
     const formattedToday = today.toISOString().split("T")[0];
     setEndDate(formattedToday);
-
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(today.getDate() - 29);
     setStartDate(thirtyDaysAgo.toISOString().split("T")[0]);
@@ -557,7 +509,6 @@ const SalesReportModal = ({ onClose }) => {
     setIsGenerating(true);
     setTimeout(() => setIsGenerating(false), 3000);
   };
-
   const handleDownloadExcel = () => {
     if (!startDate || !endDate) {
       alert("Silakan pilih rentang tanggal terlebih dahulu.");
@@ -574,29 +525,33 @@ const SalesReportModal = ({ onClose }) => {
     }
   };
 
+  // PERUBAHAN: Style untuk state loading di dark mode
   if (loading)
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-[100]">
-        <div className="bg-white shadow-xl rounded-lg p-8 w-11/12 max-w-xs mx-auto text-center">
+        <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-8 w-11/12 max-w-xs mx-auto text-center">
           <div className="w-10 h-10 border-4 border-t-blue-500 border-b-blue-500 border-l-transparent border-r-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-700">Memuat data pesanan...</p>
+          <p className="mt-4 text-gray-700 dark:text-gray-300">
+            Memuat data pesanan...
+          </p>
         </div>
       </div>
     );
 
+  // PERUBAHAN: Style untuk state error di dark mode
   if (error)
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-[100]">
-        <div className="bg-white shadow-xl rounded-lg p-8 w-11/12 max-w-md mx-auto text-center">
+        <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-8 w-11/12 max-w-md mx-auto text-center">
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-white"
             aria-label="Close"
           >
             {" "}
             ✖{" "}
           </button>
-          <div className="text-red-500">
+          <div className="text-red-500 dark:text-red-400">
             <svg
               className="w-16 h-16 mx-auto mb-3"
               fill="currentColor"
@@ -627,7 +582,6 @@ const SalesReportModal = ({ onClose }) => {
       orderDate >= start && orderDate <= endD && order.status !== "Cancelled"
     );
   });
-
   const displayedItemsForPreview = filteredOrdersForPreview
     .flatMap((order) =>
       order.items.map((item) => ({
@@ -640,7 +594,6 @@ const SalesReportModal = ({ onClose }) => {
       }))
     )
     .slice(0, 5);
-
   const totalItemsInFilteredRange = filteredOrdersForPreview.reduce(
     (acc, order) => acc + order.items.length,
     0
@@ -648,10 +601,11 @@ const SalesReportModal = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-[60] p-2 sm:p-4">
-      <div className="bg-white shadow-xl rounded-lg p-5 sm:p-6 w-full max-w-4xl mx-auto relative overflow-y-auto max-h-[95vh] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+      {/* PERUBAHAN: Latar belakang, warna teks, dan scrollbar untuk dark mode */}
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-5 sm:p-6 w-full max-w-5xl mx-auto relative overflow-y-auto max-h-[95vh] scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-700">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 p-1.5 z-10 rounded-full hover:bg-gray-100"
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-white p-1.5 z-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
           aria-label="Tutup"
         >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -662,14 +616,16 @@ const SalesReportModal = ({ onClose }) => {
             />
           </svg>
         </button>
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 text-left mb-4 sm:mb-5">
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-gray-100 text-left mb-4 sm:mb-5">
           Laporan Penjualan Ikan
         </h2>
+
+        {/* PERUBAHAN: Form inputs untuk dark mode */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
           <div>
             <label
               htmlFor="startDate"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Tanggal Mulai:
             </label>
@@ -678,13 +634,13 @@ const SalesReportModal = ({ onClose }) => {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full border-gray-300 shadow-sm rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 dark:text-black"
+              className="w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 shadow-sm rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div>
             <label
               htmlFor="endDate"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Tanggal Akhir:
             </label>
@@ -693,18 +649,20 @@ const SalesReportModal = ({ onClose }) => {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full border-gray-300 shadow-sm rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 dark:text-black"
+              className="w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 shadow-sm rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
-        <p className="text-left text-gray-600 text-sm sm:text-base mb-6">
+        <p className="text-left text-gray-600 dark:text-gray-400 text-sm sm:text-base mb-6">
           Laporan untuk periode:{" "}
-          <strong className="text-gray-700">
+          <strong className="text-gray-700 dark:text-gray-200">
             {startDate && endDate
               ? `${getFormattedDate(startDate)} - ${getFormattedDate(endDate)}`
               : "Pilih rentang waktu"}
           </strong>
         </p>
+
+        {/* PERUBAHAN: Tombol download untuk dark mode */}
         <div className="flex flex-col sm:flex-row justify-start gap-3 sm:gap-4 mb-6">
           {startDate && endDate && (
             <>
@@ -726,7 +684,7 @@ const SalesReportModal = ({ onClose }) => {
                 {({ loading: pdfLoading }) => (
                   <button
                     disabled={isGenerating || pdfLoading}
-                    className="w-full bg-red-50 hover:bg-red-100 text-red-700 font-medium px-4 sm:px-5 py-2.5 rounded-lg shadow-sm border border-red-200 flex items-center justify-center transition-colors duration-150 disabled:opacity-70"
+                    className="w-full bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-900/50 dark:hover:bg-red-900/80 dark:text-red-300 font-medium px-4 sm:px-5 py-2.5 rounded-lg shadow-sm border border-red-200 dark:border-red-700 flex items-center justify-center transition-colors duration-150 disabled:opacity-70"
                   >
                     <svg
                       className="w-5 h-5 mr-2"
@@ -751,7 +709,7 @@ const SalesReportModal = ({ onClose }) => {
               <button
                 onClick={handleDownloadExcel}
                 disabled={isGenerating}
-                className="w-full sm:w-auto bg-green-50 hover:bg-green-100 text-green-700 font-medium px-4 sm:px-5 py-2.5 rounded-lg shadow-sm border border-green-200 flex items-center justify-center transition-colors duration-150 disabled:opacity-70"
+                className="w-full sm:w-auto bg-green-50 hover:bg-green-100 text-green-700 dark:bg-green-900/50 dark:hover:bg-green-900/80 dark:text-green-300 font-medium px-4 sm:px-5 py-2.5 rounded-lg shadow-sm border border-green-200 dark:border-green-700 flex items-center justify-center transition-colors duration-150 disabled:opacity-70"
               >
                 <svg
                   className="w-5 h-5 mr-2"
@@ -772,23 +730,26 @@ const SalesReportModal = ({ onClose }) => {
             </>
           )}
         </div>
+
+        {/* --- Area Preview dengan Dark Mode --- */}
         {startDate &&
           endDate &&
           orders.length > 0 &&
           displayedItemsForPreview.length > 0 && (
             <div className="mt-6">
-              <p className="font-medium mb-2 text-gray-700">
+              <p className="font-medium mb-2 text-gray-700 dark:text-gray-200">
                 Preview Laporan (5 item pertama):
               </p>
-              <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700/50">
                       <tr>
                         {[
                           "No",
                           "Tanggal",
                           "Nama Pembeli",
+                          "Jenis Bibit",
                           "Alamat",
                           "Jumlah",
                           "Harga Satuan",
@@ -797,10 +758,10 @@ const SalesReportModal = ({ onClose }) => {
                           <th
                             key={header}
                             scope="col"
-                            className={`px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                            className={`px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${
                               idx === 0 ? "w-10 text-center" : ""
-                            } ${idx === 4 ? "text-center" : ""} ${
-                              idx === 5 || idx === 6 ? "text-right" : ""
+                            } ${idx === 5 ? "text-center" : ""} ${
+                              idx === 6 || idx === 7 ? "text-right" : ""
                             } `}
                           >
                             {header}
@@ -808,28 +769,31 @@ const SalesReportModal = ({ onClose }) => {
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-transparent divide-y divide-gray-200 dark:divide-gray-700">
                       {displayedItemsForPreview.map((item, index) => (
                         <tr
                           key={`${item.orderId}-${item.product?._id || index}`}
-                          className="hover:bg-gray-50"
+                          className="hover:bg-gray-50 dark:hover:bg-white/5"
                         >
-                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-center">
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-center">
                             {index + 1}
                           </td>
-                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700">
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                             {getFormattedDate(item.orderCreatedAt)}
                           </td>
-                          <td className="px-3 py-3 text-sm text-gray-700 max-w-[150px] whitespace-pre-wrap break-words">
+                          <td className="px-3 py-3 text-sm text-gray-700 dark:text-gray-300 max-w-[150px] whitespace-pre-wrap break-words">
                             {item.buyerName}
                           </td>
-                          <td className="px-3 py-3 text-sm text-gray-700 max-w-[200px] whitespace-pre-wrap break-words">
+                          <td className="px-3 py-3 text-sm text-gray-700 dark:text-gray-300 max-w-[150px] whitespace-pre-wrap break-words">
+                            {item.product?.name || "N/A"}
+                          </td>
+                          <td className="px-3 py-3 text-sm text-gray-700 dark:text-gray-300 max-w-[200px] whitespace-pre-wrap break-words">
                             {item.shippingFullAddress}
                           </td>
-                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-center">
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-center">
                             {item.quantity} {item.satuan || ""}
                           </td>
-                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-right">
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">
                             Rp{" "}
                             {(
                               item.discountedPrice ||
@@ -837,7 +801,7 @@ const SalesReportModal = ({ onClose }) => {
                               0
                             ).toLocaleString("id-ID")}
                           </td>
-                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 font-medium text-right">
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-100 font-medium text-right">
                             Rp{" "}
                             {(
                               (item.quantity || 0) *
@@ -850,7 +814,7 @@ const SalesReportModal = ({ onClose }) => {
                   </table>
                 </div>
                 {totalItemsInFilteredRange > 5 && (
-                  <div className="p-3 text-center text-xs text-gray-500 bg-gray-50 border-t border-gray-200">
+                  <div className="p-3 text-center text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700">
                     Menampilkan 5 dari {totalItemsInFilteredRange} item. Unduh
                     laporan untuk data lengkap.
                   </div>
@@ -862,7 +826,7 @@ const SalesReportModal = ({ onClose }) => {
           endDate &&
           displayedItemsForPreview.length === 0 &&
           !loading && (
-            <p className="text-center text-gray-500 mt-6">
+            <p className="text-center text-gray-500 dark:text-gray-400 mt-6">
               Tidak ada data penjualan untuk periode yang dipilih.
             </p>
           )}

@@ -80,6 +80,11 @@ const TableHistory = () => {
             valueA = getValue(a, "user.name") || "Unknown";
             valueB = getValue(b, "user.name") || "Unknown";
             break;
+          // PERUBAHAN: Menambahkan case sorting untuk produk
+          case "products":
+            valueA = a.items?.[0]?.product?.name || ""; // Sort berdasarkan produk pertama
+            valueB = b.items?.[0]?.product?.name || "";
+            break;
           case "date":
             valueA = new Date(a.createdAt || 0);
             valueB = new Date(b.createdAt || 0);
@@ -119,7 +124,6 @@ const TableHistory = () => {
     setSortConfig({ key, direction });
   };
 
-  // Perubahan: Styling untuk ikon sort di dark mode
   const SortIcon = ({ columnKey }) => {
     if (sortConfig.key !== columnKey) {
       return <span className="ml-1 text-gray-300 dark:text-gray-600">↕</span>;
@@ -131,7 +135,6 @@ const TableHistory = () => {
     );
   };
 
-  // Perubahan: Menambahkan kelas dark mode untuk setiap status
   const getStatusColorClass = (status) => {
     if (!status) return "text-gray-500 dark:text-gray-400";
     const lowerStatus = status.toLowerCase();
@@ -146,7 +149,6 @@ const TableHistory = () => {
     return "text-gray-700 bg-gray-100 dark:text-gray-300 dark:bg-gray-700";
   };
 
-  // Perubahan: Menambahkan background dan warna teks untuk dark mode
   if (loading)
     return (
       <div className="p-6 text-center bg-gray-100 dark:bg-gray-900 min-h-screen text-black dark:text-white">
@@ -161,19 +163,21 @@ const TableHistory = () => {
     );
 
   return (
-    // Perubahan: Styling untuk kontainer utama
     <div className="p-4 sm:p-6 bg-white dark:bg-gray-800 shadow-md rounded-lg">
       <h2 className="text-xl font-semibold text-gray-700 dark:text-white mb-4">
         Riwayat Semua Transaksi
       </h2>
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-700">
-        <table className="w-full min-w-[800px] border-collapse text-left text-gray-700 dark:text-gray-300">
+        <table className="w-full min-w-[1000px] border-collapse text-left text-gray-700 dark:text-gray-300">
+          {" "}
+          {/* Menambah min-w */}
           <thead>
-            {/* Perubahan: Styling untuk header tabel */}
             <tr className="border-b-2 border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 text-xs sm:text-sm uppercase tracking-wider">
+              {/* PERUBAHAN: Menambahkan kolom 'Produk' di header */}
               {[
                 { label: "ID", key: "id" },
                 { label: "Customer", key: "customer" },
+                { label: "Produk", key: "products" }, // <-- Kolom baru
                 { label: "Tanggal", key: "date" },
                 { label: "Total", key: "total" },
                 { label: "Metode Bayar", key: "paymentMethod" },
@@ -194,8 +198,9 @@ const TableHistory = () => {
           <tbody>
             {sortedOrders.length === 0 ? (
               <tr>
+                {/* PERUBAHAN: Menyesuaikan colSpan menjadi 8 */}
                 <td
-                  colSpan="7"
+                  colSpan="8" // <-- Diubah dari 7 menjadi 8
                   className="p-4 text-center text-gray-500 dark:text-gray-400"
                 >
                   Tidak ada riwayat transaksi ditemukan.
@@ -213,6 +218,21 @@ const TableHistory = () => {
                   <td className="p-3 sm:p-4 font-medium text-black dark:text-white">
                     {order.user?.name || "Tidak diketahui"}
                   </td>
+
+                  {/* PERUBAHAN: Menambahkan cell untuk menampilkan produk */}
+                  <td className="p-3 sm:p-4 max-w-[250px] whitespace-normal">
+                    {order.items && order.items.length > 0
+                      ? order.items
+                          .map(
+                            (item) =>
+                              `${item.product?.name || "Produk Dihapus"} (x${
+                                item.quantity
+                              })`
+                          )
+                          .join(", ")
+                      : "Tidak ada produk"}
+                  </td>
+
                   <td className="p-3 sm:p-4 whitespace-nowrap">
                     {new Date(order.createdAt).toLocaleDateString("id-ID", {
                       day: "numeric",
