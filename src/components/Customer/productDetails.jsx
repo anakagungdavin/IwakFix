@@ -36,8 +36,14 @@ const ProductDetails = () => {
   return (
     <div className="p-6 pl-0 pr-4 max-w-5xl mx-auto">
       {/* Loading/Error State */}
-      {loading && <p className="text-center text-gray-900 dark:text-white">Memuat detail produk...</p>}
-      {error && <p className="text-center text-red-500 dark:text-red-400">{error}</p>}
+      {loading && (
+        <p className="text-center text-gray-900 dark:text-white">
+          Memuat detail produk...
+        </p>
+      )}
+      {error && (
+        <p className="text-center text-red-500 dark:text-red-400">{error}</p>
+      )}
 
       {/* Konten Produk */}
       {!loading && !error && product && (

@@ -239,7 +239,9 @@ const ProductRecommendations = () => {
 
       {/* Tampilan Error */}
       {!loading && error && (
-        <p className="text-center text-red-500 dark:text-red-400 py-10">{error}</p>
+        <p className="text-center text-red-500 dark:text-red-400 py-10">
+          {error}
+        </p>
       )}
 
       {/* Tampilan Rekomendasi Produk */}

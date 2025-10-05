@@ -272,7 +272,9 @@ const CheckoutPage = () => {
     <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
       <HeaderCust />
       <div className="max-w-6xl mx-auto px-6 py-10">
-        <h2 className="text-3xl font-bold text-yellow-500 dark:text-yellow-400 mb-6">Pembayaran</h2>
+        <h2 className="text-3xl font-bold text-yellow-500 dark:text-yellow-400 mb-6">
+          Pembayaran
+        </h2>
         {loading && (
           <div className="text-center py-4">
             <svg
@@ -312,7 +314,9 @@ const CheckoutPage = () => {
         {!loading && !successMessage && cartItems.length > 0 && (
           <>
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-white">Alamat Pengiriman</h3>
+              <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+                Alamat Pengiriman
+              </h3>
               {selectedAddress ? (
                 <>
                   <p className="text-gray-700 dark:text-gray-300 font-semibold">
@@ -343,7 +347,9 @@ const CheckoutPage = () => {
             </div>
 
             <div className="bg-white dark:bg-gray-800 p-4 mt-6 rounded-lg shadow-lg">
-              <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">Detail Pesanan</h3>
+              <h3 className="font-bold text-lg mb-4 text-gray-900 dark:text-white">
+                Detail Pesanan
+              </h3>
               {cartItems.map((item, index) => {
                 const { price, discount, satuan } = getPriceDetails(item);
                 const itemPrice = typeof price === "number" ? price : 0;
@@ -387,8 +393,12 @@ const CheckoutPage = () => {
                           </span>
                         )}
                       </p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">Jenis: {item.jenis || "N/A"}</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">Ukuran: {item.size || "N/A"}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        Jenis: {item.jenis || "N/A"}
+                      </p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        Ukuran: {item.size || "N/A"}
+                      </p>
                       <p className="text-sm text-gray-700 dark:text-gray-300">
                         Jumlah: {quantity.toLocaleString("id-ID")} {satuan}
                       </p>
@@ -407,7 +417,9 @@ const CheckoutPage = () => {
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mt-6">
               <div className="grid grid-cols-1">
                 <div>
-                  <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-white">Metode Pembayaran</h3>
+                  <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-white">
+                    Metode Pembayaran
+                  </h3>
                   <div className="p-3 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md">
                     <p className="font-semibold text-gray-800 dark:text-gray-200">
                       Bayar di Tempat (COD)
@@ -421,7 +433,9 @@ const CheckoutPage = () => {
               </div>
 
               <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 className="font-bold text-xl mb-3 text-gray-900 dark:text-white">Ringkasan Pesanan</h3>
+                <h3 className="font-bold text-xl mb-3 text-gray-900 dark:text-white">
+                  Ringkasan Pesanan
+                </h3>
                 <div className="space-y-2 text-sm">
                   <p className="flex justify-between text-gray-700 dark:text-gray-300">
                     <span>Subtotal ({cartItems.length} item)</span>

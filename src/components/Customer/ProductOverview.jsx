@@ -323,7 +323,11 @@ const ProductOverview = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-16">
-      {loading && <p className="text-center text-gray-900 dark:text-white">Memuat detail produk...</p>}
+      {loading && (
+        <p className="text-center text-gray-900 dark:text-white">
+          Memuat detail produk...
+        </p>
+      )}
       {error && (
         <p className="text-center text-red-500 dark:text-red-400 py-4 bg-red-100 dark:bg-red-900/30 rounded-lg">
           {error}
@@ -361,7 +365,9 @@ const ProductOverview = () => {
               </div>
             </div>
             <div className="w-1/2 pl-6">
-              <h2 className="text-2xl font-bold text-black dark:text-white">{product.name}</h2>
+              <h2 className="text-2xl font-bold text-black dark:text-white">
+                {product.name}
+              </h2>
               <div className="mt-4">
                 {selectedJenis && selectedSize ? (
                   <div className="flex items-center gap-2">
@@ -390,7 +396,9 @@ const ProductOverview = () => {
                 )}
               </div>
               <div className="mt-4">
-                <label className="block font-semibold text-gray-900 dark:text-white">Jenis</label>
+                <label className="block font-semibold text-gray-900 dark:text-white">
+                  Jenis
+                </label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {availableJenis.map((jenis) => (
                     <button
@@ -411,7 +419,9 @@ const ProductOverview = () => {
                 </div>
               </div>
               <div className="mt-4">
-                <label className="block font-semibold text-gray-900 dark:text-white">Ukuran</label>
+                <label className="block font-semibold text-gray-900 dark:text-white">
+                  Ukuran
+                </label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {availableSizes.map((size) => (
                     <button
@@ -432,7 +442,9 @@ const ProductOverview = () => {
                 </div>
               </div>
               <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg w-fit bg-white dark:bg-gray-800">
-                <span className="block font-semibold mb-2 text-gray-900 dark:text-white">Atur Jumlah</span>
+                <span className="block font-semibold mb-2 text-gray-900 dark:text-white">
+                  Atur Jumlah
+                </span>
                 <div className="flex items-center gap-4">
                   <button
                     className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"

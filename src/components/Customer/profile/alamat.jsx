@@ -141,7 +141,9 @@ const Alamat = ({ userData, onDataUpdate }) => {
             </div>
           ))
         ) : (
-          <p className="text-gray-900 dark:text-white">Tidak ada alamat yang tersedia.</p>
+          <p className="text-gray-900 dark:text-white">
+            Tidak ada alamat yang tersedia.
+          </p>
         )}
       </div>
       {isEditOpen && ( // Render modal hanya jika isEditOpen true

@@ -48,9 +48,14 @@ const ChangeAddress = ({ onClose, onSelectAddress }) => {
           <X size={24} />
         </button>
 
-        <h2 className="text-xl font-bold mb-4 text-center text-gray-900 dark:text-white">Pilih Alamat</h2>
+        <h2 className="text-xl font-bold mb-4 text-center text-gray-900 dark:text-white">
+          Pilih Alamat
+        </h2>
         {loading && (
-          <p key="loading" className="text-center text-gray-900 dark:text-white">
+          <p
+            key="loading"
+            className="text-center text-gray-900 dark:text-white"
+          >
             Memuat...
           </p>
         )}
@@ -68,8 +73,12 @@ const ChangeAddress = ({ onClose, onSelectAddress }) => {
                 className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg mb-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 bg-white dark:bg-gray-800"
                 onClick={() => onSelectAddress(address)}
               >
-                <p className="font-bold text-gray-900 dark:text-white">{address.recipientName}</p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{address.phoneNumber}</p>
+                <p className="font-bold text-gray-900 dark:text-white">
+                  {address.recipientName}
+                </p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  {address.phoneNumber}
+                </p>
                 <p className="text-sm text-gray-700 dark:text-gray-300">
                   {address.streetAddress}, {address.city}, {address.province},{" "}
                   {address.postalCode}
@@ -77,7 +86,10 @@ const ChangeAddress = ({ onClose, onSelectAddress }) => {
               </div>
             ))
           ) : (
-            <p key="no-address" className="text-gray-500 dark:text-gray-400 text-sm">
+            <p
+              key="no-address"
+              className="text-gray-500 dark:text-gray-400 text-sm"
+            >
               Tidak ada alamat tersedia.
             </p>
           )}

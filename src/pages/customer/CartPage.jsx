@@ -300,7 +300,11 @@ const CartPage = () => {
         <h2 className="text-3xl sm:text-4xl font-bold text-yellow-500 dark:text-yellow-400 mb-6">
           Keranjang
         </h2>
-        {loading && <p className="text-center text-gray-900 dark:text-white">Memuat keranjang...</p>}
+        {loading && (
+          <p className="text-center text-gray-900 dark:text-white">
+            Memuat keranjang...
+          </p>
+        )}
         {error && (
           <p className="text-center text-red-500 dark:text-red-400 py-4 bg-red-100 dark:bg-red-900/30 rounded-lg">
             {error}
@@ -413,7 +417,9 @@ const CartPage = () => {
                           >
                             -
                           </button>
-                          <span className="px-3 text-gray-900 dark:text-white">{item.quantity}</span>
+                          <span className="px-3 text-gray-900 dark:text-white">
+                            {item.quantity}
+                          </span>
                           <button
                             className="px-2 py-1 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
                             onClick={() => handleQuantityChange(index, 1)}
@@ -485,7 +491,9 @@ const CartPage = () => {
                 alt="Keranjang Kosong"
                 className="w-48 h-48 sm:w-64 sm:h-64 object-cover"
               />
-              <p className="text-lg font-bold mt-4 text-gray-900 dark:text-white">Keranjang kamu kosong!</p>
+              <p className="text-lg font-bold mt-4 text-gray-900 dark:text-white">
+                Keranjang kamu kosong!
+              </p>
               <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm sm:text-base">
                 Daripada dianggurin, isi saja dengan ikan - ikan menarik.
                 <br />

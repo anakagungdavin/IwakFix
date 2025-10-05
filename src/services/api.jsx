@@ -113,3 +113,17 @@ export const deleteProduct = async (id) => {
     throw error;
   }
 };
+
+export const getStockReportData = async (productId, startDate, endDate) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/products/${productId}/stock-report?startDate=${startDate}&endDate=${endDate}`,
+      {
+        headers: getHeaders(null),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
